@@ -19,7 +19,8 @@ Screenshots
 
 ![asdf](http://img.ourl.ca/crafti_worldgen.png)
 ![jklö](http://img.ourl.ca/crafti_ores.png)
-![qwertz](http://img.ourl.ca/crafti_deeper.png)
+![qwertz](http://img.ourl.ca/crafti_menu.png)
+![abcde](http://img.ourl.ca/crafti_menu2.png)
 
 Limitations
 -----------
