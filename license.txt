@@ -1,7 +1,5 @@
 Author: Fabian Vogt
-I'm not responsible for any damage done to your calculator, your friends or other epileptics.
-If your project is open source (everybody can get the source code) and will not be sold, do whatever you want except calling nGL and crafti yours.
-<insert other legal stuff here>
+License: GPLv3: http://www.gnu.org/licenses/gpl-3.0.en.html
 
 The terrain.png file has been downloaded from http://www.minecraftforum.net/topic/301268-16x146-and-146-sonicrumpets-mine-co-adventures-epicly-beautiful-textures/.
 The PerlinNoise class is from https://github.com/sol-prog/Perlin_Noise and licensed under the GPL v3.
