@@ -23,7 +23,7 @@ public:
     // Generate a new permutation vector based on the value of seed
     void setSeed(unsigned int seed);
     // Get a noise value, for 2D images z can have any value
-    float noise(GLFix x, GLFix y, GLFix z) const;
+    GLFix noise(GLFix x, GLFix y, GLFix z) const;
 private:
     GLFix fade(GLFix t) const;
     GLFix lerp(GLFix t, GLFix a, GLFix b) const;

@@ -539,9 +539,9 @@ void Chunk::generate()
     for(int x = 0; x < SIZE; x++)
         for(int z = 0; z < SIZE; z++)
         {
-            float noise_val = noise.noise((float(x)/Chunk::SIZE + this->x)/2, (float(z)/Chunk::SIZE + this->z)/2, 10);
-            constexpr int world_gen_min = 8, world_gen_max = World::HEIGHT * Chunk::SIZE * 0.7;
-            int height = world_gen_min + noise_val * (world_gen_max - world_gen_min);
+            GLFix noise_val = noise.noise((GLFix(x)/Chunk::SIZE + this->x)/2, (GLFix(z)/Chunk::SIZE + this->z)/2, 10);
+            int world_gen_min = 8, world_gen_max = World::HEIGHT * Chunk::SIZE * 0.7;
+            int height = world_gen_min + (noise_val * (world_gen_max - world_gen_min)).round();
             int height_left = height - this->y * Chunk::SIZE;
             int height_here = std::min(height_left, Chunk::SIZE);
 
@@ -552,13 +552,12 @@ void Chunk::generate()
                 //Deep underground
                 if(to_surface > 5)
                 {
-                    noise_val = noise.noise(float(x)/Chunk::SIZE + this->x, float(z)/Chunk::SIZE + this->z, 10.5f);
-                    if(noise_val < 0.4f)
+                    noise_val = noise.noise(GLFix(x)/Chunk::SIZE + this->x, GLFix(z)/Chunk::SIZE + this->z, 10.5f);
+                    if(noise_val < GLFix(0.4f))
                     {
-                        noise_val = noise.noise(float(x)/Chunk::SIZE + this->x, float(z)/Chunk::SIZE + this->z, 1000.5f);
+                        noise_val = noise.noise(GLFix(x)/Chunk::SIZE + this->x, GLFix(z)/Chunk::SIZE + this->z, 1000.5f);
 
-                        uint8_t test = 256 * noise_val;
-                        test &= 0xF;
+                        uint8_t test = noise_val.value & 0xF;
 
                         if(test < 2)
                             blocks[x][y][z] = BLOCK_DIAMOND_ORE;
@@ -577,7 +576,7 @@ void Chunk::generate()
                 else
                     blocks[x][y][z] = BLOCK_SAND;
             }
-            if(trees < max_trees && height_left >= 0 && height_left <= Chunk::SIZE && height > 5 && noise.noise(float(x)/Chunk::SIZE + this->x, float(z)/Chunk::SIZE + this->z, 25) < 0.3)
+            if(trees < max_trees && height_left >= 0 && height_left <= Chunk::SIZE && height > 5 && noise.noise(GLFix(x)/Chunk::SIZE + this->x, GLFix(z)/Chunk::SIZE + this->z, 25) < GLFix(0.3f))
             {
                 makeTree(x, height_here, z);
                 trees++;

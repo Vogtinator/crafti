@@ -55,7 +55,7 @@ void PerlinNoise::setSeed(unsigned int seed)
     p.insert(p.end(), p.begin(), p.end());
 }
 
-float PerlinNoise::noise(GLFix x, GLFix y, GLFix z) const {
+GLFix PerlinNoise::noise(GLFix x, GLFix y, GLFix z) const {
     // Find the unit cube that contains the point
     int X = x.floor() & 255;
     int Y = y.floor() & 255;

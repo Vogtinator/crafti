@@ -19,7 +19,7 @@ void init_fastmath()
     float rad = 0;
     while(deg.value < LUT_SIZE)
 	{
-        table_sin[deg.value].fromFloat(sin(rad));
+        table_sin[deg.value].fromFloat(sinf(rad));
         deg.value++;
         rad += incr;
 	}

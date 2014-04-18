@@ -27,7 +27,7 @@ void World::generateSeed()
 
 BLOCK World::getBlock(int x, int y, int z) const
 {
-    int chunk_x = floor(float(x) / Chunk::SIZE), chunk_y = floor(float(y) / Chunk::SIZE), chunk_z = floor(float(z) / Chunk::SIZE);
+    int chunk_x = (GLFix(x) / Chunk::SIZE).floor(), chunk_y = (GLFix(y) / Chunk::SIZE).floor(), chunk_z = (GLFix(z) / Chunk::SIZE).floor();
 
     Chunk *c = findChunk(chunk_x, chunk_y, chunk_z);
     if(!c)
@@ -80,7 +80,7 @@ void World::setChunkVisible(int x, int y, int z)
 
 void World::setPosition(int x, int y, int z)
 {
-    int chunk_x = round(float(x) / (Chunk::SIZE * BLOCK_SIZE)), chunk_y = round(float(y) / (Chunk::SIZE * BLOCK_SIZE)), chunk_z = round(float(z) / (Chunk::SIZE * BLOCK_SIZE));
+    int chunk_x = (GLFix(x) / (Chunk::SIZE * BLOCK_SIZE)).floor(), chunk_y = (GLFix(y) / (Chunk::SIZE * BLOCK_SIZE)).floor(), chunk_z = (GLFix(z) / (Chunk::SIZE * BLOCK_SIZE)).floor();
 
     chunk_y = std::max(0, std::min(chunk_y, World::HEIGHT - 1));
 

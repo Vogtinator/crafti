@@ -224,7 +224,7 @@ void nglDisplay()
 {
     uint32_t *real_screen = reinterpret_cast<uint32_t*>(SCREEN_BASE_ADDRESS);
     uint32_t *buffer = reinterpret_cast<uint32_t*>(screen);
-    for(unsigned int x = 0; x < SCREEN_WIDTH*SCREEN_HEIGHT/8; x++)
+    for(unsigned int x = SCREEN_WIDTH*SCREEN_HEIGHT/8; x--;)
     {
         *(real_screen++) = *(buffer++);
         *(real_screen++) = *(buffer++);
