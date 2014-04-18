@@ -1,0 +1,8 @@
+*.o
+*.tns
+*.gdb
+*.creator
+*.creator.user*
+*.files
+*.includes
+*.config
