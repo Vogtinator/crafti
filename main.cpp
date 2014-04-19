@@ -36,37 +36,6 @@ static void getRight(GLFix *x, GLFix *z)
     *z = fast_cos((yr + 90).normaliseAngle()) * incr;
 }
 
-static void drawTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
-{
-    for(int y = 0; y < h; y++)
-        for(int x = 0; x < w; x++)
-            dest.bitmap[dest_x + x + (dest_y + y)*dest.width] = src.bitmap[src_x + x + (src_y + y)*src.width];
-}
-
-static void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
-{
-    for(int y = 0; y < h; y++)
-        for(int x = 0; x < w; x++)
-        {
-            COLOR *old_c = dest.bitmap + (dest_x + x + (dest_y + y)*dest.width);
-            COLOR new_c = src.bitmap[src_x + x + (src_y + y)*src.width];
-
-            const unsigned int r_o = (*old_c >> 11) & 0b11111;
-            const unsigned int g_o = (*old_c >> 5) & 0b111111;
-            const unsigned int b_o = (*old_c >> 0) & 0b11111;
-
-            const unsigned int r_n = (new_c >> 11) & 0b11111;
-            const unsigned int g_n = (new_c >> 5) & 0b111111;
-            const unsigned int b_n = (new_c >> 0) & 0b11111;
-
-            unsigned int r = (r_n + r_o) >> 1;
-            unsigned int g = (g_n + g_o) >> 1;
-            unsigned int b = (b_n + b_o) >> 1;
-
-            *old_c = (r << 11) | (g << 5) | (b << 0);
-        }
-}
-
 static constexpr int savefile_version = 3;
 
 #define LOAD_FROM_FILE(var) if(fread(&var, sizeof(var), 1, savefile) != 1) return false;
@@ -206,6 +175,9 @@ int main(int argc, char *argv[])
 
     while(true)
     {
+        //Reset loading message
+        drawLoadingtext(-1);
+
         if(gamestate == WORLD)
         {
             AABB aabb(x - player_width/2, y, z - player_width/2, x + player_width/2, y + player_height, z + player_width/2);

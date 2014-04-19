@@ -1,6 +1,10 @@
 #include <cstdio>
+#include <libndls.h>
 
-#include "textureatlas.h"
+#include "texturetools.h"
+
+//Texture with "Loading" written on it
+#include "loadingtext.h"
 
 struct RGB24 {
     uint8_t r;
@@ -115,4 +119,64 @@ TextureAtlasEntry textureArea(const int x, const int y, const int w, const int h
         .top = y+1,
         .bottom = y+h-1,
     };
+}
+
+void drawTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
+{
+    for(int y = 0; y < h; y++)
+        for(int x = 0; x < w; x++)
+            dest.bitmap[dest_x + x + (dest_y + y)*dest.width] = src.bitmap[src_x + x + (src_y + y)*src.width];
+}
+
+void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
+{
+    for(int y = 0; y < h; y++)
+        for(int x = 0; x < w; x++)
+        {
+            COLOR *old_c = dest.bitmap + (dest_x + x + (dest_y + y)*dest.width);
+            COLOR new_c = src.bitmap[src_x + x + (src_y + y)*src.width];
+
+            const unsigned int r_o = (*old_c >> 11) & 0b11111;
+            const unsigned int g_o = (*old_c >> 5) & 0b111111;
+            const unsigned int b_o = (*old_c >> 0) & 0b11111;
+
+            const unsigned int r_n = (new_c >> 11) & 0b11111;
+            const unsigned int g_n = (new_c >> 5) & 0b111111;
+            const unsigned int b_n = (new_c >> 0) & 0b11111;
+
+            unsigned int r = (r_n + r_o) >> 1;
+            unsigned int g = (g_n + g_o) >> 1;
+            unsigned int b = (b_n + b_o) >> 1;
+
+            *old_c = (r << 11) | (g << 5) | (b << 0);
+        }
+}
+
+
+void drawLoadingtext(int i)
+{
+    static int count = 0;
+    static bool shown = false;
+
+    if(i == -1)
+    {
+        count = 0;
+        shown = false;
+        return;
+    }
+
+    if(shown == true)
+        return;
+
+    count += 1;
+    if(count < i)
+        return;
+
+    shown = true;
+
+    TEXTURE screen;
+    screen.width = SCREEN_WIDTH;
+    screen.height = SCREEN_HEIGHT;
+    screen.bitmap = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
+    drawTransparentTexture(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
 }

@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "textureatlas.h"
+#include "texturetools.h"
 
 #define BLOCK_SIZE 120
 

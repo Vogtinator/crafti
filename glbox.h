@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "gldrawable.h"
-#include "textureatlas.h"
+#include "texturetools.h"
 
 class GLBox : public GLDrawable
 {

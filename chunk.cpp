@@ -49,6 +49,8 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
 
 void Chunk::buildGeometry()
 {
+    drawLoadingtext(3);
+
     __builtin_memset(pos_indices, -1, sizeof(pos_indices));
 
     positions.clear();

@@ -1,8 +1,8 @@
-#include "world.h"
-
-#include "chunk.h"
-
 #include <random>
+#include <libndls.h>
+
+#include "world.h"
+#include "chunk.h"
 
 World::World()
 {
@@ -163,6 +163,8 @@ void World::clear()
 
 bool World::loadFromFile(FILE *file)
 {
+    drawLoadingtext(1);
+
     LOAD_FROM_FILE(*seed)
     perlin_noise.setSeed(*seed);
 
@@ -194,6 +196,8 @@ bool World::loadFromFile(FILE *file)
 
 bool World::saveToFile(FILE *file) const
 {
+    drawLoadingtext(1);
+
     SAVE_TO_FILE(*seed)
 
     unsigned int block_changes = pending_block_changes.size();
@@ -232,6 +236,8 @@ Chunk* World::findChunk(int x, int y, int z) const
 
 Chunk* World::generateChunk(int x, int y, int z)
 {
+    drawLoadingtext(2);
+
     if(Chunk *c = findChunk(x - 1, y, z))
         c->setDirty();
     if(Chunk *c = findChunk(x + 1, y, z))
