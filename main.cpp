@@ -7,6 +7,7 @@
 #include "world.h"
 
 //Image resources
+#include "loading.h"
 #include "terrain.h"
 #include "menu.h"
 #include "selection.h"
@@ -129,6 +130,13 @@ int main(int argc, char *argv[])
         show_msgbox("Error", "Your LCD hasn't got enough colors :-P");
         return 1;
     }
+
+    //Sometimes there's a clock on screen, switch that off
+    __asm__ volatile("mrs r0, cpsr;"
+                    "orr r0, r0, #0x80;"
+                    "msr cpsr_c, r0;" ::: "r0");
+
+    memcpy(reinterpret_cast<void*>(SCREEN_BASE_ADDRESS), loading.bitmap, SCREEN_BYTES_SIZE);
 
     nglInit();
 

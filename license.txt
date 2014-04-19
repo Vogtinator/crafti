@@ -2,4 +2,5 @@ Author: Fabian Vogt
 License: GPLv3: http://www.gnu.org/licenses/gpl-3.0.en.html
 
 The terrain.png file has been downloaded from http://www.minecraftforum.net/topic/301268-16x146-and-146-sonicrumpets-mine-co-adventures-epicly-beautiful-textures/.
+The loading screen wallpaper is from http://wall.alphacoders.com/big.php?i=413114 and has been created by "miroha"
 The PerlinNoise class is from https://github.com/sol-prog/Perlin_Noise and licensed under the GPL v3.
