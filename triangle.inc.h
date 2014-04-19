@@ -5,7 +5,7 @@ static void nglDrawTransparentTriangleXZClipped(const VERTEX *low, const VERTEX 
 #else
 static void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
 {
-    if(__builtin_expect(low->c, 0xFFFF))
+    if(__builtin_expect(low->c == 0xFFFF, 0))
         return nglDrawTransparentTriangleXZClipped(low, middle, high);
 #endif
     if(middle->y > high->y)
