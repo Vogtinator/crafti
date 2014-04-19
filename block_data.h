@@ -8,6 +8,7 @@
 #define BLOCK_SIZE 120
 
 typedef uint8_t BLOCK;
+typedef uint16_t BLOCK_WDATA;
 
 #define BLOCK_AIR 0
 #define BLOCK_STONE 1
@@ -30,7 +31,17 @@ typedef uint8_t BLOCK;
 #define BLOCK_CRAFTING_TABLE 18
 #define BLOCK_BOOKSHELF 19
 #define BLOCK_GRASS 20
-#define BLOCK_MAX 21
+#define BLOCK_NORMAL_MAX 21
+
+//Special blocks begin here
+#define BLOCK_SPECIAL_START 127
+#define BLOCK_TORCH 127
+
+constexpr BLOCK getBLOCK(BLOCK_WDATA bd) { return bd & 0xFF; }
+constexpr uint8_t getBLOCKDATA(BLOCK_WDATA bd) { return bd >> 8 & 0xFF; }
+constexpr BLOCK_WDATA getBLOCKWDATA(BLOCK b, uint8_t data) { return data << 8 | b; }
+constexpr bool isSpecialBlock(BLOCK b) { return b >= BLOCK_SPECIAL_START; }
+constexpr bool isBlockTransparent(BLOCK b) { return b == BLOCK_AIR || isSpecialBlock(b); }
 
 enum BLOCK_SIDE {
     BLOCK_FRONT,
@@ -43,8 +54,8 @@ enum BLOCK_SIDE {
 #define BLOCK_SIDE_MAX 6
 
 extern const char *block_names[];
-extern COLOR block_colors[BLOCK_MAX][BLOCK_SIDE_MAX];
-extern TextureAtlasEntry block_textures[BLOCK_MAX][BLOCK_SIDE_MAX];
+extern COLOR block_colors[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
+extern TextureAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
 
 void init_blockData(TEXTURE *texture);
 

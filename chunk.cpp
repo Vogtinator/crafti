@@ -42,6 +42,11 @@ void Chunk::addVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFi
     vertices.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
 }
 
+void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z)
+{
+
+}
+
 void Chunk::buildGeometry()
 {
     __builtin_memset(pos_indices, -1, sizeof(pos_indices));
@@ -62,8 +67,8 @@ void Chunk::buildGeometry()
         for(int y = y_start; y <= SIZE; y++)
             for(int z = -1; z <= SIZE; z++)
             {
-                //If not air, sides of adjacent blocks aren't visible
-                if(getGlobalBlockRelative(x, y, z) != BLOCK_AIR)
+                //If not transparent, sides of adjacent blocks aren't visible
+                if(!isBlockTransparent(getGlobalBlockRelative(x, y, z)))
                     continue;
 
                 if(IN_BOUNDS(x - 1, y, z) && blocks[x - 1][y][z] != BLOCK_AIR)
@@ -98,8 +103,8 @@ void Chunk::buildGeometry()
             GLFix pos_z = -1;
             for(int z = -1; z <= SIZE; z++, pos_z += 1)
             {
-                //If not air, sides of adjacent blocks aren't visible
-                if(getGlobalBlockRelative(x, y, z) != BLOCK_AIR)
+                //If not transparent, sides of adjacent blocks aren't visible
+                if(!isBlockTransparent(getGlobalBlockRelative(x, y, z)))
                     continue;
 
                 GLFix light_level = 1;
@@ -107,120 +112,127 @@ void Chunk::buildGeometry()
                 if((x + z) % 2 == 0)
                     light_level *= 0.8f;
 
-                if(IN_BOUNDS(x - 1, y, z) && blocks[x - 1][y][z] != BLOCK_AIR)
+                BLOCK_WDATA block;
+
+                if(IN_BOUNDS(x - 1, y, z) && (block = blocks[x - 1][y][z]) != BLOCK_AIR)
                 {
-                    GLFix myposX = pos_x - 1;
-                    GLFix myposY = pos_y;
-                    GLFix myposZ = pos_z;
+                    if(__builtin_expect(isSpecialBlock(block), 0))
+                        geometrySpecialBlock(block, x - 1, y, z);
+                    else
+                    {
+                        GLFix myposX = pos_x - 1;
+                        GLFix myposY = pos_y;
+                        GLFix myposZ = pos_z;
 
-                    #ifndef TEXTURE_SUPPORT
-                        COLOR c = block_colors[blocks[x - 1][y][z]][BLOCK_RIGHT];
-                        c = c * light_level;
-                    #else
-                        COLOR c = 0;
-                    #endif
+                        #ifndef TEXTURE_SUPPORT
+                            COLOR c = block_colors[block][BLOCK_RIGHT];
+                            c = c * light_level;
+                        #else
+                            COLOR c = 0;
+                        #endif
 
-                    TextureAtlasEntry &ri = block_textures[blocks[x - 1][y][z]][BLOCK_RIGHT];
-                    addVertex(myposX + 1, myposY, myposZ, ri.right, ri.bottom, c);
-                    addVertex(myposX + 1, myposY + 1, myposZ, ri.right, ri.top, c);
-                    addVertex(myposX + 1, myposY + 1, myposZ + 1, ri.left, ri.top, c);
-                    addVertex(myposX + 1, myposY, myposZ + 1, ri.left, ri.bottom, c);
+                        TextureAtlasEntry &ri = block_textures[block][BLOCK_RIGHT];
+                        addVertex(myposX + 1, myposY, myposZ, ri.right, ri.bottom, c);
+                        addVertex(myposX + 1, myposY + 1, myposZ, ri.right, ri.top, c);
+                        addVertex(myposX + 1, myposY + 1, myposZ + 1, ri.left, ri.top, c);
+                        addVertex(myposX + 1, myposY, myposZ + 1, ri.left, ri.bottom, c);
+                    }
                 }
 
-                if(IN_BOUNDS(x + 1, y, z) && blocks[x + 1][y][z] != BLOCK_AIR)
+                if(IN_BOUNDS(x + 1, y, z) && (block = blocks[x + 1][y][z]) != BLOCK_AIR)
                 {
                     GLFix myposX = pos_x + 1;
                     GLFix myposY = pos_y;
                     GLFix myposZ = pos_z;
 
                     #ifndef TEXTURE_SUPPORT
-                        COLOR c = block_colors[blocks[x + 1][y][z]][BLOCK_LEFT];
+                        COLOR c = block_colors[block][BLOCK_LEFT];
                         c = c * light_level;
                     #else
                         COLOR c = 0;
                     #endif
 
-                    TextureAtlasEntry &le = block_textures[blocks[x + 1][y][z]][BLOCK_LEFT];
+                    TextureAtlasEntry &le = block_textures[block][BLOCK_LEFT];
                     addVertex(myposX, myposY, myposZ + 1, le.left, le.bottom, c);
                     addVertex(myposX, myposY + 1, myposZ + 1, le.left, le.top, c);
                     addVertex(myposX, myposY + 1, myposZ, le.right, le.top, c);
                     addVertex(myposX, myposY, myposZ, le.right, le.bottom, c);
                 }
 
-                if(IN_BOUNDS(x, y - 1, z) && blocks[x][y - 1][z] != BLOCK_AIR)
+                if(IN_BOUNDS(x, y - 1, z) && (block = blocks[x][y - 1][z]) != BLOCK_AIR)
                 {
                     GLFix myposX = pos_x;
                     GLFix myposY = pos_y - 1;
                     GLFix myposZ = pos_z;
 
                     #ifndef TEXTURE_SUPPORT
-                        COLOR c = block_colors[blocks[x][y - 1][z]][BLOCK_TOP];
+                        COLOR c = block_colors[block][BLOCK_TOP];
                         c = c * light_level;
                     #else
                         COLOR c = 0;
                     #endif
 
-                    TextureAtlasEntry &to = block_textures[blocks[x][y - 1][z]][BLOCK_TOP];
+                    TextureAtlasEntry &to = block_textures[block][BLOCK_TOP];
                     addVertex(myposX, myposY + 1, myposZ, to.left, to.bottom, c);
                     addVertex(myposX, myposY + 1, myposZ + 1, to.left, to.top, c);
                     addVertex(myposX + 1, myposY + 1, myposZ + 1, to.right, to.top, c);
                     addVertex(myposX + 1, myposY + 1, myposZ, to.right, to.bottom, c);
                 }
 
-                if(IN_BOUNDS(x, y + 1, z) && blocks[x][y + 1][z] != BLOCK_AIR)
+                if(IN_BOUNDS(x, y + 1, z) && (block = blocks[x][y + 1][z]) != BLOCK_AIR)
                 {
                     GLFix myposX = pos_x;
                     GLFix myposY = pos_y + 1;
                     GLFix myposZ = pos_z;
 
                     #ifndef TEXTURE_SUPPORT
-                        COLOR c = block_colors[blocks[x][y + 1][z]][BLOCK_BOTTOM];
+                        COLOR c = block_colors[block][BLOCK_BOTTOM];
                         c = c * light_level;
                     #else
                         COLOR c = 0;
                     #endif
 
-                    TextureAtlasEntry &bo = block_textures[blocks[x][y + 1][z]][BLOCK_BOTTOM];
+                    TextureAtlasEntry &bo = block_textures[block][BLOCK_BOTTOM];
                     addVertex(myposX + 1, myposY, myposZ, bo.left, bo.bottom, c);
                     addVertex(myposX + 1, myposY, myposZ + 1, bo.left, bo.top, c);
                     addVertex(myposX, myposY, myposZ + 1, bo.right, bo.top, c);
                     addVertex(myposX, myposY, myposZ, bo.right, bo.bottom, c);
                 }
 
-                if(IN_BOUNDS(x, y, z - 1) && blocks[x][y][z - 1] != BLOCK_AIR)
+                if(IN_BOUNDS(x, y, z - 1) && (block = blocks[x][y][z - 1]) != BLOCK_AIR)
                 {
                     GLFix myposX = pos_x;
                     GLFix myposY = pos_y;
                     GLFix myposZ = pos_z - 1;
 
                     #ifndef TEXTURE_SUPPORT
-                        COLOR c = block_colors[blocks[x][y][z - 1]][BLOCK_BACK];
+                        COLOR c = block_colors[block][BLOCK_BACK];
                         c = c * light_level;
                     #else
                         COLOR c = 0;
                     #endif
 
-                    TextureAtlasEntry &ba = block_textures[blocks[x][y][z - 1]][BLOCK_BACK];
+                    TextureAtlasEntry &ba = block_textures[block][BLOCK_BACK];
                     addVertex(myposX + 1, myposY, myposZ + 1, ba.left, ba.bottom, c);
                     addVertex(myposX + 1, myposY + 1, myposZ + 1, ba.left, ba.top, c);
                     addVertex(myposX, myposY + 1, myposZ + 1, ba.right, ba.top, c);
                     addVertex(myposX, myposY, myposZ + 1, ba.right, ba.bottom, c);
                 }
 
-                if(IN_BOUNDS(x, y, z + 1) && blocks[x][y][z + 1] != BLOCK_AIR)
+                if(IN_BOUNDS(x, y, z + 1) && (block = blocks[x][y][z + 1]) != BLOCK_AIR)
                 {
                     GLFix myposX = pos_x;
                     GLFix myposY = pos_y;
                     GLFix myposZ = pos_z + 1;
 
                     #ifndef TEXTURE_SUPPORT
-                        COLOR c = block_colors[blocks[x][y][z + 1]][BLOCK_FRONT];
+                        COLOR c = block_colors[block][BLOCK_FRONT];
                         c = c * light_level;
                     #else
                         COLOR c = 0;
                     #endif
 
-                    TextureAtlasEntry &fr = block_textures[blocks[x][y][z + 1]][BLOCK_FRONT];
+                    TextureAtlasEntry &fr = block_textures[block][BLOCK_FRONT];
                     addVertex(myposX, myposY, myposZ, fr.left, fr.bottom, c);
                     addVertex(myposX, myposY + 1, myposZ, fr.left, fr.top, c);
                     addVertex(myposX + 1, myposY + 1, myposZ, fr.right, fr.top, c);
@@ -366,20 +378,26 @@ bool Chunk::drawTriangle(IndexedVertex &low, IndexedVertex &middle, IndexedVerte
 #endif
 }
 
+static bool behindClip(const VERTEX &v1)
+{
+    return transformation->data[2][0]*v1.x + transformation->data[2][1]*v1.y + transformation->data[2][2]*v1.z + transformation->data[2][3] <= GLFix(CLIP_PLANE);
+}
+
 void Chunk::render()
 {
     if(__builtin_expect(render_dirty, 0))
         buildGeometry();
 
     //Test whether Chunk completely behind CLIP_PLANE
-    VERTEX v1 { abs_x, abs_y, abs_z, 0, 0, 0 }, v2 { abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0 }, v3;
-    nglMultMatVectRes(transformation, &v1, &v3);
-    if(v3.z <= GLFix(CLIP_PLANE))
-    {
-        nglMultMatVectRes(transformation, &v2, &v3);
-        if(v3.z <= GLFix(CLIP_PLANE))
-            return;
-    }
+    if(        behindClip({abs_x,                            abs_y,                            abs_z, 0, 0, 0})
+            && behindClip({abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z, 0, 0, 0})
+            && behindClip({abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z, 0, 0, 0})
+            && behindClip({abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z, 0, 0, 0})
+            && behindClip({abs_x,                            abs_y,                            abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0})
+            && behindClip({abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0})
+            && behindClip({abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0})
+            && behindClip({abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0}))
+        return;
 
     std::fill(positions_perspective.begin(), positions_perspective.end(), std::make_pair<Position, bool>({0, 0, 0}, false));
 
@@ -399,18 +417,18 @@ void Chunk::render()
     }
 }
 
-BLOCK Chunk::getLocalBlock(int x, int y, int z)
+BLOCK_WDATA Chunk::getLocalBlock(int x, int y, int z)
 {
     return blocks[x][y][z];
 }
 
-void Chunk::setLocalBlock(int x, int y, int z, BLOCK block)
+void Chunk::setLocalBlock(int x, int y, int z, BLOCK_WDATA block)
 {
     blocks[x][y][z] = block;
     setDirty();
 }
 
-BLOCK Chunk::getGlobalBlockRelative(int x, int y, int z)
+BLOCK_WDATA Chunk::getGlobalBlockRelative(int x, int y, int z)
 {
     if(IN_BOUNDS(x, y, z))
         return getLocalBlock(x, y, z);
@@ -588,7 +606,7 @@ void Chunk::generate()
 
 bool Chunk::saveToFile(FILE *file)
 {
-    if(fwrite(blocks, sizeof(BLOCK), SIZE*SIZE*SIZE, file) == SIZE*SIZE*SIZE)
+    if(fwrite(blocks, sizeof(***blocks), SIZE*SIZE*SIZE, file) == SIZE*SIZE*SIZE)
     {
         debug("Saved chunk %d:%d:%d successfully.\n", x, y, z);
         return true;
@@ -602,7 +620,7 @@ bool Chunk::saveToFile(FILE *file)
 
 bool Chunk::loadFromFile(FILE *file)
 {
-    if(fread(blocks, sizeof(BLOCK), SIZE*SIZE*SIZE, file) == SIZE*SIZE*SIZE)
+    if(fread(blocks, sizeof(***blocks), SIZE*SIZE*SIZE, file) == SIZE*SIZE*SIZE)
     {
         debug("Loaded chunk %d:%d:%d successfully.\n", x, y, z);
         return true;

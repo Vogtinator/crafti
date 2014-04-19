@@ -1,8 +1,9 @@
 GCC = nspire-gcc
 GPP = nspire-g++
 LD = nspire-ld
-GCCFLAGS = -O3 -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fno-tree-vectorize -fomit-frame-pointer -flto
-LDFLAGS = -lm -flto -Wl,-flto,-O3 -O3
+OPTIMIZE ?= 3
+GCCFLAGS = -O$(OPTIMIZE) -g -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fno-tree-vectorize -fomit-frame-pointer -flto
+LDFLAGS = -lm -flto -Wl,-flto,-O$(OPTIMIZE) -O$(OPTIMIZE) -g
 EXE = crafti.tns
 OBJS = $(patsubst %.c, %.o, $(shell find . -name \*.c))
 OBJS += $(patsubst %.cpp, %.o, $(shell find . -name \*.cpp))

@@ -26,8 +26,8 @@ public:
     Chunk(int x, int y, int z, World *parent);
     void render();
     void setDirty() { render_dirty = true; }
-    BLOCK getLocalBlock(int x, int y, int z);
-    void setLocalBlock(int x, int y, int z, BLOCK block);
+    BLOCK_WDATA getLocalBlock(int x, int y, int z);
+    void setLocalBlock(int x, int y, int z, BLOCK_WDATA block);
     AABB &getAABB() { return aabb; }
     bool intersects(AABB &other);
     bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side);
@@ -44,12 +44,13 @@ private:
     void makeTree(unsigned int x, unsigned int y, unsigned int z);
 
     //Data
-    BLOCK getGlobalBlockRelative(int x, int y, int z);
+    BLOCK_WDATA getGlobalBlockRelative(int x, int y, int z);
     void setGlobalBlockRelative(int x, int y, int z, BLOCK block);
     int getPosition(GLFix x, GLFix y, GLFix z);
 
     //Rendering
     void addVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFix v, const COLOR c);
+    void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z);
     void buildGeometry();
     VERTEX perspective(IndexedVertex &v, Position &transformed);
     bool drawTriangle(IndexedVertex &low, IndexedVertex &middle, IndexedVertex &high, bool backface_culling = true);
@@ -58,7 +59,7 @@ private:
     const GLFix abs_x, abs_y, abs_z;
     World * const parent;
     AABB aabb;
-    BLOCK blocks[SIZE][SIZE][SIZE];
+    BLOCK_WDATA blocks[SIZE][SIZE][SIZE];
 
     //Rendering
     bool render_dirty = true;

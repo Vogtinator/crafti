@@ -3,6 +3,8 @@
 
 #include "gl.h"
 
+bool loadTextureFromFile(const char* filename, TEXTURE *texture);
+
 struct TextureAtlasEntry
 {
     GLFix left, right; //U

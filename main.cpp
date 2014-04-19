@@ -67,7 +67,7 @@ static void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &
         }
 }
 
-static constexpr int savefile_version = 2;
+static constexpr int savefile_version = 3;
 
 #define LOAD_FROM_FILE(var) if(fread(&var, sizeof(var), 1, savefile) != 1) return false;
 #define SAVE_TO_FILE(var) if(fwrite(&var, sizeof(var), 1, savefile) != 1) return false;
@@ -138,6 +138,11 @@ int main(int argc, char *argv[])
 
     memcpy(reinterpret_cast<void*>(SCREEN_BASE_ADDRESS), loading.bitmap, SCREEN_BYTES_SIZE);
 
+    TEXTURE pack;
+    pack.bitmap = nullptr;
+    if(loadTextureFromFile("/documents/ndless/crafti.ppm.tns", &pack))
+        puts("External texture loaded.");
+
     nglInit();
 
     TEXTURE screen;
@@ -147,8 +152,16 @@ int main(int argc, char *argv[])
 
     nglSetBuffer(screen.bitmap);
 
-    init_blockData(&terrain);
-    glBindTexture(&terrain);
+    if(pack.bitmap != nullptr)
+    {
+        init_blockData(&pack);
+        glBindTexture(&pack);
+    }
+    else
+    {
+        init_blockData(&terrain);
+        glBindTexture(&terrain);
+    }
 
     glLoadIdentity();
 
@@ -159,11 +172,11 @@ int main(int argc, char *argv[])
 
     FILE *savefile = fopen(savefile_name, "rb");
     if(!savefile)
-        printf("No previous save found.\n");
+        puts("No previous save found.");
     else if(loadFile(savefile))
-        printf("Loaded world.\n");
+        puts("Loaded world.");
     else
-        printf("Failed to load world!\n");
+        puts("Failed to load world!");
 
     fclose(savefile);
     savefile = nullptr;
@@ -416,14 +429,14 @@ int main(int argc, char *argv[])
             {
                 --current_block;
                 if(current_block < 0)
-                    current_block = BLOCK_MAX - 1;
+                    current_block = BLOCK_NORMAL_MAX - 1;
 
                 key_held_down = true;
             }
             else if(keyPressed(KEY_NSPIRE_3))
             {
                 ++current_block;
-                if(current_block == BLOCK_MAX)
+                if(current_block == BLOCK_NORMAL_MAX)
                     current_block = 1;
 
                 key_held_down = true;
@@ -610,7 +623,7 @@ int main(int argc, char *argv[])
                     drawTexture(terrain, tae.left - 1, tae.top - 1, screen, screen_x, screen_y, 16, 16);
 
                     block++;
-                    if(block == BLOCK_MAX)
+                    if(block == BLOCK_NORMAL_MAX)
                         goto end;
                 }
             }
@@ -631,7 +644,7 @@ int main(int argc, char *argv[])
             else if(keyPressed(KEY_NSPIRE_2))
             {
                 current_block += 8;
-                if((current_block-1) >= BLOCK_MAX)
+                if((current_block-1) >= BLOCK_NORMAL_MAX)
                     current_block -= 8;
 
                 key_held_down = true;
@@ -652,7 +665,7 @@ int main(int argc, char *argv[])
             }
             else if(keyPressed(KEY_NSPIRE_6))
             {
-                if((current_block-1) % 8 != 7 && current_block < BLOCK_MAX - 1)
+                if((current_block-1) % 8 != 7 && current_block < BLOCK_NORMAL_MAX - 1)
                     current_block++;
 
                 key_held_down = true;
@@ -679,6 +692,9 @@ int main(int argc, char *argv[])
     delete[] black.bitmap;
     delete[] menu_with_selection.bitmap;
     delete[] screen.bitmap;
+
+    if(pack.bitmap != nullptr)
+        delete[] pack.bitmap;
 
     return 0;
 }

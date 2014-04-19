@@ -25,7 +25,7 @@ void World::generateSeed()
     perlin_noise.setSeed(*seed);
 }
 
-BLOCK World::getBlock(int x, int y, int z) const
+BLOCK_WDATA World::getBlock(int x, int y, int z) const
 {
     int chunk_x = (GLFix(x) / Chunk::SIZE).floor(), chunk_y = (GLFix(y) / Chunk::SIZE).floor(), chunk_z = (GLFix(z) / Chunk::SIZE).floor();
 
@@ -42,7 +42,7 @@ BLOCK World::getBlock(int x, int y, int z) const
     return c->getLocalBlock(x - chunk_x*Chunk::SIZE, y - chunk_y * Chunk::SIZE, z - chunk_z * Chunk::SIZE);
 }
 
-void World::setBlock(int x, int y, int z, BLOCK block)
+void World::setBlock(int x, int y, int z, BLOCK_WDATA block)
 {
     int chunk_x = floor(float(x) / Chunk::SIZE), chunk_y = floor(float(y) / Chunk::SIZE), chunk_z = floor(float(z) / Chunk::SIZE);
     int local_x = x - chunk_x * Chunk::SIZE, local_y = y - chunk_y * Chunk::SIZE, local_z = z - chunk_z * Chunk::SIZE;

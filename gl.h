@@ -1,7 +1,7 @@
 #ifndef GL_H
 #define GL_H
 
-//nGL version 0.5.5
+//nGL version 0.5.6
 #include "fix.h"
 
 //Either colors or textures, but not both
@@ -49,6 +49,8 @@ typedef Fix<8, int_fast32_t> GLFix;
  * [ [2][0] [2][1] [2][2] [2][3] ]   [z]
  * [ [3][0] [3][1] [3][2] [3][3] ]   [1] (not used anywhere)
  */
+
+/* If TEXTURE_SUPPORT is enabled and a VERTEX has 0xFFFF as COLOR black pixels of the texture won't be drawn */
 
 typedef uint16_t COLOR;
 typedef struct VERTEX { GLFix x; GLFix y; GLFix z; GLFix u; GLFix v; COLOR c; } VERTEX;

@@ -10,7 +10,7 @@
 
 struct BLOCK_CHANGE {
     int chunk_x, chunk_y, chunk_z, local_x, local_y, local_z;
-    BLOCK block;
+    BLOCK_WDATA block;
 };
 
 class World
@@ -19,8 +19,8 @@ public:
     World();
     ~World();
     void generateSeed();
-    BLOCK getBlock(int x, int y, int z) const;
-    void setBlock(int x, int y, int z, BLOCK block);
+    BLOCK_WDATA getBlock(int x, int y, int z) const;
+    void setBlock(int x, int y, int z, BLOCK_WDATA block);
     void setPosition(int x, int y, int z);
     bool intersect(AABB &other) const;
     bool intersectRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side) const;

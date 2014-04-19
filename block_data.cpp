@@ -2,7 +2,7 @@
 
 #include "aabb.h"
 
-const char *block_names[BLOCK_MAX] =
+const char *block_names[BLOCK_NORMAL_MAX] =
 {
     "Air",
     "Stone",
@@ -27,7 +27,7 @@ const char *block_names[BLOCK_MAX] =
     "Grass"
 };
 
-COLOR block_colors[BLOCK_MAX][BLOCK_SIDE_MAX];
+COLOR block_colors[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
 
 #define BT_FRONT 1
 #define BT_BACK 2
@@ -75,7 +75,7 @@ BLOCK_TEXTURE texture_atlas[][16] =
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON }
 };
 
-TextureAtlasEntry block_textures[BLOCK_MAX][BLOCK_SIDE_MAX];
+TextureAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
 
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
 static void make_green(TEXTURE *texture, int x, int y, int w, int h)
