@@ -128,7 +128,7 @@ void drawTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, 
             dest.bitmap[dest_x + x + (dest_y + y)*dest.width] = src.bitmap[src_x + x + (src_y + y)*src.width];
 }
 
-void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
+void drawTextureOverlay(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
 {
     for(int y = 0; y < h; y++)
         for(int x = 0; x < w; x++)
@@ -152,6 +152,16 @@ void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, i
         }
 }
 
+void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
+{
+    for(int y = 0; y < h; y++)
+        for(int x = 0; x < w; x++)
+        {
+            COLOR c = src.bitmap[src_x + x + (src_y + y)*src.width];
+            if(c != 0x0000)
+                dest.bitmap[dest_x + x + (dest_y + y)*dest.width] = c;
+        }
+}
 
 void drawLoadingtext(int i)
 {
@@ -178,5 +188,5 @@ void drawLoadingtext(int i)
     screen.width = SCREEN_WIDTH;
     screen.height = SCREEN_HEIGHT;
     screen.bitmap = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
-    drawTransparentTexture(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
+    drawTextureOverlay(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
 }

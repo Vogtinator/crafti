@@ -5,6 +5,7 @@
 #include "gl.h"
 #include "fastmath.h"
 #include "world.h"
+#include "block_data.h"
 
 //Image resources
 #include "loading.h"
@@ -12,17 +13,77 @@
 #include "menu.h"
 #include "selection.h"
 
+static GLFix xr = 0, yr = 0;
+static GLFix x = 0, y = BLOCK_SIZE * Chunk::SIZE * World::HEIGHT + BLOCK_SIZE, z = 0;
+static constexpr GLFix incr = 20;
+static World world;
+static int current_block_selection;
+static TEXTURE current_terrain;
+
 //isKeyPressed checks the hardware-type, but that's slow
 static inline bool keyPressed(const t_key &key)
 {
     return *reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col;
 }
 
-static GLFix xr = 0, yr = 0;
-static GLFix x = 0, y = BLOCK_SIZE * Chunk::SIZE * World::HEIGHT + BLOCK_SIZE, z = 0;
-static constexpr GLFix incr = 20;
-static World world;
-static int current_block = BLOCK_STONE;
+static BLOCK_WDATA user_selectable[] = {
+    BLOCK_AIR,
+    BLOCK_STONE,
+    BLOCK_DIRT,
+    BLOCK_SAND,
+    BLOCK_WOOD,
+    BLOCK_LEAVES,
+    BLOCK_PLANKS_NORMAL,
+    BLOCK_WALL,
+    BLOCK_COAL_ORE,
+    BLOCK_GOLD_ORE,
+    BLOCK_IRON_ORE,
+    BLOCK_DIAMOND_ORE,
+    BLOCK_REDSTONE_ORE,
+    BLOCK_TNT,
+    BLOCK_SPONGE,
+    BLOCK_PLANKS_DARK,
+    BLOCK_PLANKS_BRIGHT,
+    BLOCK_FURNACE,
+    BLOCK_CRAFTING_TABLE,
+    BLOCK_BOOKSHELF,
+    BLOCK_GRASS,
+    BLOCK_PUMPKIN,
+    getBLOCKWDATA(BLOCK_FLOWER, 0),
+    getBLOCKWDATA(BLOCK_FLOWER, 1),
+    BLOCK_SPIDERWEB
+};
+
+constexpr int user_selectable_count = sizeof(user_selectable)/sizeof(*user_selectable);
+
+void drawBlockPreview(BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y)
+{
+    TextureAtlasEntry tex;
+    bool transparent = false;
+
+    if(!isSpecialBlock(block))
+        tex = block_textures[getBLOCK(block)][BLOCK_FRONT];
+    else
+    {
+        uint8_t data = getBLOCKDATA(block);
+        switch(getBLOCK(block))
+        {
+        case BLOCK_FLOWER:
+            tex = terrain_atlas[data ? 13 : 12][0];
+            transparent = true;
+            break;
+        case BLOCK_SPIDERWEB:
+            tex = terrain_atlas[11][0];
+            transparent = true;
+            break;
+        }
+    }
+
+    if(transparent)
+        drawTransparentTexture(current_terrain, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
+    else
+        drawTexture(current_terrain, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
+}
 
 static void getForward(GLFix *x, GLFix *z)
 {
@@ -57,7 +118,7 @@ static bool loadFile(FILE *savefile)
     LOAD_FROM_FILE(x)
     LOAD_FROM_FILE(y)
     LOAD_FROM_FILE(z)
-    LOAD_FROM_FILE(current_block)
+    LOAD_FROM_FILE(current_block_selection)
 
     return world.loadFromFile(savefile);
 }
@@ -70,7 +131,7 @@ static bool saveFile(FILE *savefile)
     SAVE_TO_FILE(x)
     SAVE_TO_FILE(y)
     SAVE_TO_FILE(z)
-    SAVE_TO_FILE(current_block)
+    SAVE_TO_FILE(current_block_selection)
 
     return world.saveToFile(savefile);
 }
@@ -110,7 +171,12 @@ int main(int argc, char *argv[])
     TEXTURE pack;
     pack.bitmap = nullptr;
     if(loadTextureFromFile("/documents/ndless/crafti.ppm.tns", &pack))
+    {
         puts("External texture loaded.");
+        current_terrain = pack;
+    }
+    else
+        current_terrain = terrain;
 
     nglInit();
 
@@ -121,16 +187,9 @@ int main(int argc, char *argv[])
 
     nglSetBuffer(screen.bitmap);
 
-    if(pack.bitmap != nullptr)
-    {
-        init_blockData(&pack);
-        glBindTexture(&pack);
-    }
-    else
-    {
-        init_blockData(&terrain);
-        glBindTexture(&terrain);
-    }
+
+    init_blockData(&current_terrain);
+    glBindTexture(&current_terrain);
 
     glLoadIdentity();
 
@@ -210,8 +269,7 @@ int main(int argc, char *argv[])
             CR_PIXEL(0, 1);
             CR_PIXEL(0, 2);
 
-            TextureAtlasEntry &block_texture = block_textures[current_block][BLOCK_FRONT];
-            drawTexture(terrain, block_texture.left - 1, block_texture.top - 1, screen, 0, 0, 16, 16);
+            drawBlockPreview(user_selectable[current_block_selection], screen, 0, 0);
 
             //Finished drawing GUI
 
@@ -251,7 +309,7 @@ int main(int argc, char *argv[])
                     }
                     if(!world.intersect(aabb))
                     {
-                        world.setBlock(res.x, res.y, res.z, current_block);
+                        world.setBlock(res.x, res.y, res.z, user_selectable[current_block_selection]);
                         if(world.intersect(aabb))
                             world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
                     }
@@ -399,17 +457,17 @@ int main(int argc, char *argv[])
 
             else if(keyPressed(KEY_NSPIRE_1)) //Switch block type
             {
-                --current_block;
-                if(current_block < 0)
-                    current_block = BLOCK_NORMAL_MAX - 1;
+                --current_block_selection;
+                if(current_block_selection < 0)
+                    current_block_selection = user_selectable_count - 1;
 
                 key_held_down = true;
             }
             else if(keyPressed(KEY_NSPIRE_3))
             {
-                ++current_block;
-                if(current_block == BLOCK_NORMAL_MAX)
-                    current_block = 1;
+                ++current_block_selection;
+                if(current_block_selection == user_selectable_count)
+                    current_block_selection = 0;
 
                 key_held_down = true;
             }
@@ -493,7 +551,7 @@ int main(int argc, char *argv[])
 
             drawTexture(selection, 0, 0, menu_with_selection, 0, selection_y, selection.width, selection.height);
 
-            drawTransparentTexture(menu_with_selection, 0, 0, screen, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection.height);
+            drawTextureOverlay(menu_with_selection, 0, 0, screen, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection.height);
 
             nglDisplay();
 
@@ -579,23 +637,27 @@ int main(int argc, char *argv[])
 
             memcpy(screen.bitmap, background, sizeof(COLOR)*SCREEN_WIDTH*SCREEN_HEIGHT);
 
+            const int field_width = current_terrain.width / 8;
+            const int field_height = current_terrain.width / 8;
+            const int fields_x = (SCREEN_WIDTH - 50) / field_width;
+            const int fields_y = (SCREEN_WIDTH - 50) / field_height;
+
             memset(black.bitmap, 0, sizeof(COLOR)*black.width*black.height);
-            drawTexture(selection, 0, 0, black, ((current_block-1) % 8) * 32 + 13 - selection.width, ((current_block-1) / 8) * 32 + 17, selection.width, selection.height);
+            drawTexture(selection, 0, 0, black, (current_block_selection % fields_x) * field_width + 13 - selection.width, (current_block_selection / fields_x) * field_height + 17, selection.width, selection.height);
 
-            drawTransparentTexture(black, 0, 0, screen, 25, 25, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
+            drawTextureOverlay(black, 0, 0, screen, 25, 25, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
 
-            int block = BLOCK_AIR + 1;
+            int block = 0;
             int screen_x = 39, screen_y = 39;
-            for(int y = 0; y < 8; y++, screen_y += 32)
+            for(int y = 0; y < fields_y; y++, screen_y += current_terrain.height / 8)
             {
                 screen_x = 39;
-                for(int x = 0; x < 8; x++, screen_x += 32)
+                for(int x = 0; x < fields_x; x++, screen_x += current_terrain.width / 8)
                 {
-                    TextureAtlasEntry &tae = block_textures[block][BLOCK_FRONT];
-                    drawTexture(terrain, tae.left - 1, tae.top - 1, screen, screen_x, screen_y, 16, 16);
+                    drawBlockPreview(user_selectable[block], screen, screen_x, screen_y);
 
                     block++;
-                    if(block == BLOCK_NORMAL_MAX)
+                    if(block == user_selectable_count)
                         goto end;
                 }
             }
@@ -615,30 +677,30 @@ int main(int argc, char *argv[])
             }
             else if(keyPressed(KEY_NSPIRE_2))
             {
-                current_block += 8;
-                if((current_block-1) >= BLOCK_NORMAL_MAX)
-                    current_block -= 8;
+                current_block_selection += 8;
+                if(current_block_selection == user_selectable_count)
+                    current_block_selection -= 8;
 
                 key_held_down = true;
             }
             else if(keyPressed(KEY_NSPIRE_8))
             {
-                if((current_block-1) >= 8)
-                    current_block -= 8;
+                if(current_block_selection >= 8)
+                    current_block_selection -= 8;
 
                 key_held_down = true;
             }
             else if(keyPressed(KEY_NSPIRE_4))
             {
-                if((current_block-1) % 8 != 0)
-                    current_block--;
+                if(current_block_selection % 8 != 0)
+                    current_block_selection--;
 
                 key_held_down = true;
             }
             else if(keyPressed(KEY_NSPIRE_6))
             {
-                if((current_block-1) % 8 != 7 && current_block < BLOCK_NORMAL_MAX - 1)
-                    current_block++;
+                if(current_block_selection % 8 != 7 && current_block_selection < user_selectable_count - 1)
+                    current_block_selection++;
 
                 key_held_down = true;
             }

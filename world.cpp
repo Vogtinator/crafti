@@ -44,7 +44,7 @@ BLOCK_WDATA World::getBlock(int x, int y, int z) const
 
 void World::setBlock(int x, int y, int z, BLOCK_WDATA block)
 {
-    int chunk_x = floor(float(x) / Chunk::SIZE), chunk_y = floor(float(y) / Chunk::SIZE), chunk_z = floor(float(z) / Chunk::SIZE);
+    int chunk_x = (GLFix(x) / Chunk::SIZE).floor(), chunk_y = (GLFix(y) / Chunk::SIZE).floor(), chunk_z = (GLFix(z) / Chunk::SIZE).floor();
     int local_x = x - chunk_x * Chunk::SIZE, local_y = y - chunk_y * Chunk::SIZE, local_z = z - chunk_z * Chunk::SIZE;
 
     Chunk *c = findChunk(chunk_x, chunk_y, chunk_z);
@@ -52,18 +52,29 @@ void World::setBlock(int x, int y, int z, BLOCK_WDATA block)
     {
         c->setLocalBlock(local_x, local_y, local_z, block);
 
-        if(Chunk *c = findChunk(chunk_x - 1, chunk_y, chunk_z))
-            c->setDirty();
-        if(Chunk *c = findChunk(chunk_x + 1, chunk_y, chunk_z))
-            c->setDirty();
-        if(Chunk *c = findChunk(chunk_x, chunk_y - 1, chunk_z))
-            c->setDirty();
-        if(Chunk *c = findChunk(chunk_x, chunk_y + 1, chunk_z))
-            c->setDirty();
-        if(Chunk *c = findChunk(chunk_x, chunk_y, chunk_z - 1))
-            c->setDirty();
-        if(Chunk *c = findChunk(chunk_x, chunk_y, chunk_z + 1))
-            c->setDirty();
+        if(local_x == 0)
+            if(Chunk *c = findChunk(chunk_x - 1, chunk_y, chunk_z))
+                c->setDirty();
+
+        if(local_x == Chunk::SIZE - 1)
+            if(Chunk *c = findChunk(chunk_x + 1, chunk_y, chunk_z))
+                c->setDirty();
+
+        if(local_y == 0)
+            if(Chunk *c = findChunk(chunk_x, chunk_y - 1, chunk_z))
+                c->setDirty();
+
+        if(local_y == Chunk::SIZE - 1)
+            if(Chunk *c = findChunk(chunk_x, chunk_y + 1, chunk_z))
+                c->setDirty();
+
+        if(local_z == 0)
+            if(Chunk *c = findChunk(chunk_x, chunk_y, chunk_z - 1))
+                c->setDirty();
+
+        if(local_z == Chunk::SIZE - 1)
+            if(Chunk *c = findChunk(chunk_x, chunk_y, chunk_z + 1))
+                c->setDirty();
     }
     else
         pending_block_changes.push_back({chunk_x, chunk_y, chunk_z, local_x, local_y, local_z, block});
@@ -175,6 +186,8 @@ bool World::loadFromFile(FILE *file)
     if(fread(pending_block_changes.data(), sizeof(BLOCK_CHANGE), block_changes, file) != block_changes)
         return false;
 
+    LOAD_FROM_FILE(field_of_view);
+
     while(!feof(file))
     {
         int x, y, z;
@@ -205,6 +218,8 @@ bool World::saveToFile(FILE *file) const
 
     if(fwrite(pending_block_changes.data(), sizeof(BLOCK_CHANGE), block_changes, file) != block_changes)
         return false;
+
+    SAVE_TO_FILE(field_of_view);
 
     for(Chunk *c : all_chunks)
     {

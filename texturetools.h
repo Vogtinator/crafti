@@ -5,7 +5,7 @@
 
 bool loadTextureFromFile(const char* filename, TEXTURE *texture);
 void drawTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h);
-//50% opacity
+void drawTextureOverlay(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h);
 void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h);
 
 //Show loading text above, will be cleared on the next rendered frame, doesn't really belong here

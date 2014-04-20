@@ -58,24 +58,41 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
     if(side != BLOCK_SIDE_MAX)
         return;
 
-    if(block != BLOCK_FLOWER)
+    uint8_t data = getBLOCKDATA(block);
+
+    TextureAtlasEntry tex;
+    bool isBillboard = false;
+
+    switch(getBLOCK(block))
+    {
+    case BLOCK_FLOWER:
+        isBillboard = true;
+        tex = terrain_atlas[data ? 13 : 12][0];
+        break;
+    case BLOCK_SPIDERWEB:
+        isBillboard = true;
+        tex = terrain_atlas[11][0];
+        break;
+    }
+
+    if(isBillboard)
+    {
+        GLFix posX = abs_x + GLFix(x) * BLOCK_SIZE;
+        GLFix posY = abs_y + GLFix(y) * BLOCK_SIZE;
+        GLFix posZ = abs_z + GLFix(z) * BLOCK_SIZE;
+
+        vertices_not_aligned.push_back({posX, posY, posZ, tex.left, tex.bottom, 0xFFFF});
+        vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ, tex.left, tex.top, 0xFFFF});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.right, tex.top, 0xFFFF});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + BLOCK_SIZE, tex.right, tex.bottom, 0xFFFF});
+
+        vertices_not_aligned.push_back({posX, posY, posZ + BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
+        vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ, tex.right, tex.top, 0xFFFF});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ, tex.right, tex.bottom, 0xFFFF});
+
         return;
-
-    GLFix posX = abs_x + GLFix(x) * BLOCK_SIZE;
-    GLFix posY = abs_y + GLFix(y) * BLOCK_SIZE;
-    GLFix posZ = abs_z + GLFix(z) * BLOCK_SIZE;
-
-    TextureAtlasEntry tex = textureArea(192, 0, 16, 16);
-
-    vertices_not_aligned.push_back({posX, posY, posZ, tex.left, tex.bottom, 0xFFFF});
-    vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ, tex.left, tex.top, 0xFFFF});
-    vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.right, tex.top, 0xFFFF});
-    vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + BLOCK_SIZE, tex.right, tex.bottom, 0xFFFF});
-
-    vertices_not_aligned.push_back({posX, posY, posZ + BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
-    vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
-    vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ, tex.right, tex.top, 0xFFFF});
-    vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ, tex.right, tex.bottom, 0xFFFF});
+    }
 }
 
 void Chunk::buildGeometry()
@@ -571,7 +588,7 @@ BLOCK_WDATA Chunk::getGlobalBlockRelative(int x, int y, int z)
     return parent->getBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE);
 }
 
-void Chunk::setGlobalBlockRelative(int x, int y, int z, BLOCK block)
+void Chunk::setGlobalBlockRelative(int x, int y, int z, BLOCK_WDATA block)
 {
     if(IN_BOUNDS(x, y, z))
         return setLocalBlock(x, y, z, block);
@@ -692,7 +709,7 @@ void Chunk::generate()
     for(int x = 0; x < SIZE; x++)
         for(int z = 0; z < SIZE; z++)
         {
-            GLFix noise_val = noise.noise((GLFix(x)/Chunk::SIZE + this->x)/2, (GLFix(z)/Chunk::SIZE + this->z)/2, 10);
+            GLFix noise_val = noise.noise((GLFix(x)/Chunk::SIZE + this->x)/4, (GLFix(z)/Chunk::SIZE + this->z)/4, 10);
             int world_gen_min = 8, world_gen_max = World::HEIGHT * Chunk::SIZE * 0.7;
             int height = world_gen_min + (noise_val * (world_gen_max - world_gen_min)).round();
             int height_left = height - this->y * Chunk::SIZE;
@@ -729,8 +746,8 @@ void Chunk::generate()
                     if(to_surface == 1)
                     {
                         blocks[x][y][z] = BLOCK_GRASS;
-                        if((rand() & 0xF) == 0x0)
-                            setGlobalBlockRelative(x, y + 1, z, BLOCK_FLOWER);
+                        if((rand() & 0x2F) == 0x0)
+                            setGlobalBlockRelative(x, y + 1, z, getBLOCKWDATA(BLOCK_FLOWER, rand() & 0x1));
                     }
                     else
                         blocks[x][y][z] = BLOCK_DIRT;

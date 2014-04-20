@@ -24,10 +24,9 @@ const char *block_names[BLOCK_NORMAL_MAX] =
     "Furnace",
     "Crafting Table",
     "Bookshelf",
-    "Grass"
+    "Grass",
+    "Pumpkin"
 };
-
-COLOR block_colors[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
 
 #define BT_FRONT 1
 #define BT_BACK 2
@@ -63,8 +62,8 @@ BLOCK_TEXTURE texture_atlas[][16] =
     { ALL(BLOCK_SPONGE), NON, ALL(BLOCK_DIAMOND_ORE), ALL(BLOCK_REDSTONE_ORE), NON, ALL(BLOCK_LEAVES), NON, NON, NON, NON, NON, SID(BLOCK_CRAFTING_TABLE), FRO(BLOCK_CRAFTING_TABLE), NON, TOP(BLOCK_FURNACE), NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, TAB(BLOCK_PUMPKIN), NON, NON, NON, NON, NON, NON, NON, NON, NON},
+    { NON, NON, NON, NON, NON, NON, SWF(BLOCK_PUMPKIN), FRO(BLOCK_PUMPKIN), NON, NON, NON, NON, NON, NON, NON, NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
@@ -76,6 +75,7 @@ BLOCK_TEXTURE texture_atlas[][16] =
 };
 
 TextureAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
+TextureAtlasEntry terrain_atlas[16][16];
 
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
 static void make_green(TEXTURE *texture, int x, int y, int w, int h)
@@ -102,63 +102,27 @@ void init_blockData(TEXTURE *texture)
     make_green(texture, 0, 0, field_width, field_height);
     make_green(texture, 5 * field_width, 3 * field_height, field_width, field_height);
 
-    int pixels = field_width * field_height;
     for(int y = 0; y < fields_y; y++)
         for(int x = 0; x < fields_x; x++)
         {
+            TextureAtlasEntry tea = terrain_atlas[x][y] = textureArea(x * field_width, y * field_height, field_width, field_height);
+
             BLOCK_TEXTURE bt = texture_atlas[y][x];
             if(bt.sides == 0)
                 continue;
 
-            TextureAtlasEntry tea = textureArea(x * field_width, y * field_height, field_width, field_height);
-
-            //Get an average color of the block
-            RGB sum;
-            for(int tex_x = x * field_width; tex_x < x * field_width + field_width; tex_x++)
-                for(int tex_y = y * field_width; tex_y < y * field_width + field_width; tex_y++)
-                {
-                    RGB rgb = rgbColor(texture->bitmap[tex_x + tex_y*texture->width]);
-                    sum.r += rgb.r;
-                    sum.g += rgb.g;
-                    sum.b += rgb.b;
-                }
-
-            sum.r /= pixels;
-            sum.g /= pixels;
-            sum.b /= pixels;
-
-            COLOR color = colorRGB(sum);
-
             if(bt.sides & BT_BOTTOM)
-            {
                 block_textures[bt.block][BLOCK_BOTTOM] = tea;
-                block_colors[bt.block][BLOCK_BOTTOM] = color;
-            }
             if(bt.sides & BT_TOP)
-            {
                 block_textures[bt.block][BLOCK_TOP] = tea;
-                block_colors[bt.block][BLOCK_TOP] = color;
-            }
             if(bt.sides & BT_LEFT)
-            {
                 block_textures[bt.block][BLOCK_LEFT] = tea;
-                block_colors[bt.block][BLOCK_LEFT] = color;
-            }
             if(bt.sides & BT_RIGHT)
-            {
                 block_textures[bt.block][BLOCK_RIGHT] = tea;
-                block_colors[bt.block][BLOCK_RIGHT] = color;
-            }
             if(bt.sides & BT_FRONT)
-            {
                 block_textures[bt.block][BLOCK_FRONT] = tea;
-                block_colors[bt.block][BLOCK_FRONT] = color;
-            }
             if(bt.sides & BT_BACK)
-            {
                 block_textures[bt.block][BLOCK_BACK] = tea;
-                block_colors[bt.block][BLOCK_BACK] = color;
-            }
 
         }
 }

@@ -81,7 +81,7 @@ GLFix PerlinNoise::noise(GLFix x, GLFix y, GLFix z) const {
 
     // Add blended results from 8 corners of cube
     GLFix res = lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z), grad(p[BA], x-1, y, z)), lerp(u, grad(p[AB], x, y-1, z), grad(p[BB], x-1, y-1, z))),	lerp(v, lerp(u, grad(p[AA+1], x, y, z-1), grad(p[BA+1], x-1, y, z-1)), lerp(u, grad(p[AB+1], x, y-1, z-1),	grad(p[BB+1], x-1, y-1, z-1))));
-    return (res + 1)/2.0f;
+    return (res + 1) >> 1;
 }
 
 GLFix PerlinNoise::fade(GLFix t) const {

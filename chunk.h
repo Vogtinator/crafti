@@ -45,7 +45,7 @@ private:
 
     //Data
     BLOCK_WDATA getGlobalBlockRelative(int x, int y, int z);
-    void setGlobalBlockRelative(int x, int y, int z, BLOCK block);
+    void setGlobalBlockRelative(int x, int y, int z, BLOCK_WDATA block);
     int getPosition(GLFix x, GLFix y, GLFix z);
 
     //Rendering

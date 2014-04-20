@@ -32,6 +32,9 @@ public:
     Fix<s,T>& operator ++() { value += 1 << s; return *this; }
     Fix<s,T>& operator --() { value -= 1 << s; return *this; }
 
+    Fix<s,T> operator >>(const int other) const { Fix<s,T> ret; ret.value = value >> other; return ret; }
+    Fix<s,T> operator <<(const int other) const { Fix<s,T> ret; ret.value = value << other; return ret; }
+
     Fix<s,T> operator +(const int other) const { Fix<s,T> ret; ret.value = value + (other<<s); return ret; }
     Fix<s,T> operator +(const Fix<s,T>& other) const { Fix<s,T> ret; ret.value = value + other.value; return ret; }
     Fix<s,T> operator -(const int other) const { Fix<s,T> ret; ret.value = value - (other<<s); return ret; }
