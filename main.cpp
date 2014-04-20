@@ -51,7 +51,9 @@ static BLOCK_WDATA user_selectable[] = {
     BLOCK_PUMPKIN,
     getBLOCKWDATA(BLOCK_FLOWER, 0),
     getBLOCKWDATA(BLOCK_FLOWER, 1),
-    BLOCK_SPIDERWEB
+    BLOCK_SPIDERWEB,
+    BLOCK_TORCH,
+    BLOCK_CAKE
 };
 
 constexpr int user_selectable_count = sizeof(user_selectable)/sizeof(*user_selectable);
@@ -74,6 +76,14 @@ void drawBlockPreview(BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y)
             break;
         case BLOCK_SPIDERWEB:
             tex = terrain_atlas[11][0];
+            transparent = true;
+            break;
+        case BLOCK_TORCH:
+            tex = terrain_atlas[0][5];
+            transparent = true;
+            break;
+        case BLOCK_CAKE:
+            tex = terrain_atlas[12][8];
             transparent = true;
             break;
         }
@@ -187,7 +197,6 @@ int main(int argc, char *argv[])
 
     nglSetBuffer(screen.bitmap);
 
-
     init_blockData(&current_terrain);
     glBindTexture(&current_terrain);
 
@@ -275,53 +284,7 @@ int main(int argc, char *argv[])
 
             nglDisplay();
 
-            if(keyPressed(KEY_NSPIRE_ESC))
-                break;
-
-            if(keyPressed(KEY_NSPIRE_7)) //Put block down
-            {
-                Position res; AABB::SIDE side;
-                GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
-                if(world.intersectRay(x, y + eye_pos, z, dx, dy, dz, res, side))
-                {
-                    switch(side)
-                    {
-                    case AABB::BACK:
-                        ++res.z;
-                        break;
-                    case AABB::FRONT:
-                        --res.z;
-                        break;
-                    case AABB::LEFT:
-                        --res.x;
-                        break;
-                    case AABB::RIGHT:
-                        ++res.x;
-                        break;
-                    case AABB::BOTTOM:
-                        --res.y;
-                        break;
-                    case AABB::TOP:
-                        ++res.y;
-                        break;
-                    default:
-                        break;
-                    }
-                    if(!world.intersect(aabb))
-                    {
-                        world.setBlock(res.x, res.y, res.z, user_selectable[current_block_selection]);
-                        if(world.intersect(aabb))
-                            world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
-                    }
-                }
-            }
-            else if(keyPressed(KEY_NSPIRE_9)) //Remove block
-            {
-                Position res; AABB::SIDE side;
-                GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
-                if(world.intersectRay(x, y + eye_pos, z, dx, dy, dz, res, side))
-                    world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
-            }
+            //Movement
 
             GLFix dx = 0, dz = 0;
 
@@ -381,10 +344,10 @@ int main(int argc, char *argv[])
                     aabb = aabb_moved;
                 }
 
-                aabb.low_y += vy;
-                aabb.high_y += vy;
+                aabb_moved.low_y += vy;
+                aabb_moved.high_y += vy;
 
-                can_jump = world.intersect(aabb);
+                can_jump = world.intersect(aabb_moved);
 
                 if(!can_jump)
                     y += vy;
@@ -453,8 +416,69 @@ int main(int argc, char *argv[])
             tp_last_y = touchpad.y;
 
             if(key_held_down)
-                key_held_down = keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_MINUS) || keyPressed(KEY_NSPIRE_PLUS);
+                key_held_down = keyPressed(KEY_NSPIRE_7) || keyPressed(KEY_NSPIRE_9) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_MINUS) || keyPressed(KEY_NSPIRE_PLUS);
 
+            else if(keyPressed(KEY_NSPIRE_ESC)) //Save & Exit
+                break;
+            else if(keyPressed(KEY_NSPIRE_7)) //Put block down
+            {
+                Position res; AABB::SIDE side;
+                GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
+                if(world.intersectRay(x, y + eye_pos, z, dx, dy, dz, res, side))
+                {
+                    BLOCK_SIDE block_side = BLOCK_TOP;
+                    switch(side)
+                    {
+                    case AABB::BACK:
+                        ++res.z;
+                        block_side = BLOCK_BACK;
+                        break;
+                    case AABB::FRONT:
+                        --res.z;
+                        block_side = BLOCK_FRONT;
+                        break;
+                    case AABB::LEFT:
+                        --res.x;
+                        block_side = BLOCK_LEFT;
+                        break;
+                    case AABB::RIGHT:
+                        ++res.x;
+                        block_side = BLOCK_RIGHT;
+                        break;
+                    case AABB::BOTTOM:
+                        --res.y;
+                        block_side = BLOCK_BOTTOM;
+                        break;
+                    case AABB::TOP:
+                        ++res.y;
+                        block_side = BLOCK_TOP;
+                        break;
+                    default:
+                        break;
+                    }
+                    if(!world.intersect(aabb))
+                    {
+                        if(!isBlockOriented(user_selectable[current_block_selection]))
+                            world.setBlock(res.x, res.y, res.z, user_selectable[current_block_selection]);
+                        else
+                            world.setBlock(res.x, res.y, res.z, getBLOCKWDATA(user_selectable[current_block_selection], block_side));
+
+                        if(world.intersect(aabb))
+                            world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
+                    }
+                }
+
+                key_held_down = true;
+            }
+            else if(keyPressed(KEY_NSPIRE_9)) //Remove block
+            {
+                Position res; AABB::SIDE side;
+                GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
+                if(world.intersectRay(x, y + eye_pos, z, dx, dy, dz, res, side))
+                    world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
+
+                key_held_down = true;
+            }
             else if(keyPressed(KEY_NSPIRE_1)) //Switch block type
             {
                 --current_block_selection;
@@ -471,20 +495,20 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_PERIOD))
+            else if(keyPressed(KEY_NSPIRE_PERIOD)) //Open list of blocks
             {
                 gamestate = BLOCK_LIST;
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_MINUS))
+            else if(keyPressed(KEY_NSPIRE_MINUS)) //Decrease max view distance
             {
                 int fov = world.fieldOfView() - 1;
                 world.setFieldOfView(fov < 1 ? 1 : fov);
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_PLUS))
+            else if(keyPressed(KEY_NSPIRE_PLUS)) //Increase max view distance
             {
                 world.setFieldOfView(world.fieldOfView() + 1);
 
@@ -678,7 +702,7 @@ int main(int argc, char *argv[])
             else if(keyPressed(KEY_NSPIRE_2))
             {
                 current_block_selection += 8;
-                if(current_block_selection == user_selectable_count)
+                if(current_block_selection >= user_selectable_count)
                     current_block_selection -= 8;
 
                 key_held_down = true;

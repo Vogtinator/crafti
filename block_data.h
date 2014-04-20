@@ -39,7 +39,8 @@ typedef uint16_t BLOCK_WDATA;
 #define BLOCK_TORCH 127 //Data: Direction (BLOCK_SIDE)
 #define BLOCK_FLOWER 128 //Data: Flower type
 #define BLOCK_SPIDERWEB 129
-#define BLOCK_SPECIAL_MAX 130
+#define BLOCK_CAKE 130
+#define BLOCK_SPECIAL_MAX 131
 
 constexpr BLOCK getBLOCK(BLOCK_WDATA bd) { return bd & 0xFF; }
 constexpr uint8_t getBLOCKDATA(BLOCK_WDATA bd) { return (bd >> 8) & 0xFF; }
@@ -47,6 +48,7 @@ constexpr BLOCK_WDATA getBLOCKWDATA(BLOCK b, uint8_t data) { return (data << 8) 
 constexpr bool isSpecialBlock(BLOCK b) { return b >= BLOCK_SPECIAL_START; }
 constexpr bool isBlockTransparent(BLOCK b) { return b == BLOCK_AIR || isSpecialBlock(b); }
 constexpr bool isBlockObstacle(BLOCK b) { return !isBlockTransparent(b); }
+constexpr bool isBlockOriented(BLOCK b) { return b == BLOCK_TORCH; }
 
 enum BLOCK_SIDE {
     BLOCK_FRONT = 0,

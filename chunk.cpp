@@ -42,26 +42,29 @@ void Chunk::addAlignedVertex(const GLFix x, const GLFix y, const GLFix z, GLFix 
     vertices.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
 }
 
-int Chunk::indicesSpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side)
-{
-    (void) block;
-    (void) x;
-    (void) y;
-    (void) z;
-    (void) side;
-
-    return 0;
-}
-
 void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side)
 {
     if(side != BLOCK_SIDE_MAX)
         return;
 
     uint8_t data = getBLOCKDATA(block);
+    GLFix posX = abs_x + GLFix(x) * BLOCK_SIZE;
+    GLFix posY = abs_y + GLFix(y) * BLOCK_SIZE;
+    GLFix posZ = abs_z + GLFix(z) * BLOCK_SIZE;
 
     TextureAtlasEntry tex;
     bool isBillboard = false;
+
+    //For BLOCK_CAKE
+    const GLFix cake_height = BLOCK_SIZE / 16 * 8;
+    const GLFix cake_width = BLOCK_SIZE / 16 * 14;
+    const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) / 2;
+    const TextureAtlasEntry &cake_top = terrain_atlas[9][7];
+    const TextureAtlasEntry &cake_sid = terrain_atlas[10][7];
+    const TextureAtlasEntry &cake_bot = terrain_atlas[12][7];
+
+    //For BLOCK_TORCH
+    std::vector<VERTEX> torch_vertices;
 
     switch(getBLOCK(block))
     {
@@ -73,14 +76,101 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
         isBillboard = true;
         tex = terrain_atlas[11][0];
         break;
+    case BLOCK_CAKE:
+        vertices_not_aligned.push_back({posX, posY, posZ + cake_offset, cake_sid.left, cake_sid.bottom, 0xF000});
+        vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ + cake_offset, cake_sid.left, cake_sid.top, 0xF000});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + cake_offset, cake_sid.right, cake_sid.top, 0xF000});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + cake_offset, cake_sid.right, cake_sid.bottom, 0xF000});
+
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + cake_offset + cake_width, cake_sid.left, cake_sid.bottom, 0xF000});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + cake_offset + cake_width, cake_sid.left, cake_sid.top, 0xF000});
+        vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ + cake_offset + cake_width, cake_sid.right, cake_sid.top, 0xF000});
+        vertices_not_aligned.push_back({posX, posY, posZ + cake_offset + cake_width, cake_sid.right, cake_sid.bottom, 0xF000});
+
+        vertices_not_aligned.push_back({posX + cake_offset, posY, posZ + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, 0xF000});
+        vertices_not_aligned.push_back({posX + cake_offset, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, cake_sid.left, cake_sid.top, 0xF000});
+        vertices_not_aligned.push_back({posX + cake_offset, posY + BLOCK_SIZE, posZ, cake_sid.right, cake_sid.top, 0xF000});
+        vertices_not_aligned.push_back({posX + cake_offset, posY, posZ, cake_sid.right, cake_sid.bottom, 0xF000});
+
+        vertices_not_aligned.push_back({posX + cake_offset + cake_width, posY, posZ, cake_sid.left, cake_sid.bottom, 0xF000});
+        vertices_not_aligned.push_back({posX + cake_offset + cake_width, posY + BLOCK_SIZE, posZ, cake_sid.left, cake_sid.top, 0xF000});
+        vertices_not_aligned.push_back({posX + cake_offset + cake_width, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, cake_sid.right, cake_sid.top, 0xF000});
+        vertices_not_aligned.push_back({posX + cake_offset + cake_width, posY, posZ + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, 0xF000});
+
+        vertices_not_aligned.push_back({posX, posY + cake_height, posZ, cake_top.left, cake_top.bottom, 0xF000});
+        vertices_not_aligned.push_back({posX, posY + cake_height, posZ + BLOCK_SIZE, cake_top.left, cake_top.top, 0xF000});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + cake_height, posZ + BLOCK_SIZE, cake_top.right, cake_top.top, 0xF000});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + cake_height, posZ, cake_top.right, cake_top.bottom, 0xF000});
+
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ, cake_bot.left, cake_bot.bottom, 0xF000});
+        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + BLOCK_SIZE, cake_bot.left, cake_bot.top, 0xF000});
+        vertices_not_aligned.push_back({posX, posY, posZ + BLOCK_SIZE, cake_bot.right, cake_bot.top, 0xF000});
+        vertices_not_aligned.push_back({posX, posY, posZ, cake_bot.right, cake_bot.bottom, 0xF000});
+
+        break;
+    case BLOCK_TORCH:
+        isBillboard = false;
+        tex = terrain_atlas[0][5];
+
+        glPushMatrix();
+        glLoadIdentity();
+
+        glTranslatef(posX + BLOCK_SIZE/2, posY + BLOCK_SIZE/2, posZ + BLOCK_SIZE/2);
+
+        torch_vertices.reserve(16);
+
+        torch_vertices.push_back({0, 0, BLOCK_SIZE/2, tex.left, tex.bottom, 0xFFFF});
+        torch_vertices.push_back({0, BLOCK_SIZE, BLOCK_SIZE/2, tex.left, tex.top, 0xFFFF});
+        torch_vertices.push_back({BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE/2, tex.right, tex.top, 0xFFFF});
+        torch_vertices.push_back({BLOCK_SIZE, 0, BLOCK_SIZE/2, tex.right, tex.bottom, 0xFFFF});
+
+        torch_vertices.push_back({BLOCK_SIZE/2, 0, BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
+        torch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE, BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
+        torch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE, 0, tex.right, tex.top, 0xFFFF});
+        torch_vertices.push_back({BLOCK_SIZE/2, 0, 0, tex.right, tex.bottom, 0xFFFF});
+
+        switch(static_cast<BLOCK_SIDE>(data))
+        {
+        default:
+        case BLOCK_TOP:
+            break;
+        case BLOCK_BOTTOM:
+            nglRotateX(180);
+            break;
+        case BLOCK_BACK:
+            nglRotateX(45);
+            break;
+        case BLOCK_FRONT:
+            nglRotateX(315);
+            break;
+        case BLOCK_LEFT:
+            nglRotateZ(45);
+            break;
+        case BLOCK_RIGHT:
+            nglRotateZ(315);
+            break;
+        }
+
+        glTranslatef(-BLOCK_SIZE / 2, -BLOCK_SIZE / 2, -BLOCK_SIZE / 2);
+
+        for(auto&& v : torch_vertices)
+        {
+            VERTEX v1;
+            nglMultMatVectRes(transformation, &v, &v1);
+            v1.u = v.u;
+            v1.v = v.v;
+            v1.c = v.c;
+            vertices_not_aligned.push_back(v1);
+        }
+
+        glPopMatrix();
+
+        break;
     }
 
     if(isBillboard)
     {
-        GLFix posX = abs_x + GLFix(x) * BLOCK_SIZE;
-        GLFix posY = abs_y + GLFix(y) * BLOCK_SIZE;
-        GLFix posZ = abs_z + GLFix(z) * BLOCK_SIZE;
-
+        //0xFFFF: Black = transparent and no backface culling
         vertices_not_aligned.push_back({posX, posY, posZ, tex.left, tex.bottom, 0xFFFF});
         vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ, tex.left, tex.top, 0xFFFF});
         vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.right, tex.top, 0xFFFF});
@@ -161,10 +251,6 @@ void Chunk::buildGeometry()
                 //If not transparent, sides of adjacent blocks aren't visible
                 if(!isBlockTransparent(block))
                     continue;
-
-                //If a block is transparent, render all sides at once
-                if(isSpecialBlock(block))
-                    geometrySpecialBlock(block, x, y, z, BLOCK_SIDE_MAX);
 
                 #ifndef TEXTURE_SUPPORT
                     GLFix light_level = 1;
@@ -328,6 +414,18 @@ void Chunk::buildGeometry()
         positions_transformed.resize(positions.size());
         positions_perspective.resize(positions.size());
     }
+
+    //Special blocks
+    for(int x = 0; x < SIZE; x++)
+        for(int y = 0; y < SIZE; y++)
+            for(int z = 0; z < SIZE; z++)
+            {
+                BLOCK_WDATA block = blocks[x][y][z];
+
+                if(isSpecialBlock(block))
+                    geometrySpecialBlock(block, x, y, z, BLOCK_SIDE_MAX);
+            }
+
 
     render_dirty = false;
 
@@ -663,7 +761,7 @@ bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFi
             {
                 aabb.high_z = aabb.low_z + BLOCK_SIZE;
 
-                if(!isBlockObstacle(blocks[x][y][z]))
+                if(blocks[x][y][z] == BLOCK_AIR)
                     continue;
 
                 GLFix new_dist;
@@ -746,7 +844,7 @@ void Chunk::generate()
                     if(to_surface == 1)
                     {
                         blocks[x][y][z] = BLOCK_GRASS;
-                        if((rand() & 0x2F) == 0x0)
+                        if((rand() & 0xFF) == 0x0)
                             setGlobalBlockRelative(x, y + 1, z, getBLOCKWDATA(BLOCK_FLOWER, rand() & 0x1));
                     }
                     else

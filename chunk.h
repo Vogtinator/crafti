@@ -50,7 +50,6 @@ private:
 
     //Rendering
     void addAlignedVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFix v, const COLOR c);
-    int indicesSpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);
     void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);
     void buildGeometry();
     VERTEX perspective(const IndexedVertex &v, Position &transformed);
