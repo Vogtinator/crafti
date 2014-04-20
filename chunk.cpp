@@ -76,6 +76,10 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
         isBillboard = true;
         tex = terrain_atlas[11][0];
         break;
+    case BLOCK_MUSHROOM:
+        isBillboard = true;
+        tex = terrain_atlas[data ? 13 : 12][1];
+        break;
     case BLOCK_CAKE:
         vertices_not_aligned.push_back({posX, posY, posZ + cake_offset, cake_sid.left, cake_sid.bottom, 0xF000});
         vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ + cake_offset, cake_sid.left, cake_sid.top, 0xF000});

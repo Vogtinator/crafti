@@ -2,7 +2,7 @@
 
 #include "aabb.h"
 
-const char *block_names[BLOCK_NORMAL_MAX] =
+/*const char *block_names[BLOCK_NORMAL_MAX] =
 {
     "Air",
     "Stone",
@@ -26,7 +26,7 @@ const char *block_names[BLOCK_NORMAL_MAX] =
     "Bookshelf",
     "Grass",
     "Pumpkin"
-};
+};*/
 
 #define BT_FRONT 1
 #define BT_BACK 2

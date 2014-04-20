@@ -40,7 +40,8 @@ typedef uint16_t BLOCK_WDATA;
 #define BLOCK_FLOWER 128 //Data: Flower type
 #define BLOCK_SPIDERWEB 129
 #define BLOCK_CAKE 130
-#define BLOCK_SPECIAL_MAX 131
+#define BLOCK_MUSHROOM 131 //Data: Mushroom type
+#define BLOCK_SPECIAL_MAX 132
 
 constexpr BLOCK getBLOCK(BLOCK_WDATA bd) { return bd & 0xFF; }
 constexpr uint8_t getBLOCKDATA(BLOCK_WDATA bd) { return (bd >> 8) & 0xFF; }

@@ -27,7 +27,6 @@ static inline bool keyPressed(const t_key &key)
 }
 
 static BLOCK_WDATA user_selectable[] = {
-    BLOCK_AIR,
     BLOCK_STONE,
     BLOCK_DIRT,
     BLOCK_SAND,
@@ -51,6 +50,8 @@ static BLOCK_WDATA user_selectable[] = {
     BLOCK_PUMPKIN,
     getBLOCKWDATA(BLOCK_FLOWER, 0),
     getBLOCKWDATA(BLOCK_FLOWER, 1),
+    getBLOCKWDATA(BLOCK_MUSHROOM, 0),
+    getBLOCKWDATA(BLOCK_MUSHROOM, 1),
     BLOCK_SPIDERWEB,
     BLOCK_TORCH,
     BLOCK_CAKE
@@ -84,6 +85,10 @@ void drawBlockPreview(BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y)
             break;
         case BLOCK_CAKE:
             tex = terrain_atlas[12][8];
+            transparent = true;
+            break;
+        case BLOCK_MUSHROOM:
+            tex = terrain_atlas[data ? 13 : 12][1];
             transparent = true;
             break;
         }
