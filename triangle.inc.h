@@ -5,8 +5,10 @@ static void nglDrawTransparentTriangleXZClipped(const VERTEX *low, const VERTEX 
 #else
 static void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
 {
-    if(__builtin_expect(low->c == 0xFFFF, 0))
-        return nglDrawTransparentTriangleXZClipped(low, middle, high);
+    #ifdef TEXTURE_SUPPORT
+        if(__builtin_expect((low->c & 0xF0000) == 0xF0000, 0))
+            return nglDrawTransparentTriangleXZClipped(low, middle, high);
+    #endif
 #endif
     if(middle->y > high->y)
         std::swap(middle, high);
@@ -176,13 +178,20 @@ static void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, co
             {
                 if(__builtin_expect(*z_buf > z, true))
                 {
-                    *z_buf = z;
+                    #ifndef TRANSPARENCY
+                        *z_buf = z;
+                    #endif
                     #ifdef TEXTURE_SUPPORT
                         COLOR c = texture->bitmap[u.floor() + v.floor()*texture->width];
                         #ifdef TRANSPARENCY
                             if(__builtin_expect(c != 0x0000, 1))
+                            {
+                                *screen_buf = c;
+                                *z_buf = z;
+                            }
+                        #else
+                            *screen_buf = c;
                         #endif
-                        *screen_buf = c;
                     #elif defined(INTERPOLATE_COLORS)
                         *screen_buf = colorRGB(r, g, b);
                     #else
@@ -272,13 +281,20 @@ static void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, co
             {
                 if(__builtin_expect(*z_buf > z, true))
                 {
-                    *z_buf = z;
+                    #ifndef TRANSPARENCY
+                        *z_buf = z;
+                    #endif
                     #ifdef TEXTURE_SUPPORT
                         COLOR c = texture->bitmap[u.floor() + v.floor()*texture->width];
                         #ifdef TRANSPARENCY
                             if(__builtin_expect(c != 0x0000, 1))
+                            {
+                                *screen_buf = c;
+                                *z_buf = z;
+                            }
+                        #else
+                            *screen_buf = c;
                         #endif
-                        *screen_buf = c;
                     #elif defined(INTERPOLATE_COLORS)
                         *screen_buf = colorRGB(r, g, b);
                     #else

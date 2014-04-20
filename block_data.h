@@ -36,22 +36,24 @@ typedef uint16_t BLOCK_WDATA;
 //Special blocks begin here
 #define BLOCK_SPECIAL_START 127
 #define BLOCK_TORCH 127
+#define BLOCK_FLOWER 128
 
 constexpr BLOCK getBLOCK(BLOCK_WDATA bd) { return bd & 0xFF; }
 constexpr uint8_t getBLOCKDATA(BLOCK_WDATA bd) { return bd >> 8 & 0xFF; }
 constexpr BLOCK_WDATA getBLOCKWDATA(BLOCK b, uint8_t data) { return data << 8 | b; }
 constexpr bool isSpecialBlock(BLOCK b) { return b >= BLOCK_SPECIAL_START; }
 constexpr bool isBlockTransparent(BLOCK b) { return b == BLOCK_AIR || isSpecialBlock(b); }
+constexpr bool isBlockObstacle(BLOCK b) { return !isBlockTransparent(b); }
 
 enum BLOCK_SIDE {
-    BLOCK_FRONT,
+    BLOCK_FRONT = 0,
     BLOCK_BACK,
     BLOCK_LEFT,
     BLOCK_RIGHT,
     BLOCK_TOP,
-    BLOCK_BOTTOM
+    BLOCK_BOTTOM,
+    BLOCK_SIDE_MAX = 6
 };
-#define BLOCK_SIDE_MAX 6
 
 extern const char *block_names[];
 extern COLOR block_colors[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];

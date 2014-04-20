@@ -50,7 +50,7 @@ typedef Fix<8, int_fast32_t> GLFix;
  * [ [3][0] [3][1] [3][2] [3][3] ]   [1] (not used anywhere)
  */
 
-/* If TEXTURE_SUPPORT is enabled and a VERTEX has 0xFFFF as COLOR black pixels of the texture won't be drawn */
+/* If TEXTURE_SUPPORT is enabled and a VERTEX has the highest nibble set, black pixels of the texture won't be drawn */
 
 typedef uint16_t COLOR;
 typedef struct VERTEX { GLFix x; GLFix y; GLFix z; GLFix u; GLFix v; COLOR c; } VERTEX;

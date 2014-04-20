@@ -26,8 +26,8 @@ public:
     Chunk(int x, int y, int z, World *parent);
     void render();
     void setDirty() { render_dirty = true; }
-    BLOCK_WDATA getLocalBlock(int x, int y, int z);
-    void setLocalBlock(int x, int y, int z, BLOCK_WDATA block);
+    BLOCK_WDATA getLocalBlock(const int x, const int y, const int z);
+    void setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
     AABB &getAABB() { return aabb; }
     bool intersects(AABB &other);
     bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side);
@@ -49,11 +49,12 @@ private:
     int getPosition(GLFix x, GLFix y, GLFix z);
 
     //Rendering
-    void addVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFix v, const COLOR c);
-    void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z);
+    void addAlignedVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFix v, const COLOR c);
+    int indicesSpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);
+    void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);
     void buildGeometry();
-    VERTEX perspective(IndexedVertex &v, Position &transformed);
-    bool drawTriangle(IndexedVertex &low, IndexedVertex &middle, IndexedVertex &high, bool backface_culling = true);
+    VERTEX perspective(const IndexedVertex &v, Position &transformed);
+    bool drawTriangle(const IndexedVertex &low, const IndexedVertex &middle, const IndexedVertex &high, bool backface_culling = true);
 
     //Data
     const GLFix abs_x, abs_y, abs_z;
@@ -67,6 +68,7 @@ private:
     std::vector<Position> positions, positions_transformed;
     std::vector<std::pair<Position, bool>> positions_perspective;
     std::vector<IndexedVertex> vertices;
+    std::vector<VERTEX> vertices_not_aligned; //The optimized drawing with indices doesn't work with unaligned positions
 };
 
 #endif // CHUNK_H
