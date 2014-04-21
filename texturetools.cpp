@@ -98,7 +98,7 @@ bool loadTextureFromFile(const char* filename, TEXTURE *texture)
     uint16_t *ptr16 = texture->bitmap;
     while(pixels--)
     {
-        *ptr16 = (ptr24->r >> 3 & 0b11111) << 11 | (ptr24->g >> 2 & 0b111111) << 5 | (ptr24->b >> 3 & 0x11111);
+        *ptr16 = (ptr24->r & 0b11111000) << 8 | (ptr24->g & 0b11111100) << 3 | (ptr24->b & 0b11111000) >> 3;
         ptr24++;
         ptr16++;
     }
