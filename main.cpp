@@ -252,10 +252,10 @@ int main(int argc, char *argv[])
 
             glPushMatrix();
 
-            glTranslatef(0, 0, 25);
-
-            nglRotateX((GLFix(360) - xr.normaliseAngle()).normaliseAngle());
-            nglRotateY((GLFix(360) - yr.normaliseAngle()).normaliseAngle());
+            //Inverted rotation of the world
+            nglRotateX(GLFix(359) - xr);
+            nglRotateY(GLFix(359) - yr);
+            //Inverted translation of the world
             glTranslatef(-x, -y - eye_pos, -z);
 
             world.setPosition(x, y, z);
@@ -408,6 +408,19 @@ int main(int argc, char *argv[])
                 yr += (touchpad.x - tp_last_x) / 50;
                 xr -= (touchpad.y - tp_last_y) / 50;
             }
+
+            //Normalisation required for rotation with nglRotate
+            yr.normaliseAngle();
+            xr.normaliseAngle();
+
+            //xr and yr are normalised, so we can't test for negative values
+            if(xr > GLFix(180))
+                if(xr <= GLFix(270))
+                    xr = 269;
+
+            if(xr < GLFix(180))
+                if(xr >= GLFix(90))
+                    xr = 89;
 
             tp_had_contact = touchpad.contact;
             tp_last_x = touchpad.x;
