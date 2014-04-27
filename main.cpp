@@ -18,7 +18,7 @@ static GLFix x = 0, y = BLOCK_SIZE * Chunk::SIZE * World::HEIGHT + BLOCK_SIZE, z
 static constexpr GLFix incr = 20;
 static World world;
 static int current_block_selection;
-static TEXTURE current_terrain;
+static TEXTURE *current_terrain, *resized_terrain;
 
 //isKeyPressed checks the hardware-type, but that's slow
 static inline bool keyPressed(const t_key &key)
@@ -65,39 +65,39 @@ void drawBlockPreview(BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y)
     bool transparent = false;
 
     if(!isSpecialBlock(block))
-        tex = block_textures[getBLOCK(block)][BLOCK_FRONT];
+        tex = block_textures[getBLOCK(block)][BLOCK_FRONT].resized;
     else
     {
         uint8_t data = getBLOCKDATA(block);
         switch(getBLOCK(block))
         {
         case BLOCK_FLOWER:
-            tex = terrain_atlas[data ? 13 : 12][0];
+            tex = terrain_atlas[data ? 13 : 12][0].resized;
             transparent = true;
             break;
         case BLOCK_SPIDERWEB:
-            tex = terrain_atlas[11][0];
+            tex = terrain_atlas[11][0].resized;
             transparent = true;
             break;
         case BLOCK_TORCH:
-            tex = terrain_atlas[0][5];
+            tex = terrain_atlas[0][5].resized;
             transparent = true;
             break;
         case BLOCK_CAKE:
-            tex = terrain_atlas[12][8];
+            tex = terrain_atlas[12][8].resized;
             transparent = true;
             break;
         case BLOCK_MUSHROOM:
-            tex = terrain_atlas[data ? 13 : 12][1];
+            tex = terrain_atlas[data ? 13 : 12][1].resized;
             transparent = true;
             break;
         }
     }
 
     if(transparent)
-        drawTransparentTexture(current_terrain, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
+        drawTransparentTexture(*resized_terrain, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
     else
-        drawTexture(current_terrain, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
+        drawTexture(*resized_terrain, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
 }
 
 static void getForward(GLFix *x, GLFix *z)
@@ -166,7 +166,7 @@ enum MENUITEM {
     MENU_ITEM_MAX
 };
 
-#define CR_PIXEL(x, y) (screen.bitmap[SCREEN_WIDTH/2+(x) + (SCREEN_HEIGHT/2+(y))*SCREEN_WIDTH] = ~screen.bitmap[SCREEN_WIDTH/2+(x) + (SCREEN_HEIGHT/2+(y))*SCREEN_WIDTH])
+#define CR_PIXEL(x, y) (screen->bitmap[SCREEN_WIDTH/2+(x) + (SCREEN_HEIGHT/2+(y))*SCREEN_WIDTH] = ~screen->bitmap[SCREEN_WIDTH/2+(x) + (SCREEN_HEIGHT/2+(y))*SCREEN_WIDTH])
 
 int main(int argc, char *argv[])
 {
@@ -181,29 +181,25 @@ int main(int argc, char *argv[])
                     "orr r0, r0, #0x80;"
                     "msr cpsr_c, r0;" ::: "r0");
 
-    memcpy(reinterpret_cast<void*>(SCREEN_BASE_ADDRESS), loading.bitmap, SCREEN_BYTES_SIZE);
+    std::copy(loading.bitmap, loading.bitmap + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
 
-    TEXTURE pack;
-    pack.bitmap = nullptr;
-    if(loadTextureFromFile("/documents/ndless/crafti.ppm.tns", &pack))
+    TEXTURE *pack = loadTextureFromFile("/documents/ndless/crafti.ppm.tns");
+    if(pack)
     {
         puts("External texture loaded.");
         current_terrain = pack;
     }
     else
-        current_terrain = terrain;
+        current_terrain = &terrain;
 
     nglInit();
 
-    TEXTURE screen;
-    screen.width = SCREEN_WIDTH;
-    screen.height = SCREEN_HEIGHT;
-    screen.bitmap = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
+    TEXTURE *screen = newTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    nglSetBuffer(screen.bitmap);
+    nglSetBuffer(screen->bitmap);
 
-    init_blockData(&current_terrain);
-    glBindTexture(&current_terrain);
+    initTerrain(*current_terrain, resized_terrain);
+    glBindTexture(current_terrain);
 
     glLoadIdentity();
 
@@ -224,8 +220,8 @@ int main(int argc, char *argv[])
     savefile = nullptr;
 
     GAMESTATE gamestate = WORLD;
-    COLOR *background = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
-    bool save_background = true;
+    TEXTURE *background = newTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+    bool saved_background = false;
 
     //State for GAMESTATE WORLD
     const GLFix player_width = BLOCK_SIZE*0.9f, player_height = BLOCK_SIZE*1.8f, eye_pos = BLOCK_SIZE*1.6f;
@@ -234,17 +230,12 @@ int main(int argc, char *argv[])
     GLFix vy = 0; //Y-Velocity for gravity and jumps
 
     //State for GAMESTATE MENU
-    int menu_selected_item = 0, menu_width_visible = 0, menu_open = true;
-    TEXTURE menu_with_selection;
-    menu_with_selection.width = menu.width;
-    menu_with_selection.height = menu.height;
-    menu_with_selection.bitmap = new COLOR[menu.width * menu.height];
+    int menu_selected_item = 0, menu_width_visible = 0;
+    bool menu_open = true;
+    TEXTURE *menu_with_selection = newTexture(menu.width, menu.height);
 
     //State for GAMESTATE BLOCK_LIST
-    TEXTURE black;
-    black.width = SCREEN_WIDTH - 2*25;
-    black.height = SCREEN_HEIGHT - 2*25;
-    black.bitmap = new COLOR[black.width * black.height];
+    TEXTURE *black = newTexture(SCREEN_WIDTH - 2*25, SCREEN_HEIGHT - 2*25);
 
     while(true)
     {
@@ -260,6 +251,8 @@ int main(int argc, char *argv[])
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glPushMatrix();
+
+            glTranslatef(0, 0, 25);
 
             nglRotateX((GLFix(360) - xr.normaliseAngle()).normaliseAngle());
             nglRotateY((GLFix(360) - yr.normaliseAngle()).normaliseAngle());
@@ -283,7 +276,7 @@ int main(int argc, char *argv[])
             CR_PIXEL(0, 1);
             CR_PIXEL(0, 2);
 
-            drawBlockPreview(user_selectable[current_block_selection], screen, 0, 0);
+            drawBlockPreview(user_selectable[current_block_selection], *screen, 0, 0);
 
             //Finished drawing GUI
 
@@ -531,31 +524,31 @@ int main(int argc, char *argv[])
         else if(gamestate == MENU)
         {
             //Save background, we don't want to render the world
-            if(save_background)
+            if(!saved_background)
             {
-                memcpy(background, screen.bitmap, sizeof(COLOR)*SCREEN_WIDTH*SCREEN_HEIGHT);
-                save_background = false;
+                copyTexture(*screen, *background);
+                saved_background = true;
 
                 menu_selected_item = SAVE_WORLD;
                 menu_width_visible = 0;
                 menu_open = true;
                 menu_held_down = true;
             }
+            else
+                copyTexture(*background, *screen);
 
             //Slide menu
-            if(menu_open && menu_width_visible < menu_with_selection.width)
+            if(menu_open && static_cast<unsigned int>(menu_width_visible) < menu_with_selection->width)
                 menu_width_visible += 10;
             else if(!menu_open && menu_width_visible > 0)
                 menu_width_visible -= 10;
 
             if(menu_width_visible < 0)
                 menu_width_visible = 0;
-            else if(menu_width_visible > menu.width)
+            else if(static_cast<unsigned int>(menu_width_visible) > menu.width)
                 menu_width_visible = menu.width;
 
-            __builtin_memcpy(screen.bitmap, background, sizeof(COLOR)*SCREEN_WIDTH*SCREEN_HEIGHT);
-
-            __builtin_memcpy(menu_with_selection.bitmap, menu.bitmap, sizeof(COLOR)*menu.width*menu.height);
+            copyTexture(menu, *menu_with_selection);
 
             int selection_y;
             switch(menu_selected_item)
@@ -578,9 +571,9 @@ int main(int argc, char *argv[])
                 break;
             }
 
-            drawTexture(selection, 0, 0, menu_with_selection, 0, selection_y, selection.width, selection.height);
+            drawTexture(selection, 0, 0, *menu_with_selection, 0, selection_y, selection.width, selection.height);
 
-            drawTextureOverlay(menu_with_selection, 0, 0, screen, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection.height);
+            drawTextureOverlay(*menu_with_selection, 0, 0, *screen, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection->height);
 
             nglDisplay();
 
@@ -588,7 +581,7 @@ int main(int argc, char *argv[])
             if(!menu_open && menu_width_visible == 0)
             {
                 gamestate = WORLD;
-                save_background = true;
+                saved_background = false;
             }
 
             if(key_held_down)
@@ -658,32 +651,32 @@ int main(int argc, char *argv[])
         }
         else if(gamestate == BLOCK_LIST)
         {
-            if(save_background)
+            if(!saved_background)
             {
-                memcpy(background, screen.bitmap, sizeof(COLOR)*SCREEN_WIDTH*SCREEN_HEIGHT);
-                save_background = false;
+                copyTexture(*screen, *background);
+                saved_background = true;
             }
+            else
+                copyTexture(*background, *screen);
 
-            memcpy(screen.bitmap, background, sizeof(COLOR)*SCREEN_WIDTH*SCREEN_HEIGHT);
-
-            const int field_width = current_terrain.width / 8;
-            const int field_height = current_terrain.width / 8;
+            const int field_width = resized_terrain->width / 16 * 2;
+            const int field_height = resized_terrain->width / 16 * 2;
             const int fields_x = (SCREEN_WIDTH - 50) / field_width;
             const int fields_y = (SCREEN_WIDTH - 50) / field_height;
 
-            memset(black.bitmap, 0, sizeof(COLOR)*black.width*black.height);
-            drawTexture(selection, 0, 0, black, (current_block_selection % fields_x) * field_width + 13 - selection.width, (current_block_selection / fields_x) * field_height + 17, selection.width, selection.height);
+            std::fill(black->bitmap, black->bitmap + black->width*black->height, 0x0000);
+            drawTexture(selection, 0, 0, *black, (current_block_selection % fields_x) * field_width + 13 - selection.width, (current_block_selection / fields_x) * field_height + 17, selection.width, selection.height);
 
-            drawTextureOverlay(black, 0, 0, screen, 25, 25, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
+            drawTextureOverlay(*black, 0, 0, *screen, 25, 25, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
 
             int block = 0;
             int screen_x = 39, screen_y = 39;
-            for(int y = 0; y < fields_y; y++, screen_y += current_terrain.height / 8)
+            for(int y = 0; y < fields_y; y++, screen_y += field_height)
             {
                 screen_x = 39;
-                for(int x = 0; x < fields_x; x++, screen_x += current_terrain.width / 8)
+                for(int x = 0; x < fields_x; x++, screen_x += field_width)
                 {
-                    drawBlockPreview(user_selectable[block], screen, screen_x, screen_y);
+                    drawBlockPreview(user_selectable[block], *screen, screen_x, screen_y);
 
                     block++;
                     if(block == user_selectable_count)
@@ -700,7 +693,7 @@ int main(int argc, char *argv[])
             else if(keyPressed(KEY_NSPIRE_PERIOD))
             {
                 gamestate = WORLD;
-                save_background = true;
+                saved_background = false;
 
                 key_held_down = true;
             }
@@ -752,12 +745,16 @@ int main(int argc, char *argv[])
 
     nglUninit();
 
-    delete[] black.bitmap;
-    delete[] menu_with_selection.bitmap;
-    delete[] screen.bitmap;
+    deleteTexture(black);
+    deleteTexture(menu_with_selection);
+    deleteTexture(screen);
 
-    if(pack.bitmap != nullptr)
-        delete[] pack.bitmap;
+    //Delete only if previously allocated in initTerrain
+    if(current_terrain->width != 256 || current_terrain->height != 256)
+        deleteTexture(resized_terrain);
+
+    if(pack)
+        deleteTexture(pack);
 
     return 0;
 }

@@ -4,8 +4,12 @@
 #include "chunk.h"
 #include "fastmath.h"
 
-#define debug(...)
-//#define debug(...) printf(__VA_ARGS__)
+#ifdef DEBUG
+    #define debug(...) printf(__VA_ARGS__)
+#else
+    #define debug(...)
+#endif
+
 
 constexpr const int Chunk::SIZE;
 
@@ -59,9 +63,9 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
     const GLFix cake_height = BLOCK_SIZE / 16 * 8;
     const GLFix cake_width = BLOCK_SIZE / 16 * 14;
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) / 2;
-    const TextureAtlasEntry &cake_top = terrain_atlas[9][7];
-    const TextureAtlasEntry &cake_sid = terrain_atlas[10][7];
-    const TextureAtlasEntry &cake_bot = terrain_atlas[12][7];
+    const TextureAtlasEntry &cake_top = terrain_atlas[9][7].current;
+    const TextureAtlasEntry &cake_sid = terrain_atlas[10][7].current;
+    const TextureAtlasEntry &cake_bot = terrain_atlas[12][7].current;
 
     //For BLOCK_TORCH
     std::vector<VERTEX> torch_vertices;
@@ -70,15 +74,15 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
     {
     case BLOCK_FLOWER:
         isBillboard = true;
-        tex = terrain_atlas[data ? 13 : 12][0];
+        tex = terrain_atlas[data ? 13 : 12][0].current;
         break;
     case BLOCK_SPIDERWEB:
         isBillboard = true;
-        tex = terrain_atlas[11][0];
+        tex = terrain_atlas[11][0].current;
         break;
     case BLOCK_MUSHROOM:
         isBillboard = true;
-        tex = terrain_atlas[data ? 13 : 12][1];
+        tex = terrain_atlas[data ? 13 : 12][1].current;
         break;
     case BLOCK_CAKE:
         vertices_not_aligned.push_back({posX, posY, posZ + cake_offset, cake_sid.left, cake_sid.bottom, 0xF000});
@@ -114,7 +118,7 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
         break;
     case BLOCK_TORCH:
         isBillboard = false;
-        tex = terrain_atlas[0][5];
+        tex = terrain_atlas[0][5].current;
 
         glPushMatrix();
         glLoadIdentity();
@@ -193,7 +197,7 @@ void Chunk::buildGeometry()
 {
     drawLoadingtext(3);
 
-    __builtin_memset(pos_indices, -1, sizeof(pos_indices));
+    std::fill(pos_indices[0][0] + 0, pos_indices[SIZE][SIZE] + SIZE + 1, -1);
 
     positions.clear();
     vertices.clear();
@@ -280,7 +284,7 @@ void Chunk::buildGeometry()
                             COLOR c = 0;
                         #endif
 
-                        TextureAtlasEntry &ri = block_textures[block][BLOCK_RIGHT];
+                        TextureAtlasEntry &ri = block_textures[block][BLOCK_RIGHT].current;
                         addAlignedVertex(myposX + 1, myposY, myposZ, ri.right, ri.bottom, c);
                         addAlignedVertex(myposX + 1, myposY + 1, myposZ, ri.right, ri.top, c);
                         addAlignedVertex(myposX + 1, myposY + 1, myposZ + 1, ri.left, ri.top, c);
@@ -305,7 +309,7 @@ void Chunk::buildGeometry()
                             COLOR c = 0;
                         #endif
 
-                        TextureAtlasEntry &le = block_textures[block][BLOCK_LEFT];
+                        TextureAtlasEntry &le = block_textures[block][BLOCK_LEFT].current;
                         addAlignedVertex(myposX, myposY, myposZ + 1, le.left, le.bottom, c);
                         addAlignedVertex(myposX, myposY + 1, myposZ + 1, le.left, le.top, c);
                         addAlignedVertex(myposX, myposY + 1, myposZ, le.right, le.top, c);
@@ -330,7 +334,7 @@ void Chunk::buildGeometry()
                             COLOR c = 0;
                         #endif
 
-                        TextureAtlasEntry &to = block_textures[block][BLOCK_TOP];
+                        TextureAtlasEntry &to = block_textures[block][BLOCK_TOP].current;
                         addAlignedVertex(myposX, myposY + 1, myposZ, to.left, to.bottom, c);
                         addAlignedVertex(myposX, myposY + 1, myposZ + 1, to.left, to.top, c);
                         addAlignedVertex(myposX + 1, myposY + 1, myposZ + 1, to.right, to.top, c);
@@ -355,7 +359,7 @@ void Chunk::buildGeometry()
                             COLOR c = 0;
                         #endif
 
-                        TextureAtlasEntry &bo = block_textures[block][BLOCK_BOTTOM];
+                        TextureAtlasEntry &bo = block_textures[block][BLOCK_BOTTOM].current;
                         addAlignedVertex(myposX + 1, myposY, myposZ, bo.left, bo.bottom, c);
                         addAlignedVertex(myposX + 1, myposY, myposZ + 1, bo.left, bo.top, c);
                         addAlignedVertex(myposX, myposY, myposZ + 1, bo.right, bo.top, c);
@@ -380,7 +384,7 @@ void Chunk::buildGeometry()
                             COLOR c = 0;
                         #endif
 
-                        TextureAtlasEntry &ba = block_textures[block][BLOCK_BACK];
+                        TextureAtlasEntry &ba = block_textures[block][BLOCK_BACK].current;
                         addAlignedVertex(myposX + 1, myposY, myposZ + 1, ba.left, ba.bottom, c);
                         addAlignedVertex(myposX + 1, myposY + 1, myposZ + 1, ba.left, ba.top, c);
                         addAlignedVertex(myposX, myposY + 1, myposZ + 1, ba.right, ba.top, c);
@@ -405,7 +409,7 @@ void Chunk::buildGeometry()
                             COLOR c = 0;
                         #endif
 
-                        TextureAtlasEntry &fr = block_textures[block][BLOCK_FRONT];
+                        TextureAtlasEntry &fr = block_textures[block][BLOCK_FRONT].current;
                         addAlignedVertex(myposX, myposY, myposZ, fr.left, fr.bottom, c);
                         addAlignedVertex(myposX, myposY + 1, myposZ, fr.left, fr.top, c);
                         addAlignedVertex(myposX + 1, myposY + 1, myposZ, fr.right, fr.top, c);
@@ -799,7 +803,7 @@ bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFi
 void Chunk::generate()
 {
     //Everything air
-    memset(blocks, BLOCK_AIR, sizeof(blocks));
+    std::fill(blocks[0][0] + 0, blocks[SIZE - 1][SIZE - 1] + SIZE, BLOCK_AIR);
 
     debug("Generating chunk %d:%d:%d...\t", x, y, z);
 

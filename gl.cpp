@@ -1,4 +1,5 @@
 #include <utility>
+#include <algorithm>
 #include <libndls.h>
 
 #include "gl.h"
@@ -219,18 +220,9 @@ void nglSetBuffer(COLOR *screenBuf)
     screen = screenBuf;
 }
 
-//Will work only on CX
 void nglDisplay()
 {
-    uint32_t *real_screen = reinterpret_cast<uint32_t*>(SCREEN_BASE_ADDRESS);
-    uint32_t *buffer = reinterpret_cast<uint32_t*>(screen);
-    for(unsigned int x = SCREEN_WIDTH*SCREEN_HEIGHT/8; x--;)
-    {
-        *(real_screen++) = *(buffer++);
-        *(real_screen++) = *(buffer++);
-        *(real_screen++) = *(buffer++);
-        *(real_screen++) = *(buffer++);
-    }
+    std::copy(screen, screen + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
 
     #ifdef FPS_COUNTER
         if(frames == 0)
@@ -764,22 +756,13 @@ void glBegin(GLDrawMode mode)
     draw_mode = mode;
 }
 
-//Could be faster than memset and allows us to specify a 32-bit value instead of 8-bit
-template <typename T>
-void memclear(const T value, T *buffer, uint32_t size)
-{
-    while(size--)
-        *buffer++ = value;
-}
-
 void glClear(const int buffers)
 {
     if(buffers & GL_COLOR_BUFFER_BIT)
-        memclear(color, screen, SCREEN_WIDTH*SCREEN_HEIGHT);
+        std::fill(screen, screen + SCREEN_WIDTH*SCREEN_HEIGHT, color);
 
-    //The depth buffer uses unsigned 32-bit ints internally
     if(buffers & GL_DEPTH_BUFFER_BIT)
-        memclear(z_buffer->maxValue(), z_buffer, SCREEN_WIDTH*SCREEN_HEIGHT);
+        std::fill(z_buffer, z_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, z_buffer->maxValue());
 }
 
 void glLoadIdentity()

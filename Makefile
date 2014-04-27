@@ -24,5 +24,5 @@ $(EXE): $(OBJS)
 	$(LD) $^ -o $@ $(LDFLAGS)
 
 clean:
-	rm -f `find . -name \*.o` *.elf
+	rm -f `find . -name \*.o`
 	rm -f $(EXE) $(EXE).gdb

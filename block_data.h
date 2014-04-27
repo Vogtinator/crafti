@@ -61,10 +61,16 @@ enum BLOCK_SIDE {
     BLOCK_SIDE_MAX = 6
 };
 
-extern const char *block_names[];
-extern TextureAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
-extern TextureAtlasEntry terrain_atlas[16][16];
+//There may be more than one resolution, so compute TextureAtlasEntries for both
+struct TerrainAtlasEntry {
+    TextureAtlasEntry current; //For blocks
+    TextureAtlasEntry resized; //For GUI and other elements which shouldn't scale to the texture
+};
 
-void init_blockData(TEXTURE *texture);
+extern const char *block_names[];
+extern TerrainAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
+extern TerrainAtlasEntry terrain_atlas[16][16];
+
+void initTerrain(TEXTURE &texture_normal, TEXTURE* &texture_resized);
 
 #endif // BLOCK_DATA_H

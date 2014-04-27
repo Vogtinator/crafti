@@ -57,7 +57,7 @@ struct BLOCK_TEXTURE {
 BLOCK_TEXTURE texture_atlas[][16] =
 {
     { TOP(BLOCK_GRASS), ALL(BLOCK_STONE), ALL(BLOCK_DIRT), SID(BLOCK_GRASS), ALL(BLOCK_PLANKS_NORMAL), NON, NON, ALL(BLOCK_WALL), ALL(BLOCK_TNT), TOP(BLOCK_TNT), BOT(BLOCK_TNT), NON, NON, NON, NON, NON },
-    { NON, NON, ALL(BLOCK_SAND), BOT(BLOCK_GRASS), ALL(BLOCK_WOOD), TAB(BLOCK_WOOD), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, ALL(BLOCK_SAND), BOT(BLOCK_GRASS), SID(BLOCK_WOOD), TAB(BLOCK_WOOD), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
     { ALL(BLOCK_GOLD_ORE), ALL(BLOCK_IRON_ORE), ALL(BLOCK_COAL_ORE), FRO(BLOCK_BOOKSHELF), NON, NON, NON, NON, NON, NON, NON, TAB(BLOCK_CRAFTING_TABLE), FRO(BLOCK_FURNACE), SWF(BLOCK_FURNACE), NON, NON },
     { ALL(BLOCK_SPONGE), NON, ALL(BLOCK_DIAMOND_ORE), ALL(BLOCK_REDSTONE_ORE), NON, ALL(BLOCK_LEAVES), NON, NON, NON, NON, NON, SID(BLOCK_CRAFTING_TABLE), FRO(BLOCK_CRAFTING_TABLE), NON, TOP(BLOCK_FURNACE), NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
@@ -74,38 +74,44 @@ BLOCK_TEXTURE texture_atlas[][16] =
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON }
 };
 
-TextureAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
-TextureAtlasEntry terrain_atlas[16][16];
+TerrainAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
+TerrainAtlasEntry terrain_atlas[16][16];
 
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
-static void make_green(TEXTURE *texture, int x, int y, int w, int h)
+static void makeGreen(TEXTURE &texture, int x, int y, int w, int h)
 {
     RGB green = { 0.5f, 0.8f, 0.3f };
     for(int x1 = x; x1 < w + x; x1++)
         for(int y1 = y; y1 < h + y; y1++)
         {
-            RGB grey = rgbColor(texture->bitmap[x1 + y1*texture->width]);
+            RGB grey = rgbColor(texture.bitmap[x1 + y1*texture.width]);
             grey.r *= green.r;
             grey.g *= green.g;
             grey.b *= green.b;
-            texture->bitmap[x1 + y1*texture->width] = colorRGB(grey);
+            texture.bitmap[x1 + y1*texture.width] = colorRGB(grey);
         }
 }
 
-void init_blockData(TEXTURE *texture)
+void initTerrain(TEXTURE &texture, TEXTURE* &texture_resized)
 {
     int fields_x = 16;
     int fields_y = 16;
-    int field_width = texture->width / fields_x;
-    int field_height = texture->height / fields_y;
+    int field_width = texture.width / fields_x;
+    int field_height = texture.height / fields_y;
 
-    make_green(texture, 0, 0, field_width, field_height);
-    make_green(texture, 5 * field_width, 3 * field_height, field_width, field_height);
+    makeGreen(texture, 0, 0, field_width, field_height);
+    makeGreen(texture, 5 * field_width, 3 * field_height, field_width, field_height);
+
+    if(texture.width == 256 && texture.height == 256)
+        texture_resized = &texture;
+    else
+        texture_resized = resizeTexture(texture, 256, 256);
 
     for(int y = 0; y < fields_y; y++)
         for(int x = 0; x < fields_x; x++)
         {
-            TextureAtlasEntry tea = terrain_atlas[x][y] = textureArea(x * field_width, y * field_height, field_width, field_height);
+            TerrainAtlasEntry tea = terrain_atlas[x][y] = {textureArea(x * field_width, y * field_height, field_width, field_height),
+                                                            textureArea(x * 16, y * 16, 16, 16) };
 
             BLOCK_TEXTURE bt = texture_atlas[y][x];
             if(bt.sides == 0)

@@ -176,7 +176,7 @@ static void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, co
             decltype(screen) screen_buf = screen_buf_line + x1;
             for(int x = x1; x <= x2; x += 1, ++z_buf, ++screen_buf)
             {
-                if(__builtin_expect(*z_buf > z, true))
+                if(__builtin_expect(*z_buf > z, false))
                 {
                     #ifndef TRANSPARENCY
                         *z_buf = z;
@@ -279,7 +279,7 @@ static void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, co
             decltype(screen) screen_buf = screen_buf_line + x1;
             for(int x = x1; x <= x2; x += 1, ++z_buf, ++screen_buf)
             {
-                if(__builtin_expect(*z_buf > z, true))
+                if(__builtin_expect(*z_buf > z, false))
                 {
                     #ifndef TRANSPARENCY
                         *z_buf = z;
