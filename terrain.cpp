@@ -1,8 +1,8 @@
-#include "block_data.h"
+#include "terrain.h"
 
-#include "aabb.h"
+#include "textures/terrain.h"
 
-/*const char *block_names[BLOCK_NORMAL_MAX] =
+const char *block_names[BLOCK_NORMAL_MAX] =
 {
     "Air",
     "Stone",
@@ -14,7 +14,7 @@
     "Wall",
     "Coal Ore",
     "Gold Ore",
-    "Diamod Ore",
+    "Diamond Ore",
     "Redstone Ore",
     "TNT",
     "Sponge",
@@ -26,7 +26,7 @@
     "Bookshelf",
     "Grass",
     "Pumpkin"
-};*/
+};
 
 #define BT_FRONT 1
 #define BT_BACK 2
@@ -77,6 +77,8 @@ BLOCK_TEXTURE texture_atlas[][16] =
 TerrainAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
 TerrainAtlasEntry terrain_atlas[16][16];
 
+TEXTURE *terrain_current, *terrain_resized;
+
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
 static void makeGreen(TEXTURE &texture, int x, int y, int w, int h)
 {
@@ -92,25 +94,32 @@ static void makeGreen(TEXTURE &texture, int x, int y, int w, int h)
         }
 }
 
-void initTerrain(TEXTURE &texture, TEXTURE* &texture_resized)
+void terrainInit(const char *texture_path)
 {
+    terrain_current = loadTextureFromFile(texture_path);
+    if(!terrain_current)
+        terrain_current = &terrain; //Use default, included texture
+    else
+        puts("External texture loaded!");
+
     int fields_x = 16;
     int fields_y = 16;
-    int field_width = texture.width / fields_x;
-    int field_height = texture.height / fields_y;
+    int field_width = terrain_current->width / fields_x;
+    int field_height = terrain_current->height / fields_y;
 
-    makeGreen(texture, 0, 0, field_width, field_height);
-    makeGreen(texture, 5 * field_width, 3 * field_height, field_width, field_height);
+    makeGreen(*terrain_current, 0, 0, field_width, field_height);
+    makeGreen(*terrain_current, 5 * field_width, 3 * field_height, field_width, field_height);
 
-    if(texture.width == 256 && texture.height == 256)
-        texture_resized = &texture;
+    if(terrain_current->width == 256 && terrain_current->height == 256)
+        terrain_resized = terrain_current;
     else
-        texture_resized = resizeTexture(texture, 256, 256);
+        terrain_resized = resizeTexture(*terrain_current, 256, 256);
 
     for(int y = 0; y < fields_y; y++)
         for(int x = 0; x < fields_x; x++)
         {
-            TerrainAtlasEntry tea = terrain_atlas[x][y] = {textureArea(x * field_width, y * field_height, field_width, field_height),
+            //+1 and -2 to work around GLFix inaccuracies resulting in rounding errors
+            TerrainAtlasEntry tea = terrain_atlas[x][y] = {textureArea(x * field_width + 1, y * field_height + 1, field_width - 2, field_height - 2),
                                                             textureArea(x * 16, y * 16, 16, 16) };
 
             BLOCK_TEXTURE bt = texture_atlas[y][x];
@@ -131,4 +140,13 @@ void initTerrain(TEXTURE &texture, TEXTURE* &texture_resized)
                 block_textures[bt.block][BLOCK_BACK] = tea;
 
         }
+}
+
+void terrainUninit()
+{
+    if(terrain_current->width != 256 || terrain_current->height != 256)
+        deleteTexture(terrain_resized);
+
+    if(terrain_current != &terrain)
+        deleteTexture(terrain_current);
 }

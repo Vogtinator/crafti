@@ -3,6 +3,7 @@
 #include "world.h"
 #include "chunk.h"
 #include "fastmath.h"
+#include "blockrenderer.h"
 
 #ifdef DEBUG
     #define debug(...) printf(__VA_ARGS__)
@@ -10,25 +11,16 @@
     #define debug(...)
 #endif
 
-
 constexpr const int Chunk::SIZE;
 
 Chunk::Chunk(int x, int y, int z, World *parent)
     : x(x), y(y), z(z), abs_x(x*SIZE*BLOCK_SIZE), abs_y(y*SIZE*BLOCK_SIZE), abs_z(z*SIZE*BLOCK_SIZE), parent(parent), aabb(abs_x, abs_y, abs_z, abs_x + SIZE*BLOCK_SIZE, abs_y + SIZE*BLOCK_SIZE, abs_z + SIZE*BLOCK_SIZE)
 {}
 
-RGB operator *(const RGB& rgb, const GLFix f)
+static constexpr bool inBounds(int x, int y, int z)
 {
-    return { rgb.r * f, rgb.g * f, rgb.b * f };
+    return x >= 0 && y >= 0 && z >= 0 && x < Chunk::SIZE && y < Chunk::SIZE && z < Chunk::SIZE;
 }
-
-COLOR operator *(const COLOR c, const GLFix f)
-{
-    RGB rgb = rgbColor(c) * f;
-    return colorRGB(rgb.r, rgb.g, rgb.b);
-}
-
-#define IN_BOUNDS(x, y, z) (x >= 0 && y >= 0 && z >= 0 && x < SIZE && y < SIZE && z < SIZE)
 
 int Chunk::getPosition(GLFix x, GLFix y, GLFix z)
 {
@@ -46,6 +38,16 @@ void Chunk::addAlignedVertex(const GLFix x, const GLFix y, const GLFix z, GLFix 
     vertices.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
 }
 
+void Chunk::addUnalignedVertex(const GLFix x, const GLFix y, const GLFix z, const GLFix u, const GLFix v, const COLOR c)
+{
+    vertices_unaligned.emplace_back(VERTEX{x, y, z, u, v, c});
+}
+
+void Chunk::addUnalignedVertex(const VERTEX &v)
+{
+    vertices_unaligned.push_back(v);
+}
+
 void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side)
 {
     if(side != BLOCK_SIDE_MAX)
@@ -58,14 +60,6 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
 
     TextureAtlasEntry tex;
     bool isBillboard = false;
-
-    //For BLOCK_CAKE
-    const GLFix cake_height = BLOCK_SIZE / 16 * 8;
-    const GLFix cake_width = BLOCK_SIZE / 16 * 14;
-    const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) / 2;
-    const TextureAtlasEntry &cake_top = terrain_atlas[9][7].current;
-    const TextureAtlasEntry &cake_sid = terrain_atlas[10][7].current;
-    const TextureAtlasEntry &cake_bot = terrain_atlas[12][7].current;
 
     //For BLOCK_TORCH
     std::vector<VERTEX> torch_vertices;
@@ -83,38 +77,6 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
     case BLOCK_MUSHROOM:
         isBillboard = true;
         tex = terrain_atlas[data ? 13 : 12][1].current;
-        break;
-    case BLOCK_CAKE:
-        vertices_not_aligned.push_back({posX, posY, posZ + cake_offset, cake_sid.left, cake_sid.bottom, 0xF000});
-        vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ + cake_offset, cake_sid.left, cake_sid.top, 0xF000});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + cake_offset, cake_sid.right, cake_sid.top, 0xF000});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + cake_offset, cake_sid.right, cake_sid.bottom, 0xF000});
-
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + cake_offset + cake_width, cake_sid.left, cake_sid.bottom, 0xF000});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + cake_offset + cake_width, cake_sid.left, cake_sid.top, 0xF000});
-        vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ + cake_offset + cake_width, cake_sid.right, cake_sid.top, 0xF000});
-        vertices_not_aligned.push_back({posX, posY, posZ + cake_offset + cake_width, cake_sid.right, cake_sid.bottom, 0xF000});
-
-        vertices_not_aligned.push_back({posX + cake_offset, posY, posZ + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, 0xF000});
-        vertices_not_aligned.push_back({posX + cake_offset, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, cake_sid.left, cake_sid.top, 0xF000});
-        vertices_not_aligned.push_back({posX + cake_offset, posY + BLOCK_SIZE, posZ, cake_sid.right, cake_sid.top, 0xF000});
-        vertices_not_aligned.push_back({posX + cake_offset, posY, posZ, cake_sid.right, cake_sid.bottom, 0xF000});
-
-        vertices_not_aligned.push_back({posX + cake_offset + cake_width, posY, posZ, cake_sid.left, cake_sid.bottom, 0xF000});
-        vertices_not_aligned.push_back({posX + cake_offset + cake_width, posY + BLOCK_SIZE, posZ, cake_sid.left, cake_sid.top, 0xF000});
-        vertices_not_aligned.push_back({posX + cake_offset + cake_width, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, cake_sid.right, cake_sid.top, 0xF000});
-        vertices_not_aligned.push_back({posX + cake_offset + cake_width, posY, posZ + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, 0xF000});
-
-        vertices_not_aligned.push_back({posX, posY + cake_height, posZ, cake_top.left, cake_top.bottom, 0xF000});
-        vertices_not_aligned.push_back({posX, posY + cake_height, posZ + BLOCK_SIZE, cake_top.left, cake_top.top, 0xF000});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + cake_height, posZ + BLOCK_SIZE, cake_top.right, cake_top.top, 0xF000});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + cake_height, posZ, cake_top.right, cake_top.bottom, 0xF000});
-
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ, cake_bot.left, cake_bot.bottom, 0xF000});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + BLOCK_SIZE, cake_bot.left, cake_bot.top, 0xF000});
-        vertices_not_aligned.push_back({posX, posY, posZ + BLOCK_SIZE, cake_bot.right, cake_bot.top, 0xF000});
-        vertices_not_aligned.push_back({posX, posY, posZ, cake_bot.right, cake_bot.bottom, 0xF000});
-
         break;
     case BLOCK_TORCH:
         isBillboard = false;
@@ -168,7 +130,7 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
             v1.u = v.u;
             v1.v = v.v;
             v1.c = v.c;
-            vertices_not_aligned.push_back(v1);
+            vertices_unaligned.push_back(v1);
         }
 
         glPopMatrix();
@@ -179,15 +141,15 @@ void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int
     if(isBillboard)
     {
         //0xFFFF: Black = transparent and no backface culling
-        vertices_not_aligned.push_back({posX, posY, posZ, tex.left, tex.bottom, 0xFFFF});
-        vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ, tex.left, tex.top, 0xFFFF});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.right, tex.top, 0xFFFF});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ + BLOCK_SIZE, tex.right, tex.bottom, 0xFFFF});
+        vertices_unaligned.push_back({posX, posY, posZ, tex.left, tex.bottom, 0xFFFF});
+        vertices_unaligned.push_back({posX, posY + BLOCK_SIZE, posZ, tex.left, tex.top, 0xFFFF});
+        vertices_unaligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.right, tex.top, 0xFFFF});
+        vertices_unaligned.push_back({posX + BLOCK_SIZE, posY, posZ + BLOCK_SIZE, tex.right, tex.bottom, 0xFFFF});
 
-        vertices_not_aligned.push_back({posX, posY, posZ + BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
-        vertices_not_aligned.push_back({posX, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ, tex.right, tex.top, 0xFFFF});
-        vertices_not_aligned.push_back({posX + BLOCK_SIZE, posY, posZ, tex.right, tex.bottom, 0xFFFF});
+        vertices_unaligned.push_back({posX, posY, posZ + BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
+        vertices_unaligned.push_back({posX, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
+        vertices_unaligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ, tex.right, tex.top, 0xFFFF});
+        vertices_unaligned.push_back({posX + BLOCK_SIZE, posY, posZ, tex.right, tex.bottom, 0xFFFF});
 
         return;
     }
@@ -201,239 +163,102 @@ void Chunk::buildGeometry()
 
     positions.clear();
     vertices.clear();
-    vertices_not_aligned.clear();
+    vertices_unaligned.clear();
 
     debug("Updating chunk %d:%d:%d...\n", x, y, z);
 
     debug("\tUpdating geometry...\t");
-    int count_indices = 0;
 
     //Bottom of world doesn't need to be drawn
     int y_start = this->y == 0 ? 0 : -1;
 
-    //Calculate size of buffer
+    //Now go through map and search for transparent blocks and draw only the sides adjacent to them
+
+    /*//Calculate size of buffer (skipped for now, seems to be slow compared to vector resizing)
+    int count_indices = 0;
     for(int x = -1; x <= SIZE; x++)
         for(int y = y_start; y <= SIZE; y++)
             for(int z = -1; z <= SIZE; z++)
             {
                 BLOCK_WDATA block = getGlobalBlockRelative(x, y, z);
 
-                //If not transparent, sides of adjacent blocks aren't visible
-                if(!isBlockTransparent(block))
+                if(globalBlockRenderer.isOpaque(block))
                     continue;
 
-                if(IN_BOUNDS(x - 1, y, z) && (block = blocks[x - 1][y][z]) != BLOCK_AIR)
-                    count_indices += 4;
+                if(inBounds(x - 1, y, z) && (block = blocks[x - 1][y][z]) != BLOCK_AIR)
+                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x - 1, y, z, BLOCK_RIGHT, *this);
 
-                if(IN_BOUNDS(x + 1, y, z) && (block = blocks[x + 1][y][z]) != BLOCK_AIR)
-                    count_indices += 4;
+                if(inBounds(x + 1, y, z) && (block = blocks[x + 1][y][z]) != BLOCK_AIR)
+                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x + 1, y, z, BLOCK_LEFT, *this);
 
-                if(IN_BOUNDS(x, y - 1, z) && (block = blocks[x][y - 1][z]) != BLOCK_AIR)
-                    count_indices += 4;
+                if(inBounds(x, y - 1, z) && (block = blocks[x][y - 1][z]) != BLOCK_AIR)
+                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x, y - 1, z, BLOCK_TOP, *this);
 
-                if(IN_BOUNDS(x, y + 1, z) && (block = blocks[x][y + 1][z]) != BLOCK_AIR)
-                    count_indices += 4;
+                if(inBounds(x, y + 1, z) && (block = blocks[x][y + 1][z]) != BLOCK_AIR)
+                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x, y + 1, z, BLOCK_BOTTOM, *this);
 
-                if(IN_BOUNDS(x, y, z - 1) && (block = blocks[x][y][z - 1]) != BLOCK_AIR)
-                    count_indices += 4;
+                if(inBounds(x, y, z - 1) && (block = blocks[x][y][z - 1]) != BLOCK_AIR)
+                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x, y, z - 1, BLOCK_BACK, *this);
 
-                if(IN_BOUNDS(x, y, z + 1) && (block = blocks[x][y][z + 1]) != BLOCK_AIR)
-                    count_indices += 4;
+                if(inBounds(x, y, z + 1) && (block = blocks[x][y][z + 1]) != BLOCK_AIR)
+                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x, y, z + 1, BLOCK_FRONT, *this);
             }
 
-    vertices.reserve(count_indices);
+    vertices.reserve(count_indices);*/
 
     //Now, render!
-    GLFix pos_x = -1;
 
-    for(int x = -1; x <= SIZE; x++, pos_x += 1)
+    for(int x = -1; x <= SIZE; x++)
     {
-        GLFix pos_y = y_start;
-        for(int y = y_start; y <= SIZE; y++, pos_y += 1)
+        for(int y = y_start; y <= SIZE; y++)
         {
-            GLFix pos_z = -1;
-            for(int z = -1; z <= SIZE; z++, pos_z += 1)
+            for(int z = -1; z <= SIZE; z++)
             {
                 BLOCK_WDATA block = getGlobalBlockRelative(x, y, z);
 
-                //If not transparent, sides of adjacent blocks aren't visible
-                if(!isBlockTransparent(block))
+                if(globalBlockRenderer.isOpaque(block))
                     continue;
 
-                #ifndef TEXTURE_SUPPORT
-                    GLFix light_level = 1;
+                if(inBounds(x - 1, y, z) && (block = blocks[x - 1][y][z]) != BLOCK_AIR)
+                    globalBlockRenderer.geometryNormalBlock(block, x - 1, y, z, BLOCK_RIGHT, *this);
 
-                    if((x + z) % 2 == 0)
-                        light_level *= 0.8f;
-                #endif
+                if(inBounds(x + 1, y, z) && (block = blocks[x + 1][y][z]) != BLOCK_AIR)
+                    globalBlockRenderer.geometryNormalBlock(block, x + 1, y, z, BLOCK_LEFT, *this);
 
-                if(IN_BOUNDS(x - 1, y, z) && (block = blocks[x - 1][y][z]) != BLOCK_AIR)
-                {
-                    if(__builtin_expect(isSpecialBlock(block), 0))
-                        geometrySpecialBlock(block, x - 1, y, z, BLOCK_RIGHT);
-                    else
-                    {
-                        GLFix myposX = pos_x - 1;
-                        GLFix myposY = pos_y;
-                        GLFix myposZ = pos_z;
+                if(inBounds(x, y - 1, z) && (block = blocks[x][y - 1][z]) != BLOCK_AIR)
+                    globalBlockRenderer.geometryNormalBlock(block, x, y - 1, z, BLOCK_TOP, *this);
 
-                        #ifndef TEXTURE_SUPPORT
-                            COLOR c = block_colors[block][BLOCK_RIGHT];
-                            c = c * light_level;
-                        #else
-                            COLOR c = 0;
-                        #endif
+                if(inBounds(x, y + 1, z) && (block = blocks[x][y + 1][z]) != BLOCK_AIR)
+                    globalBlockRenderer.geometryNormalBlock(block, x, y + 1, z, BLOCK_BOTTOM, *this);
 
-                        TextureAtlasEntry &ri = block_textures[block][BLOCK_RIGHT].current;
-                        addAlignedVertex(myposX + 1, myposY, myposZ, ri.right, ri.bottom, c);
-                        addAlignedVertex(myposX + 1, myposY + 1, myposZ, ri.right, ri.top, c);
-                        addAlignedVertex(myposX + 1, myposY + 1, myposZ + 1, ri.left, ri.top, c);
-                        addAlignedVertex(myposX + 1, myposY, myposZ + 1, ri.left, ri.bottom, c);
-                    }
-                }
+                if(inBounds(x, y, z - 1) && (block = blocks[x][y][z - 1]) != BLOCK_AIR)
+                    globalBlockRenderer.geometryNormalBlock(block, x, y, z - 1, BLOCK_BACK, *this);
 
-                if(IN_BOUNDS(x + 1, y, z) && (block = blocks[x + 1][y][z]) != BLOCK_AIR)
-                {
-                    if(__builtin_expect(isSpecialBlock(block), 0))
-                        geometrySpecialBlock(block, x + 1, y, z, BLOCK_LEFT);
-                    else
-                    {
-                        GLFix myposX = pos_x + 1;
-                        GLFix myposY = pos_y;
-                        GLFix myposZ = pos_z;
-
-                        #ifndef TEXTURE_SUPPORT
-                            COLOR c = block_colors[block][BLOCK_LEFT];
-                            c = c * light_level;
-                        #else
-                            COLOR c = 0;
-                        #endif
-
-                        TextureAtlasEntry &le = block_textures[block][BLOCK_LEFT].current;
-                        addAlignedVertex(myposX, myposY, myposZ + 1, le.left, le.bottom, c);
-                        addAlignedVertex(myposX, myposY + 1, myposZ + 1, le.left, le.top, c);
-                        addAlignedVertex(myposX, myposY + 1, myposZ, le.right, le.top, c);
-                        addAlignedVertex(myposX, myposY, myposZ, le.right, le.bottom, c);
-                    }
-                }
-
-                if(IN_BOUNDS(x, y - 1, z) && (block = blocks[x][y - 1][z]) != BLOCK_AIR)
-                {
-                    if(__builtin_expect(isSpecialBlock(block), 0))
-                        geometrySpecialBlock(block, x, y - 1, z, BLOCK_TOP);
-                    else
-                    {
-                        GLFix myposX = pos_x;
-                        GLFix myposY = pos_y - 1;
-                        GLFix myposZ = pos_z;
-
-                        #ifndef TEXTURE_SUPPORT
-                            COLOR c = block_colors[block][BLOCK_TOP];
-                            c = c * light_level;
-                        #else
-                            COLOR c = 0;
-                        #endif
-
-                        TextureAtlasEntry &to = block_textures[block][BLOCK_TOP].current;
-                        addAlignedVertex(myposX, myposY + 1, myposZ, to.left, to.bottom, c);
-                        addAlignedVertex(myposX, myposY + 1, myposZ + 1, to.left, to.top, c);
-                        addAlignedVertex(myposX + 1, myposY + 1, myposZ + 1, to.right, to.top, c);
-                        addAlignedVertex(myposX + 1, myposY + 1, myposZ, to.right, to.bottom, c);
-                    }
-                }
-
-                if(IN_BOUNDS(x, y + 1, z) && (block = blocks[x][y + 1][z]) != BLOCK_AIR)
-                {
-                    if(__builtin_expect(isSpecialBlock(block), 0))
-                        geometrySpecialBlock(block, x, y + 1, z, BLOCK_BOTTOM);
-                    else
-                    {
-                        GLFix myposX = pos_x;
-                        GLFix myposY = pos_y + 1;
-                        GLFix myposZ = pos_z;
-
-                        #ifndef TEXTURE_SUPPORT
-                            COLOR c = block_colors[block][BLOCK_BOTTOM];
-                            c = c * light_level;
-                        #else
-                            COLOR c = 0;
-                        #endif
-
-                        TextureAtlasEntry &bo = block_textures[block][BLOCK_BOTTOM].current;
-                        addAlignedVertex(myposX + 1, myposY, myposZ, bo.left, bo.bottom, c);
-                        addAlignedVertex(myposX + 1, myposY, myposZ + 1, bo.left, bo.top, c);
-                        addAlignedVertex(myposX, myposY, myposZ + 1, bo.right, bo.top, c);
-                        addAlignedVertex(myposX, myposY, myposZ, bo.right, bo.bottom, c);
-                    }
-                }
-
-                if(IN_BOUNDS(x, y, z - 1) && (block = blocks[x][y][z - 1]) != BLOCK_AIR)
-                {
-                    if(__builtin_expect(isSpecialBlock(block), 0))
-                        geometrySpecialBlock(block, x, y, z - 1, BLOCK_BACK);
-                    else
-                    {
-                        GLFix myposX = pos_x;
-                        GLFix myposY = pos_y;
-                        GLFix myposZ = pos_z - 1;
-
-                        #ifndef TEXTURE_SUPPORT
-                            COLOR c = block_colors[block][BLOCK_BACK];
-                            c = c * light_level;
-                        #else
-                            COLOR c = 0;
-                        #endif
-
-                        TextureAtlasEntry &ba = block_textures[block][BLOCK_BACK].current;
-                        addAlignedVertex(myposX + 1, myposY, myposZ + 1, ba.left, ba.bottom, c);
-                        addAlignedVertex(myposX + 1, myposY + 1, myposZ + 1, ba.left, ba.top, c);
-                        addAlignedVertex(myposX, myposY + 1, myposZ + 1, ba.right, ba.top, c);
-                        addAlignedVertex(myposX, myposY, myposZ + 1, ba.right, ba.bottom, c);
-                    }
-                }
-
-                if(IN_BOUNDS(x, y, z + 1) && (block = blocks[x][y][z + 1]) != BLOCK_AIR)
-                {
-                    if(__builtin_expect(isSpecialBlock(block), 0))
-                        geometrySpecialBlock(block, x, y, z + 1, BLOCK_FRONT);
-                    else
-                    {
-                        GLFix myposX = pos_x;
-                        GLFix myposY = pos_y;
-                        GLFix myposZ = pos_z + 1;
-
-                        #ifndef TEXTURE_SUPPORT
-                            COLOR c = block_colors[block][BLOCK_FRONT];
-                            c = c * light_level;
-                        #else
-                            COLOR c = 0;
-                        #endif
-
-                        TextureAtlasEntry &fr = block_textures[block][BLOCK_FRONT].current;
-                        addAlignedVertex(myposX, myposY, myposZ, fr.left, fr.bottom, c);
-                        addAlignedVertex(myposX, myposY + 1, myposZ, fr.left, fr.top, c);
-                        addAlignedVertex(myposX + 1, myposY + 1, myposZ, fr.right, fr.top, c);
-                        addAlignedVertex(myposX + 1, myposY, myposZ, fr.right, fr.bottom, c);
-                    }
-                }
+                if(inBounds(x, y, z + 1) && (block = blocks[x][y][z + 1]) != BLOCK_AIR)
+                    globalBlockRenderer.geometryNormalBlock(block, x, y, z + 1, BLOCK_FRONT, *this);
             }
         }
-
-        positions_transformed.resize(positions.size());
-        positions_perspective.resize(positions.size());
     }
 
     //Special blocks
-    for(int x = 0; x < SIZE; x++)
-        for(int y = 0; y < SIZE; y++)
-            for(int z = 0; z < SIZE; z++)
+    GLFix pos_x = abs_x;
+    for(int x = 0; x < SIZE; x++, pos_x += BLOCK_SIZE)
+    {
+        GLFix pos_y = abs_y;
+        for(int y = 0; y < SIZE; y++, pos_y += BLOCK_SIZE)
+        {
+            GLFix pos_z = abs_z;
+            for(int z = 0; z < SIZE; z++, pos_z += BLOCK_SIZE)
             {
                 BLOCK_WDATA block = blocks[x][y][z];
-
-                if(isSpecialBlock(block))
-                    geometrySpecialBlock(block, x, y, z, BLOCK_SIDE_MAX);
+                if(block != BLOCK_AIR)
+                    globalBlockRenderer.renderSpecialBlock(blocks[x][y][z], pos_x, pos_y, pos_z, *this);
             }
+        }
+    }
 
+    positions_transformed.resize(positions.size());
+    positions_perspective.resize(positions.size());
 
     render_dirty = false;
 
@@ -641,13 +466,13 @@ void Chunk::render()
     const IndexedVertex *v = vertices.data();
     for(unsigned int i = 0; i < vertices.size(); i += 4, v += 4)
     {
-        if(drawTriangle(v[0], v[1], v[2]))
+        if(drawTriangle(v[0], v[1], v[2], v[0].c != 0xFFFF))
             drawTriangle(v[2], v[3], v[0], false);
     }
 
     //Do these last, they may be transparent
-    const VERTEX *ve = vertices_not_aligned.data();
-    for(unsigned int i = 0; i < vertices_not_aligned.size(); i += 4, ve += 4)
+    const VERTEX *ve = vertices_unaligned.data();
+    for(unsigned int i = 0; i < vertices_unaligned.size(); i += 4, ve += 4)
     {
         VERTEX v1, v2, v3, v4;
         nglMultMatVectRes(transformation, ve + 0, &v1);
@@ -688,7 +513,7 @@ void Chunk::setLocalBlock(const int x, const int y, const int z, const BLOCK_WDA
 
 BLOCK_WDATA Chunk::getGlobalBlockRelative(int x, int y, int z)
 {
-    if(IN_BOUNDS(x, y, z))
+    if(inBounds(x, y, z))
         return getLocalBlock(x, y, z);
 
     return parent->getBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE);
@@ -696,47 +521,51 @@ BLOCK_WDATA Chunk::getGlobalBlockRelative(int x, int y, int z)
 
 void Chunk::setGlobalBlockRelative(int x, int y, int z, BLOCK_WDATA block)
 {
-    if(IN_BOUNDS(x, y, z))
+    if(inBounds(x, y, z))
         return setLocalBlock(x, y, z, block);
 
     return parent->setBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, block);
 }
 
+//Ignores any non-obstacle blocks
 bool Chunk::intersects(AABB &other)
 {
     if(!aabb.intersects(other))
         return false;
 
     AABB aabb;
-    aabb.low_x = this->x*SIZE*BLOCK_SIZE;
+    aabb.low_x = abs_x;
 
-    for(unsigned int x = 0; x < SIZE; x++)
+    for(unsigned int x = 0; x < SIZE; x++, aabb.low_x += BLOCK_SIZE)
     {
         aabb.high_x = aabb.low_x + BLOCK_SIZE;
 
-        aabb.low_y = this->y*SIZE*BLOCK_SIZE;
+        aabb.low_y = abs_y;
 
-        for(unsigned int y = 0; y < SIZE; y++)
+        for(unsigned int y = 0; y < SIZE; y++, aabb.low_y += BLOCK_SIZE)
         {
             aabb.high_y = aabb.low_y + BLOCK_SIZE;
 
-            aabb.low_z = this->z*SIZE*BLOCK_SIZE;
+            aabb.low_z = abs_z;
 
             for(unsigned int z = 0; z < SIZE; z++, aabb.low_z += BLOCK_SIZE)
             {
                 aabb.high_z = aabb.low_z + BLOCK_SIZE;
 
-                if(!isBlockObstacle(blocks[x][y][z]))
+                const BLOCK_WDATA block = blocks[x][y][z];
+
+                if(!globalBlockRenderer.isObstacle(block))
                     continue;
 
-                if(aabb.intersects(other))
+                if(globalBlockRenderer.isBlockShaped(block))
+                {
+                    if(aabb.intersects(other))
+                        return true;
+                }
+                else if(globalBlockRenderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z).intersects(other))
                     return true;
             }
-
-            aabb.low_y += BLOCK_SIZE;
         }
-
-        aabb.low_x += BLOCK_SIZE;
     }
 
     return false;
@@ -751,46 +580,48 @@ bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFi
     shortest_dist = GLFix::maxValue();
 
     AABB aabb;
-    aabb.low_x = this->x*SIZE*BLOCK_SIZE;
+    aabb.low_x = abs_x;
 
-    for(unsigned int x = 0; x < SIZE; x++)
+    for(unsigned int x = 0; x < SIZE; x++, aabb.low_x += BLOCK_SIZE)
     {
         aabb.high_x = aabb.low_x + BLOCK_SIZE;
 
-        aabb.low_y = this->y*SIZE*BLOCK_SIZE;
+        aabb.low_y = abs_y;
 
-        for(unsigned int y = 0; y < SIZE; y++)
+        for(unsigned int y = 0; y < SIZE; y++, aabb.low_y += BLOCK_SIZE)
         {
             aabb.high_y = aabb.low_y + BLOCK_SIZE;
 
-            aabb.low_z = this->z*SIZE*BLOCK_SIZE;
+            aabb.low_z = abs_z;
 
             for(unsigned int z = 0; z < SIZE; z++, aabb.low_z += BLOCK_SIZE)
             {
                 aabb.high_z = aabb.low_z + BLOCK_SIZE;
 
-                if(blocks[x][y][z] == BLOCK_AIR)
+                BLOCK_WDATA block = blocks[x][y][z];
+
+                if(block == BLOCK_AIR)
                     continue;
 
+                AABB test = aabb;
+                if(!globalBlockRenderer.isBlockShaped(block))
+                    test = globalBlockRenderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z);
+
                 GLFix new_dist;
-                AABB::SIDE test = aabb.intersectsRay(rx, ry, rz, dx, dy, dz, new_dist);
-                if(test != AABB::NONE)
+                AABB::SIDE new_side = test.intersectsRay(rx, ry, rz, dx, dy, dz, new_dist);
+                if(new_side != AABB::NONE)
                 {
                     if(new_dist < shortest_dist)
                     {
                         pos.x.fromInt(x);
                         pos.y.fromInt(y);
                         pos.z.fromInt(z);
-                        side = test;
+                        side = new_side;
                         shortest_dist = new_dist;
                     }
                 }
             }
-
-            aabb.low_y += BLOCK_SIZE;
         }
-
-        aabb.low_x += BLOCK_SIZE;
     }
 
     if(shortest_dist == GLFix::maxValue())

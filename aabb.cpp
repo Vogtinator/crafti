@@ -64,11 +64,8 @@ void AABB::set(VERTEX *list, unsigned int size)
 
 bool AABB::intersects(AABB &other)
 {
-    if(high_x < other.low_x || high_y < other.low_y || high_z < other.low_z
-            || low_x > other.high_x || low_y > other.high_y || low_z > other.high_z)
-        return false;
-
-    return true;
+    return high_x >= other.low_x && high_y >= other.low_y && high_z >= other.low_z
+            && low_x <= other.high_x && low_y <= other.high_y && low_z <= other.high_z;
 }
 
 AABB::SIDE AABB::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist)

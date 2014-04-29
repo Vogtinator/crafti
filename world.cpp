@@ -4,7 +4,7 @@
 #include "world.h"
 #include "chunk.h"
 
-World::World()
+World::World() : perlin_noise(0)
 {
     generateSeed();
 }

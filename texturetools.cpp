@@ -7,7 +7,7 @@
 #include "texturetools.h"
 
 //Texture with "Loading" written on it
-#include "loadingtext.h"
+#include "textures/loadingtext.h"
 
 TEXTURE* newTexture(unsigned int w, unsigned int h)
 {
@@ -54,10 +54,9 @@ struct RGB24 {
 
 bool skip_space(FILE *file)
 {
-    int i;
     char c;
     do {
-        i = getc(file);
+        int i = getc(file);
         if(i == EOF)
             return false;
         c = i;
@@ -141,12 +140,11 @@ TEXTURE* loadTextureFromFile(const char* filename)
 
 TextureAtlasEntry textureArea(const int x, const int y, const int w, const int h)
 {
-    //TODO: Remove this (very ugly) hack
     return TextureAtlasEntry{
-        .left = x+1,
-        .right = x+w-1,
-        .top = y+1,
-        .bottom = y+h-1,
+        .left = x,
+        .right = x+w,
+        .top = y,
+        .bottom = y+h,
     };
 }
 

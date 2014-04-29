@@ -6,7 +6,7 @@ static void nglDrawTransparentTriangleXZClipped(const VERTEX *low, const VERTEX 
 static void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
 {
     #ifdef TEXTURE_SUPPORT
-        if(__builtin_expect((low->c & 0xF000) == 0xF000, 0))
+        if(__builtin_expect((low->c & TEXTURE_TRANSPARENT) == TEXTURE_TRANSPARENT, 0))
             return nglDrawTransparentTriangleXZClipped(low, middle, high);
     #endif
 #endif

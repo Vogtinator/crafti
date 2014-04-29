@@ -17,8 +17,6 @@ class PerlinNoise {
     // The permutation vector
     std::vector<int> p;
 public:
-    // Initialize with the reference values for the permutation vector
-    PerlinNoise();
     PerlinNoise(unsigned int seed);
     // Generate a new permutation vector based on the value of seed
     void setSeed(unsigned int seed);

@@ -19,7 +19,7 @@ public:
     constexpr operator int() { return toInt(); }
     constexpr operator unsigned int() { return toUint(); }
 
-    Fix<s,T> operator=(const Fix<s,T> &other) { value = other.value; return *this; }
+    Fix<s,T>& operator=(const Fix<s,T> &other) { value = other.value; return *this; }
 
     T round() const { T ret = value >> (s-1); return (ret>>1) + (ret&1); }
     constexpr T floor() const { return value >> s; }

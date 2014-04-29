@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "gl.h"
-#include "block_data.h"
+#include "terrain.h"
 #include "aabb.h"
 
 class World;
@@ -35,6 +35,15 @@ public:
     bool saveToFile(FILE *file);
     bool loadFromFile(FILE *file);
 
+    GLFix absX() { return abs_x; }
+    GLFix absY() { return abs_y; }
+    GLFix absZ() { return abs_z; }
+
+    //Used by BlockRenderers, had to make it public because friendship is not inheritable
+    void addAlignedVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFix v, const COLOR c);
+    void addUnalignedVertex(const GLFix x, const GLFix y, const GLFix z, const GLFix u, const GLFix v, const COLOR c);
+    void addUnalignedVertex(const VERTEX &v);
+
     static constexpr int SIZE = 8;
 
     const int x, y, z;
@@ -49,7 +58,6 @@ private:
     int getPosition(GLFix x, GLFix y, GLFix z);
 
     //Rendering
-    void addAlignedVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFix v, const COLOR c);
     void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);
     void buildGeometry();
     VERTEX perspective(const IndexedVertex &v, Position &transformed);
@@ -67,7 +75,7 @@ private:
     std::vector<Position> positions, positions_transformed;
     std::vector<std::pair<Position, bool>> positions_perspective;
     std::vector<IndexedVertex> vertices;
-    std::vector<VERTEX> vertices_not_aligned; //The optimized drawing with indices doesn't work with unaligned positions
+    std::vector<VERTEX> vertices_unaligned; //The optimized drawing with indices doesn't work with unaligned positions
 };
 
 #endif // CHUNK_H

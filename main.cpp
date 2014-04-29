@@ -5,20 +5,20 @@
 #include "gl.h"
 #include "fastmath.h"
 #include "world.h"
-#include "block_data.h"
+#include "terrain.h"
+#include "blockrenderer.h"
 
 //Image resources
-#include "loading.h"
-#include "terrain.h"
-#include "menu.h"
-#include "selection.h"
+#include "textures/loading.h"
+#include "textures/menu.h"
+#include "textures/selection.h"
 
 static GLFix xr = 0, yr = 0;
 static GLFix x = 0, y = BLOCK_SIZE * Chunk::SIZE * World::HEIGHT + BLOCK_SIZE, z = 0;
 static constexpr GLFix incr = 20;
 static World world;
 static int current_block_selection;
-static TEXTURE *current_terrain, *resized_terrain;
+static TEXTURE *screen;
 
 //isKeyPressed checks the hardware-type, but that's slow
 static inline bool keyPressed(const t_key &key)
@@ -59,7 +59,7 @@ static BLOCK_WDATA user_selectable[] = {
 
 constexpr int user_selectable_count = sizeof(user_selectable)/sizeof(*user_selectable);
 
-void drawBlockPreview(BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y)
+/*void drawBlockPreview(BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y)
 {
     TextureAtlasEntry tex;
     bool transparent = false;
@@ -95,10 +95,10 @@ void drawBlockPreview(BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y)
     }
 
     if(transparent)
-        drawTransparentTexture(*resized_terrain, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
+        drawTransparentTexture(*terrain_resized, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
     else
-        drawTexture(*resized_terrain, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
-}
+        drawTexture(*terrain_resized, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
+}*/
 
 static void getForward(GLFix *x, GLFix *z)
 {
@@ -166,7 +166,12 @@ enum MENUITEM {
     MENU_ITEM_MAX
 };
 
-#define CR_PIXEL(x, y) (screen->bitmap[SCREEN_WIDTH/2+(x) + (SCREEN_HEIGHT/2+(y))*SCREEN_WIDTH] = ~screen->bitmap[SCREEN_WIDTH/2+(x) + (SCREEN_HEIGHT/2+(y))*SCREEN_WIDTH])
+//Invert pixel at (x|y) relative to the center of the screen
+inline void crosshairPixel(int x, int y)
+{
+    int pos = SCREEN_WIDTH/2 + x + (SCREEN_HEIGHT/2 + y)*SCREEN_WIDTH;
+    screen->bitmap[pos] = ~screen->bitmap[pos];
+}
 
 int main(int argc, char *argv[])
 {
@@ -183,32 +188,25 @@ int main(int argc, char *argv[])
 
     std::copy(loading.bitmap, loading.bitmap + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
 
-    TEXTURE *pack = loadTextureFromFile("/documents/ndless/crafti.ppm.tns");
-    if(pack)
-    {
-        puts("External texture loaded.");
-        current_terrain = pack;
-    }
-    else
-        current_terrain = &terrain;
-
     nglInit();
 
-    TEXTURE *screen = newTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-
+    //Allocate a buffer for nGL to render to
+    screen = newTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
     nglSetBuffer(screen->bitmap);
 
-    initTerrain(*current_terrain, resized_terrain);
-    glBindTexture(current_terrain);
+    terrainInit("/documents/ndless/crafti.ppm.tns");
+    glBindTexture(terrain_current);
 
     glLoadIdentity();
 
-    const char savefile_name_default[] = "/documents/ndless/crafti.map.tns";
-    const char* savefile_name = savefile_name_default;
-    if(argc > 1)
-        savefile_name = argv[1];
+    const char savefile_path_default[] = "/documents/ndless/crafti.map.tns";
+    const char* savefile_path = savefile_path_default;
 
-    FILE *savefile = fopen(savefile_name, "rb");
+    //If crafti has been started by the file extension association, use the first argument as savefile path
+    if(argc > 1)
+        savefile_path = argv[1];
+
+    FILE *savefile = fopen(savefile_path, "rb");
     if(!savefile)
         puts("No previous save found.");
     else if(loadFile(savefile))
@@ -264,22 +262,19 @@ int main(int argc, char *argv[])
 
             glPopMatrix();
 
-            //Draw GUI
+            crosshairPixel(0, 0);
+            crosshairPixel(-1, 0);
+            crosshairPixel(-2, 0);
+            crosshairPixel(0, -1);
+            crosshairPixel(0, -2);
+            crosshairPixel(1, 0);
+            crosshairPixel(2, 0);
+            crosshairPixel(0, 1);
+            crosshairPixel(0, 2);
 
-            CR_PIXEL(0, 0);
-            CR_PIXEL(-1, 0);
-            CR_PIXEL(-2, 0);
-            CR_PIXEL(0, -1);
-            CR_PIXEL(0, -2);
-            CR_PIXEL(1, 0);
-            CR_PIXEL(2, 0);
-            CR_PIXEL(0, 1);
-            CR_PIXEL(0, 2);
+            globalBlockRenderer.drawPreview(user_selectable[current_block_selection], *screen, 0, 0);
 
-            drawBlockPreview(user_selectable[current_block_selection], *screen, 0, 0);
-
-            //Finished drawing GUI
-
+            //Now display the contents of the screen buffer
             nglDisplay();
 
             //Movement
@@ -469,7 +464,7 @@ int main(int argc, char *argv[])
                     }
                     if(!world.intersect(aabb))
                     {
-                        if(!isBlockOriented(user_selectable[current_block_selection]))
+                        if(!globalBlockRenderer.isOriented(user_selectable[current_block_selection]))
                             world.setBlock(res.x, res.y, res.z, user_selectable[current_block_selection]);
                         else
                             world.setBlock(res.x, res.y, res.z, getBLOCKWDATA(user_selectable[current_block_selection], block_side));
@@ -627,20 +622,22 @@ int main(int argc, char *argv[])
                     break;
 
                 case LOAD_WORLD:
-                    savefile = fopen(savefile_name, "rb");
+                    savefile = fopen(savefile_path, "rb");
                     if(savefile)
+                    {
                         loadFile(savefile);
-
-                    fclose(savefile);
+                        fclose(savefile);
+                    }
                     break;
 
                 case SAVE_WORLD:
-                    unlink(savefile_name);
-                    savefile = fopen(savefile_name, "wb");
+                    unlink(savefile_path);
+                    savefile = fopen(savefile_path, "wb");
                     if(savefile)
+                    {
                         saveFile(savefile);
-
-                    fclose(savefile);
+                        fclose(savefile);
+                    }
                     break;
 
                 case SAVE_AND_EXIT:
@@ -672,8 +669,8 @@ int main(int argc, char *argv[])
             else
                 copyTexture(*background, *screen);
 
-            const int field_width = resized_terrain->width / 16 * 2;
-            const int field_height = resized_terrain->width / 16 * 2;
+            const int field_width = terrain_resized->width / 16 * 2;
+            const int field_height = terrain_resized->width / 16 * 2;
             const int fields_x = (SCREEN_WIDTH - 50) / field_width;
             const int fields_y = (SCREEN_WIDTH - 50) / field_height;
 
@@ -689,7 +686,7 @@ int main(int argc, char *argv[])
                 screen_x = 39;
                 for(int x = 0; x < fields_x; x++, screen_x += field_width)
                 {
-                    drawBlockPreview(user_selectable[block], *screen, screen_x, screen_y);
+                    globalBlockRenderer.drawPreview(user_selectable[block], *screen, screen_x, screen_y);
 
                     block++;
                     if(block == user_selectable_count)
@@ -746,7 +743,7 @@ int main(int argc, char *argv[])
 
     //truncate(savefile_name, 0);
 
-    savefile = fopen(savefile_name, "wb");
+    savefile = fopen(savefile_path, "wb");
     if(!savefile || !saveFile(savefile))
         printf("Failed to save world!\n");
     else
@@ -762,12 +759,7 @@ int main(int argc, char *argv[])
     deleteTexture(menu_with_selection);
     deleteTexture(screen);
 
-    //Delete only if previously allocated in initTerrain
-    if(current_terrain->width != 256 || current_terrain->height != 256)
-        deleteTexture(resized_terrain);
-
-    if(pack)
-        deleteTexture(pack);
+    terrainUninit();
 
     return 0;
 }

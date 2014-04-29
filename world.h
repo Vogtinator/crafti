@@ -4,7 +4,7 @@
 #include <vector>
 #include <list>
 
-#include "block_data.h"
+#include "terrain.h"
 #include "chunk.h"
 #include "perlinnoise.h"
 
