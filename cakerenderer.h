@@ -12,6 +12,7 @@ public:
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
 
     virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return false; }
     virtual AABB getAABB(const BLOCK_WDATA, GLFix x, GLFix y, GLFix z) override;
@@ -22,7 +23,7 @@ public:
 
 protected:
     static constexpr GLFix cake_height = BLOCK_SIZE / 16 * 9;
-    static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 14;
+    static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 15;
 };
 
 #endif // CAKERENDERER_H

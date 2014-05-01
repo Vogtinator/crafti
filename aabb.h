@@ -8,13 +8,13 @@ class AABB
 public:
     enum SIDE
     {
-        NONE,
-        TOP,
-        BOTTOM,
+        FRONT=0,
+        BACK,
         LEFT,
         RIGHT,
-        FRONT,
-        BACK
+        TOP,
+        BOTTOM,
+        NONE
     };
 
     AABB() : AABB(0, 0, 0, 0, 0, 0) {};

@@ -16,15 +16,17 @@ public:
     virtual void geometryNormalBlock(const BLOCK_WDATA block, int x, int y, int z, const BLOCK_SIDE side, Chunk &c) = 0;
     virtual bool isOpaque(const BLOCK_WDATA block) = 0;
     virtual bool isObstacle(const BLOCK_WDATA block) = 0;
-    virtual bool isOriented(const BLOCK_WDATA block) = 0;
+    virtual bool isOriented(const BLOCK_WDATA block) = 0; //Whether its data is a BLOCK_SIDE
+    virtual bool isFullyOriented(const BLOCK_WDATA block) = 0; //Whether its data can be BLOCK_TOP or BLOCK_BOTTOM
 
     virtual bool isBlockShaped(const BLOCK_WDATA block) = 0;
     virtual AABB getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z) = 0;
 
-    virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, int y) = 0;
+    virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) = 0;
 
-    static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry tex, Chunk &c);
+    static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry tex, Chunk &c, bool transparent = false);
     static void renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry tex, Chunk &c);
+    static void drawTextureAtlasEntry(TEXTURE &src, const TextureAtlasEntry &tex, bool transparent, TEXTURE &dest, const int dest_x, const int dest_y);
 
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0;
     virtual void updateBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0;
@@ -39,6 +41,7 @@ class UniversalBlockRenderer : public BlockRenderer
 {
 public:
     UniversalBlockRenderer();
+    virtual ~UniversalBlockRenderer();
 
     virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) override;
     virtual int indicesNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c) override;
@@ -46,11 +49,12 @@ public:
     virtual bool isOpaque(const BLOCK_WDATA block) override;
     virtual bool isObstacle(const BLOCK_WDATA block) override;
     virtual bool isOriented(const BLOCK_WDATA block) override;
+    virtual bool isFullyOriented(const BLOCK_WDATA block) override;
 
     virtual bool isBlockShaped(const BLOCK_WDATA block) override;
     virtual AABB getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z) override;
 
-    virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, int y) override;
+    virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) override;
 
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
     virtual void updateBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
@@ -80,13 +84,21 @@ public:
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return true; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return true; }
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
 
     virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return true; }
     virtual AABB getAABB(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/) override { return {}; } //Handled by isBlockShaped
 
-    virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y) override;
+    virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int dest_x, const int dest_y) override;
 
     virtual const char* getName(const BLOCK_WDATA block) override { return block_names[getBLOCK(block)]; }
+};
+
+class OrientedBlockRenderer : public NormalBlockRenderer
+{
+    virtual void geometryNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c) override;
+    virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return true; }
+    virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
 };
 
 //As placeholder, so unknown blocks won't crash the game. Also used for air
@@ -99,6 +111,7 @@ public:
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
 
     virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return true; }
     virtual AABB getAABB(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/) override { return {}; }

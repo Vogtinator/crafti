@@ -59,47 +59,6 @@ static BLOCK_WDATA user_selectable[] = {
 
 constexpr int user_selectable_count = sizeof(user_selectable)/sizeof(*user_selectable);
 
-/*void drawBlockPreview(BLOCK_WDATA block, TEXTURE &dest, int dest_x, int dest_y)
-{
-    TextureAtlasEntry tex;
-    bool transparent = false;
-
-    if(!isSpecialBlock(block))
-        tex = block_textures[getBLOCK(block)][BLOCK_FRONT].resized;
-    else
-    {
-        uint8_t data = getBLOCKDATA(block);
-        switch(getBLOCK(block))
-        {
-        case BLOCK_FLOWER:
-            tex = terrain_atlas[data ? 13 : 12][0].resized;
-            transparent = true;
-            break;
-        case BLOCK_SPIDERWEB:
-            tex = terrain_atlas[11][0].resized;
-            transparent = true;
-            break;
-        case BLOCK_TORCH:
-            tex = terrain_atlas[0][5].resized;
-            transparent = true;
-            break;
-        case BLOCK_CAKE:
-            tex = terrain_atlas[12][8].resized;
-            transparent = true;
-            break;
-        case BLOCK_MUSHROOM:
-            tex = terrain_atlas[data ? 13 : 12][1].resized;
-            transparent = true;
-            break;
-        }
-    }
-
-    if(transparent)
-        drawTransparentTexture(*terrain_resized, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
-    else
-        drawTexture(*terrain_resized, tex.left - 1, tex.top - 1, dest, dest_x, dest_y, tex.right - tex.left + 2, tex.bottom - tex.top + 2);
-}*/
-
 static void getForward(GLFix *x, GLFix *z)
 {
     *x = fast_sin(yr) * incr;
@@ -214,7 +173,9 @@ int main(int argc, char *argv[])
     else
         puts("Failed to load world!");
 
-    fclose(savefile);
+    if(savefile)
+        fclose(savefile);
+
     savefile = nullptr;
 
     GAMESTATE gamestate = WORLD;
@@ -430,36 +391,30 @@ int main(int argc, char *argv[])
             {
                 Position res; AABB::SIDE side;
                 GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
-                if(world.intersectRay(x, y + eye_pos, z, dx, dy, dz, res, side))
+                if(world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, res, side))
                 {
-                    BLOCK_SIDE block_side = BLOCK_TOP;
                     switch(side)
                     {
                     case AABB::BACK:
                         ++res.z;
-                        block_side = BLOCK_BACK;
                         break;
                     case AABB::FRONT:
                         --res.z;
-                        block_side = BLOCK_FRONT;
                         break;
                     case AABB::LEFT:
                         --res.x;
-                        block_side = BLOCK_LEFT;
                         break;
                     case AABB::RIGHT:
                         ++res.x;
-                        block_side = BLOCK_RIGHT;
                         break;
                     case AABB::BOTTOM:
                         --res.y;
-                        block_side = BLOCK_BOTTOM;
                         break;
                     case AABB::TOP:
                         ++res.y;
-                        block_side = BLOCK_TOP;
                         break;
                     default:
+                        puts("This can't normally happen #1");
                         break;
                     }
                     if(!world.intersect(aabb))
@@ -467,8 +422,15 @@ int main(int argc, char *argv[])
                         if(!globalBlockRenderer.isOriented(user_selectable[current_block_selection]))
                             world.setBlock(res.x, res.y, res.z, user_selectable[current_block_selection]);
                         else
-                            world.setBlock(res.x, res.y, res.z, getBLOCKWDATA(user_selectable[current_block_selection], block_side));
+                        {
+                            //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
+                            if(!globalBlockRenderer.isFullyOriented(user_selectable[current_block_selection]) && (side == AABB::TOP || side == AABB::BOTTOM))
+                                side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
 
+                            world.setBlock(res.x, res.y, res.z, getBLOCKWDATA(user_selectable[current_block_selection], side)); //AABB::SIDE is compatible to BLOCK_SIDE
+                        }
+
+                        //If the player is stuck now, it's because of the block change, so remove it again
                         if(world.intersect(aabb))
                             world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
                     }
@@ -480,7 +442,7 @@ int main(int argc, char *argv[])
             {
                 Position res; AABB::SIDE side;
                 GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
-                if(world.intersectRay(x, y + eye_pos, z, dx, dy, dz, res, side))
+                if(world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, res, side) && world.getBlock(res.x, res.y, res.z) != BLOCK_BEDROCK)
                     world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
 
                 key_held_down = true;
@@ -558,28 +520,9 @@ int main(int argc, char *argv[])
 
             copyTexture(menu, *menu_with_selection);
 
-            int selection_y;
-            switch(menu_selected_item)
-            {
-            default:
-            case NEW_WORLD:
-                selection_y = 33;
-                break;
-            case LOAD_WORLD:
-                selection_y = 62;
-                break;
-            case SAVE_WORLD:
-                selection_y = 88;
-                break;
-            case SAVE_AND_EXIT:
-                selection_y = 116;
-                break;
-            case EXIT:
-                selection_y = 144;
-                break;
-            }
+            const int selection_y[MENU_ITEM_MAX] = {33, 62, 88, 116, 144};
 
-            drawTexture(selection, 0, 0, *menu_with_selection, 0, selection_y, selection.width, selection.height);
+            drawTexture(selection, 0, 0, *menu_with_selection, 0, selection_y[menu_selected_item], selection.width, selection.height);
 
             drawTextureOverlay(*menu_with_selection, 0, 0, *screen, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection->height);
 
@@ -749,7 +692,8 @@ int main(int argc, char *argv[])
     else
         printf("World successfully saved.\n");
 
-    fclose(savefile);
+    if(savefile)
+        fclose(savefile);
 
     exit:
 

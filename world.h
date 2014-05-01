@@ -23,7 +23,7 @@ public:
     void setBlock(int x, int y, int z, BLOCK_WDATA block);
     void setPosition(int x, int y, int z);
     bool intersect(AABB &other) const;
-    bool intersectRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side) const;
+    bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side) const;
     const PerlinNoise &noiseGenerator() const;
     void clear();
     bool loadFromFile(FILE *file);

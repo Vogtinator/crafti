@@ -2,7 +2,7 @@
 
 #include "textures/terrain.h"
 
-const char *block_names[BLOCK_NORMAL_MAX] =
+const char *block_names[BLOCK_NORMAL_LAST + 1] =
 {
     "Air",
     "Stone",
@@ -25,7 +25,8 @@ const char *block_names[BLOCK_NORMAL_MAX] =
     "Crafting Table",
     "Bookshelf",
     "Grass",
-    "Pumpkin"
+    "Pumpkin",
+    "Bedrock"
 };
 
 #define BT_FRONT 1
@@ -57,7 +58,7 @@ struct BLOCK_TEXTURE {
 BLOCK_TEXTURE texture_atlas[][16] =
 {
     { TOP(BLOCK_GRASS), ALL(BLOCK_STONE), ALL(BLOCK_DIRT), SID(BLOCK_GRASS), ALL(BLOCK_PLANKS_NORMAL), NON, NON, ALL(BLOCK_WALL), ALL(BLOCK_TNT), TOP(BLOCK_TNT), BOT(BLOCK_TNT), NON, NON, NON, NON, NON },
-    { NON, NON, ALL(BLOCK_SAND), BOT(BLOCK_GRASS), SID(BLOCK_WOOD), TAB(BLOCK_WOOD), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, ALL(BLOCK_BEDROCK), ALL(BLOCK_SAND), BOT(BLOCK_GRASS), SID(BLOCK_WOOD), TAB(BLOCK_WOOD), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
     { ALL(BLOCK_GOLD_ORE), ALL(BLOCK_IRON_ORE), ALL(BLOCK_COAL_ORE), FRO(BLOCK_BOOKSHELF), NON, NON, NON, NON, NON, NON, NON, TAB(BLOCK_CRAFTING_TABLE), FRO(BLOCK_FURNACE), SWF(BLOCK_FURNACE), NON, NON },
     { ALL(BLOCK_SPONGE), NON, ALL(BLOCK_DIAMOND_ORE), ALL(BLOCK_REDSTONE_ORE), NON, ALL(BLOCK_LEAVES), NON, NON, NON, NON, NON, SID(BLOCK_CRAFTING_TABLE), FRO(BLOCK_CRAFTING_TABLE), NON, TOP(BLOCK_FURNACE), NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
@@ -74,13 +75,13 @@ BLOCK_TEXTURE texture_atlas[][16] =
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON }
 };
 
-TerrainAtlasEntry block_textures[BLOCK_NORMAL_MAX][BLOCK_SIDE_MAX];
+TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 TerrainAtlasEntry terrain_atlas[16][16];
 
 TEXTURE *terrain_current, *terrain_resized;
 
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
-static void makeGreen(TEXTURE &texture, int x, int y, int w, int h)
+static void makeGreen(TEXTURE &texture, const int x, const int y, const int w, const int h)
 {
     RGB green = { 0.5f, 0.8f, 0.3f };
     for(int x1 = x; x1 < w + x; x1++)
@@ -109,6 +110,7 @@ void terrainInit(const char *texture_path)
 
     makeGreen(*terrain_current, 0, 0, field_width, field_height);
     makeGreen(*terrain_current, 5 * field_width, 3 * field_height, field_width, field_height);
+    makeGreen(*terrain_current, 4 * field_width, 3 * field_height, field_width, field_height);
 
     if(terrain_current->width == 256 && terrain_current->height == 256)
         terrain_resized = terrain_current;

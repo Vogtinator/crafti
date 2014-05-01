@@ -137,7 +137,6 @@ public:
         char str[32];
 
         double n = toFloat();
-        double PRECISION = 0.00000000000001;
 
         if (n == 0.0)
             strcpy(str, "0");
@@ -159,7 +158,7 @@ public:
                 m = 0;}
             if (m < 1.0)
                 m = 0;
-            while (n > PRECISION || m >= 0) {
+            while (n > 0.001 || m >= 0) {
                 double weight = pow(10.0, m);
                 if (weight > 0 && !__builtin_isinf(weight)) {
                     digit = ::floor(n / weight);

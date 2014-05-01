@@ -25,9 +25,21 @@ void World::generateSeed()
     perlin_noise.setSeed(*seed);
 }
 
+constexpr int getLocal(const int global)
+{
+     static_assert(Chunk::SIZE == 8, "Update the bit operations accordingly!");
+
+     return global & 0b111;
+}
+
+constexpr int getChunk(const int global)
+{
+    return global >> 3;
+}
+
 BLOCK_WDATA World::getBlock(int x, int y, int z) const
 {
-    int chunk_x = (GLFix(x) / Chunk::SIZE).floor(), chunk_y = (GLFix(y) / Chunk::SIZE).floor(), chunk_z = (GLFix(z) / Chunk::SIZE).floor();
+    int chunk_x = getChunk(x), chunk_y = getChunk(y), chunk_z = getChunk(z);
 
     Chunk *c = findChunk(chunk_x, chunk_y, chunk_z);
     if(!c)
@@ -39,13 +51,13 @@ BLOCK_WDATA World::getBlock(int x, int y, int z) const
             return BLOCK_STONE;
     }
 
-    return c->getLocalBlock(x - chunk_x*Chunk::SIZE, y - chunk_y * Chunk::SIZE, z - chunk_z * Chunk::SIZE);
+    return c->getLocalBlock(getLocal(x), getLocal(y), getLocal(z));
 }
 
 void World::setBlock(int x, int y, int z, BLOCK_WDATA block)
 {
-    int chunk_x = (GLFix(x) / Chunk::SIZE).floor(), chunk_y = (GLFix(y) / Chunk::SIZE).floor(), chunk_z = (GLFix(z) / Chunk::SIZE).floor();
-    int local_x = x - chunk_x * Chunk::SIZE, local_y = y - chunk_y * Chunk::SIZE, local_z = z - chunk_z * Chunk::SIZE;
+    int chunk_x = getChunk(x), chunk_y = getChunk(y), chunk_z = getChunk(z);
+    int local_x = getLocal(x), local_y = getLocal(y), local_z = getLocal(z);
 
     Chunk *c = findChunk(chunk_x, chunk_y, chunk_z);
     if(c)
@@ -91,7 +103,8 @@ void World::setChunkVisible(int x, int y, int z)
 
 void World::setPosition(int x, int y, int z)
 {
-    int chunk_x = (GLFix(x) / (Chunk::SIZE * BLOCK_SIZE)).floor(), chunk_y = (GLFix(y) / (Chunk::SIZE * BLOCK_SIZE)).floor(), chunk_z = (GLFix(z) / (Chunk::SIZE * BLOCK_SIZE)).floor();
+    //In C and C++, integer division rounds towards zero, so with negative coords this will be one block off
+    int chunk_x = getChunk((GLFix(x) / BLOCK_SIZE).floor()), chunk_y = getChunk((GLFix(y) / BLOCK_SIZE).floor()), chunk_z = getChunk((GLFix(z) / BLOCK_SIZE).floor());
 
     chunk_y = std::max(0, std::min(chunk_y, World::HEIGHT - 1));
 
@@ -131,7 +144,7 @@ bool World::intersect(AABB &other) const
     return false;
 }
 
-bool World::intersectRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side) const
+bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side) const
 {
     GLFix shortest_dist = GLFix::maxValue();
     Position pos;
@@ -140,8 +153,11 @@ bool World::intersectRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz
         GLFix new_dist;
         AABB::SIDE new_side;
 
-        if(c->intersectsRay(x, y, z, dx, dy, dz, new_dist, pos, new_side) && new_dist < shortest_dist)
+        if(c->intersectsRay(x, y, z, dx, dy, dz, new_dist, pos, new_side))
         {
+            if(new_dist > shortest_dist)
+                continue;
+
             result.x = pos.x + c->x*Chunk::SIZE;
             result.y = pos.y + c->y*Chunk::SIZE;
             result.z = pos.z + c->z*Chunk::SIZE;

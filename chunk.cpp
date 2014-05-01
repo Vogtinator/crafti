@@ -48,113 +48,6 @@ void Chunk::addUnalignedVertex(const VERTEX &v)
     vertices_unaligned.push_back(v);
 }
 
-void Chunk::geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side)
-{
-    if(side != BLOCK_SIDE_MAX)
-        return;
-
-    uint8_t data = getBLOCKDATA(block);
-    GLFix posX = abs_x + GLFix(x) * BLOCK_SIZE;
-    GLFix posY = abs_y + GLFix(y) * BLOCK_SIZE;
-    GLFix posZ = abs_z + GLFix(z) * BLOCK_SIZE;
-
-    TextureAtlasEntry tex;
-    bool isBillboard = false;
-
-    //For BLOCK_TORCH
-    std::vector<VERTEX> torch_vertices;
-
-    switch(getBLOCK(block))
-    {
-    case BLOCK_FLOWER:
-        isBillboard = true;
-        tex = terrain_atlas[data ? 13 : 12][0].current;
-        break;
-    case BLOCK_SPIDERWEB:
-        isBillboard = true;
-        tex = terrain_atlas[11][0].current;
-        break;
-    case BLOCK_MUSHROOM:
-        isBillboard = true;
-        tex = terrain_atlas[data ? 13 : 12][1].current;
-        break;
-    case BLOCK_TORCH:
-        isBillboard = false;
-        tex = terrain_atlas[0][5].current;
-
-        glPushMatrix();
-        glLoadIdentity();
-
-        glTranslatef(posX + BLOCK_SIZE/2, posY + BLOCK_SIZE/2, posZ + BLOCK_SIZE/2);
-
-        torch_vertices.reserve(16);
-
-        torch_vertices.push_back({0, 0, BLOCK_SIZE/2, tex.left, tex.bottom, 0xFFFF});
-        torch_vertices.push_back({0, BLOCK_SIZE, BLOCK_SIZE/2, tex.left, tex.top, 0xFFFF});
-        torch_vertices.push_back({BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE/2, tex.right, tex.top, 0xFFFF});
-        torch_vertices.push_back({BLOCK_SIZE, 0, BLOCK_SIZE/2, tex.right, tex.bottom, 0xFFFF});
-
-        torch_vertices.push_back({BLOCK_SIZE/2, 0, BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
-        torch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE, BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
-        torch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE, 0, tex.right, tex.top, 0xFFFF});
-        torch_vertices.push_back({BLOCK_SIZE/2, 0, 0, tex.right, tex.bottom, 0xFFFF});
-
-        switch(static_cast<BLOCK_SIDE>(data))
-        {
-        default:
-        case BLOCK_TOP:
-            break;
-        case BLOCK_BOTTOM:
-            nglRotateX(180);
-            break;
-        case BLOCK_BACK:
-            nglRotateX(45);
-            break;
-        case BLOCK_FRONT:
-            nglRotateX(315);
-            break;
-        case BLOCK_LEFT:
-            nglRotateZ(45);
-            break;
-        case BLOCK_RIGHT:
-            nglRotateZ(315);
-            break;
-        }
-
-        glTranslatef(-BLOCK_SIZE / 2, -BLOCK_SIZE / 2, -BLOCK_SIZE / 2);
-
-        for(auto&& v : torch_vertices)
-        {
-            VERTEX v1;
-            nglMultMatVectRes(transformation, &v, &v1);
-            v1.u = v.u;
-            v1.v = v.v;
-            v1.c = v.c;
-            vertices_unaligned.push_back(v1);
-        }
-
-        glPopMatrix();
-
-        break;
-    }
-
-    if(isBillboard)
-    {
-        //0xFFFF: Black = transparent and no backface culling
-        vertices_unaligned.push_back({posX, posY, posZ, tex.left, tex.bottom, 0xFFFF});
-        vertices_unaligned.push_back({posX, posY + BLOCK_SIZE, posZ, tex.left, tex.top, 0xFFFF});
-        vertices_unaligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.right, tex.top, 0xFFFF});
-        vertices_unaligned.push_back({posX + BLOCK_SIZE, posY, posZ + BLOCK_SIZE, tex.right, tex.bottom, 0xFFFF});
-
-        vertices_unaligned.push_back({posX, posY, posZ + BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
-        vertices_unaligned.push_back({posX, posY + BLOCK_SIZE, posZ + BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
-        vertices_unaligned.push_back({posX + BLOCK_SIZE, posY + BLOCK_SIZE, posZ, tex.right, tex.top, 0xFFFF});
-        vertices_unaligned.push_back({posX + BLOCK_SIZE, posY, posZ, tex.right, tex.bottom, 0xFFFF});
-
-        return;
-    }
-}
-
 void Chunk::buildGeometry()
 {
     drawLoadingtext(3);
@@ -173,41 +66,6 @@ void Chunk::buildGeometry()
     int y_start = this->y == 0 ? 0 : -1;
 
     //Now go through map and search for transparent blocks and draw only the sides adjacent to them
-
-    /*//Calculate size of buffer (skipped for now, seems to be slow compared to vector resizing)
-    int count_indices = 0;
-    for(int x = -1; x <= SIZE; x++)
-        for(int y = y_start; y <= SIZE; y++)
-            for(int z = -1; z <= SIZE; z++)
-            {
-                BLOCK_WDATA block = getGlobalBlockRelative(x, y, z);
-
-                if(globalBlockRenderer.isOpaque(block))
-                    continue;
-
-                if(inBounds(x - 1, y, z) && (block = blocks[x - 1][y][z]) != BLOCK_AIR)
-                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x - 1, y, z, BLOCK_RIGHT, *this);
-
-                if(inBounds(x + 1, y, z) && (block = blocks[x + 1][y][z]) != BLOCK_AIR)
-                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x + 1, y, z, BLOCK_LEFT, *this);
-
-                if(inBounds(x, y - 1, z) && (block = blocks[x][y - 1][z]) != BLOCK_AIR)
-                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x, y - 1, z, BLOCK_TOP, *this);
-
-                if(inBounds(x, y + 1, z) && (block = blocks[x][y + 1][z]) != BLOCK_AIR)
-                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x, y + 1, z, BLOCK_BOTTOM, *this);
-
-                if(inBounds(x, y, z - 1) && (block = blocks[x][y][z - 1]) != BLOCK_AIR)
-                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x, y, z - 1, BLOCK_BACK, *this);
-
-                if(inBounds(x, y, z + 1) && (block = blocks[x][y][z + 1]) != BLOCK_AIR)
-                    count_indices += globalBlockRenderer.indicesNormalBlock(block, x, y, z + 1, BLOCK_FRONT, *this);
-            }
-
-    vertices.reserve(count_indices);*/
-
-    //Now, render!
-
     for(int x = -1; x <= SIZE; x++)
     {
         for(int y = y_start; y <= SIZE; y++)
@@ -574,7 +432,7 @@ bool Chunk::intersects(AABB &other)
 bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side)
 {
     GLFix shortest_dist;
-    if(!aabb.intersectsRay(rx, ry, rz, dx, dy, dz, shortest_dist))
+    if(aabb.intersectsRay(rx, ry, rz, dx, dy, dz, shortest_dist) == AABB::NONE)
         return false;
 
     shortest_dist = GLFix::maxValue();
@@ -628,7 +486,7 @@ bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFi
         return false;
 
     dist = shortest_dist;
-    return side;
+    return true;
 }
 
 void Chunk::generate()
@@ -652,7 +510,13 @@ void Chunk::generate()
             int height_left = height - this->y * Chunk::SIZE;
             int height_here = std::min(height_left, Chunk::SIZE);
 
-            for(int y = 0; y < height_here; y++)
+            int y = 0;
+
+            //Bottom layer of lowest chunk is bedrock
+            if(this->y == 0)
+                blocks[x][y++][z] = BLOCK_BEDROCK;
+
+            for(; y < height_here; y++)
             {
                 int to_surface = height_left - y;
 
@@ -660,17 +524,17 @@ void Chunk::generate()
                 if(to_surface > 5)
                 {
                     noise_val = noise.noise(GLFix(x)/Chunk::SIZE + this->x, GLFix(z)/Chunk::SIZE + this->z, 10.5f);
-                    if(noise_val < GLFix(0.4f))
+                    if(noise_val < GLFix(0.2f))
                     {
                         noise_val = noise.noise(GLFix(x)/Chunk::SIZE + this->x, GLFix(z)/Chunk::SIZE + this->z, 1000.5f);
 
-                        uint8_t test = noise_val.value & 0xF;
+                        uint8_t test = (noise_val.value>>4) & 0xF;
 
-                        if(test < 2)
+                        if(test < 1)
                             blocks[x][y][z] = BLOCK_DIAMOND_ORE;
-                        else if(test < 5)
+                        else if(test < 2)
                             blocks[x][y][z] = BLOCK_REDSTONE_ORE;
-                        else if(test < 10)
+                        else if(test < 5)
                             blocks[x][y][z] = BLOCK_IRON_ORE;
                         else
                             blocks[x][y][z] = BLOCK_COAL_ORE;
