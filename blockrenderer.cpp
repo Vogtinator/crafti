@@ -2,14 +2,14 @@
 
 #include "billboardrenderer.h"
 #include "cakerenderer.h"
+#include "doorrenderer.h"
 #include "leavesrenderer.h"
 #include "torchrenderer.h"
 
-UniversalBlockRenderer globalBlockRenderer;
+UniversalBlockRenderer global_block_renderer;
 
-void BlockRenderer::renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry tex, Chunk &c, bool transparent)
+void BlockRenderer::renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry tex, Chunk &c, const COLOR color)
 {
-    const COLOR color = transparent ? TEXTURE_TRANSPARENT : 0;
     switch(side)
     {
     case BLOCK_FRONT:
@@ -102,6 +102,7 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_CRAFTING_TABLE] = oriented_renderer;
     map[BLOCK_PUMPKIN] = oriented_renderer;
     map[BLOCK_BOOKSHELF] = oriented_renderer;
+    map[BLOCK_DOOR] = std::make_shared<DoorRenderer>();
 
     auto flower_renderer = std::make_shared<BillboardRenderer>();
     flower_renderer->setEntry(0, 12, 0, "Red flower", BLOCK_SIZE, BLOCK_SIZE/2, BLOCK_SIZE);
@@ -134,12 +135,12 @@ void UniversalBlockRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x
     return map[getBLOCK(block)]->renderSpecialBlock(block, x, y, z, c);
 }
 
-int UniversalBlockRenderer::indicesNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c)
+int UniversalBlockRenderer::indicesNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
     return map[getBLOCK(block)]->indicesNormalBlock(block, local_x, local_y, local_z, side, c);
 }
 
-void UniversalBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c)
+void UniversalBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
     return map[getBLOCK(block)]->geometryNormalBlock(block, local_x, local_y, local_z, side, c);
 }
@@ -179,6 +180,11 @@ void UniversalBlockRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest,
     return map[getBLOCK(block)]->drawPreview(block, dest, x, y);
 }
 
+bool UniversalBlockRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)
+{
+    return map[getBLOCK(block)]->action(block, local_x, local_y, local_z, c);
+}
+
 void UniversalBlockRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
     return map[getBLOCK(block)]->tick(block, local_x, local_y, local_z, c);
@@ -189,14 +195,14 @@ void UniversalBlockRenderer::updateBlock(const BLOCK_WDATA block, int local_x, i
     return map[getBLOCK(block)]->updateBlock(block, local_x, local_y, local_z, c);
 }
 
-void UniversalBlockRenderer::addBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
+void UniversalBlockRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    return map[getBLOCK(block)]->addBlock(block, local_x, local_y, local_z, c);
+    return map[getBLOCK(block)]->addedBlock(block, local_x, local_y, local_z, c);
 }
 
-void UniversalBlockRenderer::removeBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
+void UniversalBlockRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    return map[getBLOCK(block)]->removeBlock(block, local_x, local_y, local_z, c);
+    return map[getBLOCK(block)]->removedBlock(block, local_x, local_y, local_z, c);
 }
 
 const char *UniversalBlockRenderer::getName(const BLOCK_WDATA block)
@@ -204,7 +210,7 @@ const char *UniversalBlockRenderer::getName(const BLOCK_WDATA block)
     return map[getBLOCK(block)]->getName(block);
 }
 
-void NormalBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c)
+void NormalBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
     BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, block_textures[getBLOCK(block)][side].current, c);
 }

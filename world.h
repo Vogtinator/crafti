@@ -20,8 +20,10 @@ public:
     ~World();
     void generateSeed();
     BLOCK_WDATA getBlock(int x, int y, int z) const;
-    void setBlock(int x, int y, int z, BLOCK_WDATA block);
+    void setBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
+    void changeBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
     void setPosition(int x, int y, int z);
+    bool blockAction(const int x, const int y, const int z);
     bool intersect(AABB &other) const;
     bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side) const;
     const PerlinNoise &noiseGenerator() const;

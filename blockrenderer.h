@@ -12,8 +12,8 @@ public:
     virtual ~BlockRenderer() {};
 
     virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) = 0;
-    virtual int indicesNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c) = 0;
-    virtual void geometryNormalBlock(const BLOCK_WDATA block, int x, int y, int z, const BLOCK_SIDE side, Chunk &c) = 0;
+    virtual int indicesNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) = 0;
+    virtual void geometryNormalBlock(const BLOCK_WDATA block, const int x, const int y, const int z, const BLOCK_SIDE side, Chunk &c) = 0;
     virtual bool isOpaque(const BLOCK_WDATA block) = 0;
     virtual bool isObstacle(const BLOCK_WDATA block) = 0;
     virtual bool isOriented(const BLOCK_WDATA block) = 0; //Whether its data is a BLOCK_SIDE
@@ -24,14 +24,15 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) = 0;
 
-    static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry tex, Chunk &c, bool transparent = false);
+    static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry tex, Chunk &c, const COLOR color = 0);
     static void renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry tex, Chunk &c);
     static void drawTextureAtlasEntry(TEXTURE &src, const TextureAtlasEntry &tex, bool transparent, TEXTURE &dest, const int dest_x, const int dest_y);
 
-    virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0;
-    virtual void updateBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0;
-    virtual void addBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0;
-    virtual void removeBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0;
+    virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) = 0; //Invoked by e.g. a right click
+    virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked every now-and-then
+    virtual void updateBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked if block needs updating
+    virtual void addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked if this block has been placed
+    virtual void removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked if this block has been removed
 
     virtual const char* getName(const BLOCK_WDATA block) = 0;
 };
@@ -44,8 +45,8 @@ public:
     virtual ~UniversalBlockRenderer();
 
     virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) override;
-    virtual int indicesNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c) override;
-    virtual void geometryNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c) override;
+    virtual int indicesNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
+    virtual void geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
     virtual bool isOpaque(const BLOCK_WDATA block) override;
     virtual bool isObstacle(const BLOCK_WDATA block) override;
     virtual bool isOriented(const BLOCK_WDATA block) override;
@@ -56,10 +57,11 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) override;
 
+    virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) override;
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
     virtual void updateBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
-    virtual void addBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
-    virtual void removeBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
+    virtual void addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
+    virtual void removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
 
     virtual const char* getName(const BLOCK_WDATA block) override;
 
@@ -69,18 +71,19 @@ private:
 
 class DumbBlockRenderer : public BlockRenderer
 {
+    virtual bool action(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, Chunk &/*c*/) override { return false; }
     virtual void tick(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
     virtual void updateBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
-    virtual void addBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
-    virtual void removeBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
+    virtual void addedBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
+    virtual void removedBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
 };
 
 class NormalBlockRenderer : public DumbBlockRenderer
 {
 public:
     virtual void renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/, Chunk &/*c*/) override {};
-    virtual int indicesNormalBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override { return 4; }
-    virtual void geometryNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c) override;
+    virtual int indicesNormalBlock(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override { return 4; }
+    virtual void geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return true; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return true; }
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
@@ -96,7 +99,7 @@ public:
 
 class OrientedBlockRenderer : public NormalBlockRenderer
 {
-    virtual void geometryNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c) override;
+    virtual void geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return true; }
     virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
 };
@@ -106,8 +109,8 @@ class NullBlockRenderer : public DumbBlockRenderer
 {
 public:
     virtual void renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/, Chunk &/*c*/) override {};
-    virtual int indicesNormalBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override { return 0; }
-    virtual void geometryNormalBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {}
+    virtual int indicesNormalBlock(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override { return 0; }
+    virtual void geometryNormalBlock(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {}
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
@@ -121,6 +124,6 @@ public:
     virtual const char* getName(const BLOCK_WDATA /*block*/) override { return "NULL"; }
 };
 
-extern UniversalBlockRenderer globalBlockRenderer;
+extern UniversalBlockRenderer global_block_renderer;
 
 #endif // BLOCKRENDERER_H

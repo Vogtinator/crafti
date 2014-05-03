@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <algorithm>
 
 #include "world.h"
 #include "chunk.h"
@@ -74,26 +75,26 @@ void Chunk::buildGeometry()
             {
                 BLOCK_WDATA block = getGlobalBlockRelative(x, y, z);
 
-                if(globalBlockRenderer.isOpaque(block))
+                if(block != BLOCK_AIR && global_block_renderer.isOpaque(block))
                     continue;
 
                 if(inBounds(x - 1, y, z) && (block = blocks[x - 1][y][z]) != BLOCK_AIR)
-                    globalBlockRenderer.geometryNormalBlock(block, x - 1, y, z, BLOCK_RIGHT, *this);
+                    global_block_renderer.geometryNormalBlock(block, x - 1, y, z, BLOCK_RIGHT, *this);
 
                 if(inBounds(x + 1, y, z) && (block = blocks[x + 1][y][z]) != BLOCK_AIR)
-                    globalBlockRenderer.geometryNormalBlock(block, x + 1, y, z, BLOCK_LEFT, *this);
+                    global_block_renderer.geometryNormalBlock(block, x + 1, y, z, BLOCK_LEFT, *this);
 
                 if(inBounds(x, y - 1, z) && (block = blocks[x][y - 1][z]) != BLOCK_AIR)
-                    globalBlockRenderer.geometryNormalBlock(block, x, y - 1, z, BLOCK_TOP, *this);
+                    global_block_renderer.geometryNormalBlock(block, x, y - 1, z, BLOCK_TOP, *this);
 
                 if(inBounds(x, y + 1, z) && (block = blocks[x][y + 1][z]) != BLOCK_AIR)
-                    globalBlockRenderer.geometryNormalBlock(block, x, y + 1, z, BLOCK_BOTTOM, *this);
+                    global_block_renderer.geometryNormalBlock(block, x, y + 1, z, BLOCK_BOTTOM, *this);
 
                 if(inBounds(x, y, z - 1) && (block = blocks[x][y][z - 1]) != BLOCK_AIR)
-                    globalBlockRenderer.geometryNormalBlock(block, x, y, z - 1, BLOCK_BACK, *this);
+                    global_block_renderer.geometryNormalBlock(block, x, y, z - 1, BLOCK_BACK, *this);
 
                 if(inBounds(x, y, z + 1) && (block = blocks[x][y][z + 1]) != BLOCK_AIR)
-                    globalBlockRenderer.geometryNormalBlock(block, x, y, z + 1, BLOCK_FRONT, *this);
+                    global_block_renderer.geometryNormalBlock(block, x, y, z + 1, BLOCK_FRONT, *this);
             }
         }
     }
@@ -110,7 +111,7 @@ void Chunk::buildGeometry()
             {
                 BLOCK_WDATA block = blocks[x][y][z];
                 if(block != BLOCK_AIR)
-                    globalBlockRenderer.renderSpecialBlock(blocks[x][y][z], pos_x, pos_y, pos_z, *this);
+                    global_block_renderer.renderSpecialBlock(blocks[x][y][z], pos_x, pos_y, pos_z, *this);
             }
         }
     }
@@ -324,19 +325,17 @@ void Chunk::render()
     const IndexedVertex *v = vertices.data();
     for(unsigned int i = 0; i < vertices.size(); i += 4, v += 4)
     {
+        //If it's a billboard texture, skip backface culling
         if(drawTriangle(v[0], v[1], v[2], v[0].c != 0xFFFF))
             drawTriangle(v[2], v[3], v[0], false);
     }
 
-    //Do these last, they may be transparent
     const VERTEX *ve = vertices_unaligned.data();
     for(unsigned int i = 0; i < vertices_unaligned.size(); i += 4, ve += 4)
     {
-        VERTEX v1, v2, v3, v4;
         nglMultMatVectRes(transformation, ve + 0, &v1);
         nglMultMatVectRes(transformation, ve + 1, &v2);
         nglMultMatVectRes(transformation, ve + 2, &v3);
-        nglMultMatVectRes(transformation, ve + 3, &v4);
 
         //nglMultMatVectRes doesn't copy u,v and c
         v1.u = ve[0].u;
@@ -348,13 +347,17 @@ void Chunk::render()
         v3.u = ve[2].u;
         v3.v = ve[2].v;
         v3.c = ve[2].c;
-        v4.u = ve[3].u;
-        v4.v = ve[3].v;
-        v4.c = ve[3].c;
 
         //If it's a billboard texture, skip backface culling
         if(nglDrawTriangle(&v1, &v2, &v3, ve[0].c != 0xFFFF))
+        {
+            nglMultMatVectRes(transformation, ve + 3, &v4);
+            v4.u = ve[3].u;
+            v4.v = ve[3].v;
+            v4.c = ve[3].c;
+
             nglDrawTriangle(&v3, &v4, &v1, false);
+        }
     }
 }
 
@@ -369,6 +372,16 @@ void Chunk::setLocalBlock(const int x, const int y, const int z, const BLOCK_WDA
     setDirty();
 }
 
+void Chunk::changeLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block)
+{
+    BLOCK_WDATA &current_block = blocks[x][y][z];
+    global_block_renderer.removedBlock(current_block, x, y, z, *this);
+    current_block = block;
+    global_block_renderer.addedBlock(current_block, x, y, z, *this);
+
+    setDirty();
+}
+
 BLOCK_WDATA Chunk::getGlobalBlockRelative(int x, int y, int z)
 {
     if(inBounds(x, y, z))
@@ -377,7 +390,7 @@ BLOCK_WDATA Chunk::getGlobalBlockRelative(int x, int y, int z)
     return parent->getBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE);
 }
 
-void Chunk::setGlobalBlockRelative(int x, int y, int z, BLOCK_WDATA block)
+void Chunk::setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block)
 {
     if(inBounds(x, y, z))
         return setLocalBlock(x, y, z, block);
@@ -412,15 +425,15 @@ bool Chunk::intersects(AABB &other)
 
                 const BLOCK_WDATA block = blocks[x][y][z];
 
-                if(!globalBlockRenderer.isObstacle(block))
+                if(!global_block_renderer.isObstacle(block))
                     continue;
 
-                if(globalBlockRenderer.isBlockShaped(block))
+                if(global_block_renderer.isBlockShaped(block))
                 {
                     if(aabb.intersects(other))
                         return true;
                 }
-                else if(globalBlockRenderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z).intersects(other))
+                else if(global_block_renderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z).intersects(other))
                     return true;
             }
         }
@@ -462,8 +475,8 @@ bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFi
                     continue;
 
                 AABB test = aabb;
-                if(!globalBlockRenderer.isBlockShaped(block))
-                    test = globalBlockRenderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z);
+                if(!global_block_renderer.isBlockShaped(block))
+                    test = global_block_renderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z);
 
                 GLFix new_dist;
                 AABB::SIDE new_side = test.intersectsRay(rx, ry, rz, dx, dy, dz, new_dist);

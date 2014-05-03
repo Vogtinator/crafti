@@ -42,6 +42,7 @@ constexpr BLOCK BLOCK_FLOWER = 128; //Data: Flower type
 constexpr BLOCK BLOCK_SPIDERWEB = 129;
 constexpr BLOCK BLOCK_CAKE = 130;
 constexpr BLOCK BLOCK_MUSHROOM = 131; //Data: Mushroom type
+constexpr BLOCK BLOCK_DOOR = 132; //Data: (top: 1<<7) | BLOCK_SIDE
 constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_MUSHROOM;
 
 constexpr BLOCK getBLOCK(BLOCK_WDATA bd) { return bd & 0xFF; }

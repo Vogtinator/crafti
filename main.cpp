@@ -54,7 +54,8 @@ static BLOCK_WDATA user_selectable[] = {
     getBLOCKWDATA(BLOCK_MUSHROOM, 1),
     BLOCK_SPIDERWEB,
     BLOCK_TORCH,
-    BLOCK_CAKE
+    BLOCK_CAKE,
+    BLOCK_DOOR
 };
 
 constexpr int user_selectable_count = sizeof(user_selectable)/sizeof(*user_selectable);
@@ -183,7 +184,7 @@ int main(int argc, char *argv[])
     bool saved_background = false;
 
     //State for GAMESTATE WORLD
-    const GLFix player_width = BLOCK_SIZE*0.9f, player_height = BLOCK_SIZE*1.8f, eye_pos = BLOCK_SIZE*1.6f;
+    const GLFix player_width = BLOCK_SIZE*0.8f, player_height = BLOCK_SIZE*1.8f, eye_pos = BLOCK_SIZE*1.6f;
     bool key_held_down = true, can_jump = false, tp_had_contact = false, menu_held_down = true;
     int tp_last_x = 0, tp_last_y = 0;
     GLFix vy = 0; //Y-Velocity for gravity and jumps
@@ -233,7 +234,7 @@ int main(int argc, char *argv[])
             crosshairPixel(0, 1);
             crosshairPixel(0, 2);
 
-            globalBlockRenderer.drawPreview(user_selectable[current_block_selection], *screen, 0, 0);
+            global_block_renderer.drawPreview(user_selectable[current_block_selection], *screen, 0, 0);
 
             //Now display the contents of the screen buffer
             nglDisplay();
@@ -393,46 +394,49 @@ int main(int argc, char *argv[])
                 GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
                 if(world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, res, side))
                 {
-                    switch(side)
+                    if(!world.blockAction(res.x, res.y, res.z))
                     {
-                    case AABB::BACK:
-                        ++res.z;
-                        break;
-                    case AABB::FRONT:
-                        --res.z;
-                        break;
-                    case AABB::LEFT:
-                        --res.x;
-                        break;
-                    case AABB::RIGHT:
-                        ++res.x;
-                        break;
-                    case AABB::BOTTOM:
-                        --res.y;
-                        break;
-                    case AABB::TOP:
-                        ++res.y;
-                        break;
-                    default:
-                        puts("This can't normally happen #1");
-                        break;
-                    }
-                    if(!world.intersect(aabb))
-                    {
-                        if(!globalBlockRenderer.isOriented(user_selectable[current_block_selection]))
-                            world.setBlock(res.x, res.y, res.z, user_selectable[current_block_selection]);
-                        else
+                        switch(side)
                         {
-                            //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
-                            if(!globalBlockRenderer.isFullyOriented(user_selectable[current_block_selection]) && (side == AABB::TOP || side == AABB::BOTTOM))
-                                side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
-
-                            world.setBlock(res.x, res.y, res.z, getBLOCKWDATA(user_selectable[current_block_selection], side)); //AABB::SIDE is compatible to BLOCK_SIDE
+                        case AABB::BACK:
+                            ++res.z;
+                            break;
+                        case AABB::FRONT:
+                            --res.z;
+                            break;
+                        case AABB::LEFT:
+                            --res.x;
+                            break;
+                        case AABB::RIGHT:
+                            ++res.x;
+                            break;
+                        case AABB::BOTTOM:
+                            --res.y;
+                            break;
+                        case AABB::TOP:
+                            ++res.y;
+                            break;
+                        default:
+                            puts("This can't normally happen #1");
+                            break;
                         }
+                        if(!world.intersect(aabb))
+                        {
+                            if(!global_block_renderer.isOriented(user_selectable[current_block_selection]))
+                                world.changeBlock(res.x, res.y, res.z, user_selectable[current_block_selection]);
+                            else
+                            {
+                                //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
+                                if(!global_block_renderer.isFullyOriented(user_selectable[current_block_selection]) && (side == AABB::TOP || side == AABB::BOTTOM))
+                                    side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
 
-                        //If the player is stuck now, it's because of the block change, so remove it again
-                        if(world.intersect(aabb))
-                            world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
+                                world.changeBlock(res.x, res.y, res.z, getBLOCKWDATA(user_selectable[current_block_selection], side)); //AABB::SIDE is compatible to BLOCK_SIDE
+                            }
+
+                            //If the player is stuck now, it's because of the block change, so remove it again
+                            if(world.intersect(aabb))
+                                world.changeBlock(res.x, res.y, res.z, BLOCK_AIR);
+                        }
                     }
                 }
 
@@ -629,7 +633,7 @@ int main(int argc, char *argv[])
                 screen_x = 39;
                 for(int x = 0; x < fields_x; x++, screen_x += field_width)
                 {
-                    globalBlockRenderer.drawPreview(user_selectable[block], *screen, screen_x, screen_y);
+                    global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x, screen_y);
 
                     block++;
                     if(block == user_selectable_count)

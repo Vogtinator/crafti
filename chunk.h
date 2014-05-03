@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <tuple>
 
 #include "gl.h"
 #include "terrain.h"
@@ -28,12 +29,17 @@ public:
     void setDirty() { render_dirty = true; }
     BLOCK_WDATA getLocalBlock(const int x, const int y, const int z);
     void setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
+    void changeLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block); //Calls removeBlock and addBlock
+    BLOCK_WDATA getGlobalBlockRelative(int x, int y, int z);
+    void setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block);
     AABB &getAABB() { return aabb; }
     bool intersects(AABB &other);
     bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side);
     void generate();
     bool saveToFile(FILE *file);
     bool loadFromFile(FILE *file);
+
+    void setBlocksDirtyAround(const int x, const int y, const int z);
 
     GLFix absX() { return abs_x; }
     GLFix absY() { return abs_y; }
@@ -53,8 +59,6 @@ private:
     void makeTree(unsigned int x, unsigned int y, unsigned int z);
 
     //Data
-    BLOCK_WDATA getGlobalBlockRelative(int x, int y, int z);
-    void setGlobalBlockRelative(int x, int y, int z, BLOCK_WDATA block);
     int getPosition(GLFix x, GLFix y, GLFix z);
 
     //Rendering

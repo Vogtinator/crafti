@@ -6,8 +6,10 @@
 class LeavesRenderer : public NormalBlockRenderer
 {
 public:
-    virtual void geometryNormalBlock(const BLOCK_WDATA, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c) override;
-    virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
+    static constexpr bool transparent = false;
+
+    virtual void geometryNormalBlock(const BLOCK_WDATA, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
+    virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return !transparent; }
 };
 
 #endif // LEAVESRENDERER_H
