@@ -23,7 +23,7 @@ static constexpr bool inBounds(int x, int y, int z)
     return x >= 0 && y >= 0 && z >= 0 && x < Chunk::SIZE && y < Chunk::SIZE && z < Chunk::SIZE;
 }
 
-int Chunk::getPosition(GLFix x, GLFix y, GLFix z)
+int Chunk::getPosition(int x, int y, int z)
 {
     if(pos_indices[x][y][z] == -1)
     {
@@ -34,7 +34,7 @@ int Chunk::getPosition(GLFix x, GLFix y, GLFix z)
     return pos_indices[x][y][z];
 }
 
-void Chunk::addAlignedVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFix v, const COLOR c)
+void Chunk::addAlignedVertex(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c)
 {
     vertices.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
 }

@@ -46,7 +46,7 @@ public:
     GLFix absZ() { return abs_z; }
 
     //Used by BlockRenderers, had to make it public because friendship is not inheritable
-    void addAlignedVertex(const GLFix x, const GLFix y, const GLFix z, GLFix u, GLFix v, const COLOR c);
+    void addAlignedVertex(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c);
     void addUnalignedVertex(const GLFix x, const GLFix y, const GLFix z, const GLFix u, const GLFix v, const COLOR c);
     void addUnalignedVertex(const VERTEX &v);
 
@@ -59,7 +59,7 @@ private:
     void makeTree(unsigned int x, unsigned int y, unsigned int z);
 
     //Data
-    int getPosition(GLFix x, GLFix y, GLFix z);
+    int getPosition(int x, int y, int z);
 
     //Rendering
     void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);

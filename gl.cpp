@@ -180,8 +180,9 @@ void nglPerspective(VERTEX *v)
 #else
     GLFix div = GLFix(NEAR_PLANE)/v->z;
 
-    v->x *= div;
-    v->y *= div;
+    //Round to integers, as we don't lose the topmost 8 bits with integer multiplication
+    v->x.value = v->x.toInt() * div.value;
+    v->y.value = v->y.toInt() * div.value;
 #endif
 
     // (0/0) is in the center of the screen
@@ -223,7 +224,6 @@ void nglSetBuffer(COLOR *screenBuf)
 void nglDisplay()
 {
     std::copy(screen, screen + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
-
     #ifdef FPS_COUNTER
         if(frames == 0)
             printf("FPS: %d\n", fps);
