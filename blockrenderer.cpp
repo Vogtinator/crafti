@@ -3,6 +3,7 @@
 #include "billboardrenderer.h"
 #include "cakerenderer.h"
 #include "doorrenderer.h"
+#include "glassrenderer.h"
 #include "leavesrenderer.h"
 #include "torchrenderer.h"
 
@@ -95,14 +96,15 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     }
 
     map[BLOCK_AIR] = null_renderer;
-    map[BLOCK_CAKE] = std::make_shared<CakeRenderer>();
-    map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();
-    map[BLOCK_LEAVES] = std::make_shared<LeavesRenderer>();
-    map[BLOCK_FURNACE] = oriented_renderer;
-    map[BLOCK_CRAFTING_TABLE] = oriented_renderer;
-    map[BLOCK_PUMPKIN] = oriented_renderer;
     map[BLOCK_BOOKSHELF] = oriented_renderer;
+    map[BLOCK_CAKE] = std::make_shared<CakeRenderer>();
+    map[BLOCK_CRAFTING_TABLE] = oriented_renderer;
     map[BLOCK_DOOR] = std::make_shared<DoorRenderer>();
+    map[BLOCK_FURNACE] = oriented_renderer;
+    map[BLOCK_GLASS] = std::make_shared<GlassRenderer>();
+    map[BLOCK_LEAVES] = std::make_shared<LeavesRenderer>();
+    map[BLOCK_PUMPKIN] = oriented_renderer;
+    map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();
 
     auto flower_renderer = std::make_shared<BillboardRenderer>();
     flower_renderer->setEntry(0, 12, 0, "Red flower", BLOCK_SIZE, BLOCK_SIZE/2, BLOCK_SIZE);

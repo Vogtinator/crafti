@@ -33,7 +33,8 @@ constexpr BLOCK BLOCK_BOOKSHELF = 19;
 constexpr BLOCK BLOCK_GRASS = 20;
 constexpr BLOCK BLOCK_PUMPKIN = 21;
 constexpr BLOCK BLOCK_BEDROCK = 22;
-constexpr BLOCK BLOCK_NORMAL_LAST = BLOCK_BEDROCK;
+constexpr BLOCK BLOCK_GLASS = 23;
+constexpr BLOCK BLOCK_NORMAL_LAST = BLOCK_GLASS;
 
 //Special blocks begin here
 constexpr int BLOCK_SPECIAL_START = 127;

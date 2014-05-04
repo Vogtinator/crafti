@@ -29,11 +29,16 @@ static inline bool keyPressed(const t_key &key)
 static BLOCK_WDATA user_selectable[] = {
     BLOCK_STONE,
     BLOCK_DIRT,
+    BLOCK_GRASS,
     BLOCK_SAND,
     BLOCK_WOOD,
     BLOCK_LEAVES,
     BLOCK_PLANKS_NORMAL,
+    BLOCK_PLANKS_DARK,
+    BLOCK_PLANKS_BRIGHT,
     BLOCK_WALL,
+    BLOCK_GLASS,
+    BLOCK_DOOR,
     BLOCK_COAL_ORE,
     BLOCK_GOLD_ORE,
     BLOCK_IRON_ORE,
@@ -41,12 +46,9 @@ static BLOCK_WDATA user_selectable[] = {
     BLOCK_REDSTONE_ORE,
     BLOCK_TNT,
     BLOCK_SPONGE,
-    BLOCK_PLANKS_DARK,
-    BLOCK_PLANKS_BRIGHT,
     BLOCK_FURNACE,
     BLOCK_CRAFTING_TABLE,
     BLOCK_BOOKSHELF,
-    BLOCK_GRASS,
     BLOCK_PUMPKIN,
     getBLOCKWDATA(BLOCK_FLOWER, 0),
     getBLOCKWDATA(BLOCK_FLOWER, 1),
@@ -54,8 +56,7 @@ static BLOCK_WDATA user_selectable[] = {
     getBLOCKWDATA(BLOCK_MUSHROOM, 1),
     BLOCK_SPIDERWEB,
     BLOCK_TORCH,
-    BLOCK_CAKE,
-    BLOCK_DOOR
+    BLOCK_CAKE
 };
 
 constexpr int user_selectable_count = sizeof(user_selectable)/sizeof(*user_selectable);
@@ -633,7 +634,11 @@ int main(int argc, char *argv[])
                 screen_x = 39;
                 for(int x = 0; x < fields_x; x++, screen_x += field_width)
                 {
-                    global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x, screen_y);
+                    //BLOCK_DOOR is twice as high, so center it manually
+                    if(getBLOCK(user_selectable[block]) == BLOCK_DOOR)
+                        global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x, screen_y - 8);
+                    else
+                        global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x, screen_y);
 
                     block++;
                     if(block == user_selectable_count)
