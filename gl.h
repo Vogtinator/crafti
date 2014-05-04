@@ -1,7 +1,7 @@
 #ifndef GL_H
 #define GL_H
 
-//nGL version 0.5.8
+//nGL version 0.5.9
 #include "fix.h"
 
 //Either colors or textures, but not both
@@ -100,6 +100,7 @@ void nglStartRecording(VERTEX *buffer);
 //This returns the count of vertices added to the buffer
 int nglStopRecording();
 void nglAddVertices(VERTEX *buffer, unsigned int length);
+void nglAddVertex(const VERTEX &vertex);
 void nglAddVertex(const VERTEX *vertex);
 //Warning: The nglDraw*-Functions apply perspective projection!
 //Returns whether the triangle is front-facing

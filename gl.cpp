@@ -618,6 +618,11 @@ void nglAddVertices(VERTEX *buffer, unsigned int length)
         nglAddVertex(buffer++);
 }
 
+void nglAddVertex(const VERTEX &vertex)
+{
+    nglAddVertex(&vertex);
+}
+
 void nglAddVertex(const VERTEX* vertex)
 {
     #ifdef SAFE_MODE

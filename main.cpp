@@ -189,6 +189,7 @@ int main(int argc, char *argv[])
     bool key_held_down = true, can_jump = false, tp_had_contact = false, menu_held_down = true;
     int tp_last_x = 0, tp_last_y = 0;
     GLFix vy = 0; //Y-Velocity for gravity and jumps
+    Position selection_pos; AABB::SIDE selection_side; bool do_test = true; //For intersectsRay
 
     //State for GAMESTATE MENU
     int menu_selected_item = 0, menu_width_visible = 0;
@@ -222,6 +223,54 @@ int main(int argc, char *argv[])
             world.setPosition(x, y, z);
 
             world.render();
+
+            //Draw indication
+            glBegin(GL_QUADS);
+            const TextureAtlasEntry &tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].current; //Why not. Transparent, yet visible
+            const GLFix indicator_x = selection_pos.x * BLOCK_SIZE, indicator_y = selection_pos.y * BLOCK_SIZE, indicator_z = selection_pos.z * BLOCK_SIZE;
+            const GLFix selection_offset = 3; //Needed to prevent Z-fighting
+            switch(selection_side)
+            {
+            case AABB::FRONT:
+                nglAddVertex({indicator_x, indicator_y, indicator_z - selection_offset, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x, indicator_y + BLOCK_SIZE, indicator_z - selection_offset, tex.left, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y + BLOCK_SIZE, indicator_z - selection_offset, tex.right, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y, indicator_z - selection_offset, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+                break;
+            case AABB::BACK:
+                nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y, indicator_z + BLOCK_SIZE + selection_offset, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y + BLOCK_SIZE, indicator_z + BLOCK_SIZE + selection_offset, tex.left, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x, indicator_y + BLOCK_SIZE, indicator_z + BLOCK_SIZE + selection_offset, tex.right, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x, indicator_y, indicator_z + BLOCK_SIZE + selection_offset, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+                break;
+            case AABB::RIGHT:
+                nglAddVertex({indicator_x + BLOCK_SIZE + selection_offset, indicator_y, indicator_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE + selection_offset, indicator_y + BLOCK_SIZE, indicator_z, tex.right, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE + selection_offset, indicator_y + BLOCK_SIZE, indicator_z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE + selection_offset, indicator_y, indicator_z + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+                break;
+            case AABB::LEFT:
+                nglAddVertex({indicator_x - selection_offset, indicator_y, indicator_z + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x - selection_offset, indicator_y + BLOCK_SIZE, indicator_z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x - selection_offset, indicator_y + BLOCK_SIZE, indicator_z, tex.right, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x - selection_offset, indicator_y, indicator_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+                break;
+            case AABB::TOP:
+                nglAddVertex({indicator_x, indicator_y + BLOCK_SIZE + selection_offset, indicator_z, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x, indicator_y + BLOCK_SIZE + selection_offset, indicator_z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y + BLOCK_SIZE + selection_offset, indicator_z + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y + BLOCK_SIZE + selection_offset, indicator_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+                break;
+            case AABB::BOTTOM:
+                nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y - selection_offset, indicator_z, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y - selection_offset, indicator_z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x, indicator_y - selection_offset, indicator_z + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT});
+                nglAddVertex({indicator_x, indicator_y - selection_offset, indicator_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+                break;
+            case AABB::NONE:
+                break;
+            }
+            glEnd();
 
             glPopMatrix();
 
@@ -384,6 +433,16 @@ int main(int argc, char *argv[])
             tp_last_x = touchpad.x;
             tp_last_y = touchpad.y;
 
+            //Do test only on every second frame, it's expensive
+            if(do_test)
+            {
+                GLFix dxa = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dza = fast_cos(yr)*fast_cos(xr);
+                if(!world.intersectsRay(x, y + eye_pos, z, dxa, dy, dza, selection_pos, selection_side))
+                    selection_side = AABB::NONE;
+            }
+
+            do_test = !do_test;
+
             if(key_held_down)
                 key_held_down = keyPressed(KEY_NSPIRE_7) || keyPressed(KEY_NSPIRE_9) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_MINUS) || keyPressed(KEY_NSPIRE_PLUS);
 
@@ -391,31 +450,30 @@ int main(int argc, char *argv[])
                 break;
             else if(keyPressed(KEY_NSPIRE_7)) //Put block down
             {
-                Position res; AABB::SIDE side;
-                GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
-                if(world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, res, side))
+                if(selection_side != AABB::NONE)
                 {
-                    if(!world.blockAction(res.x, res.y, res.z))
+                    if(!world.blockAction(selection_pos.x, selection_pos.y, selection_pos.z))
                     {
-                        switch(side)
+                        Position pos = selection_pos;
+                        switch(selection_side)
                         {
                         case AABB::BACK:
-                            ++res.z;
+                            ++pos.z;
                             break;
                         case AABB::FRONT:
-                            --res.z;
+                            --pos.z;
                             break;
                         case AABB::LEFT:
-                            --res.x;
+                            --pos.x;
                             break;
                         case AABB::RIGHT:
-                            ++res.x;
+                            ++pos.x;
                             break;
                         case AABB::BOTTOM:
-                            --res.y;
+                            --pos.y;
                             break;
                         case AABB::TOP:
-                            ++res.y;
+                            ++pos.y;
                             break;
                         default:
                             puts("This can't normally happen #1");
@@ -424,19 +482,20 @@ int main(int argc, char *argv[])
                         if(!world.intersect(aabb))
                         {
                             if(!global_block_renderer.isOriented(user_selectable[current_block_selection]))
-                                world.changeBlock(res.x, res.y, res.z, user_selectable[current_block_selection]);
+                                world.changeBlock(pos.x, pos.y, pos.z, user_selectable[current_block_selection]);
                             else
                             {
+                                AABB::SIDE side = selection_side;
                                 //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
                                 if(!global_block_renderer.isFullyOriented(user_selectable[current_block_selection]) && (side == AABB::TOP || side == AABB::BOTTOM))
                                     side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
 
-                                world.changeBlock(res.x, res.y, res.z, getBLOCKWDATA(user_selectable[current_block_selection], side)); //AABB::SIDE is compatible to BLOCK_SIDE
+                                world.changeBlock(pos.x, pos.y, pos.z, getBLOCKWDATA(user_selectable[current_block_selection], side)); //AABB::SIDE is compatible to BLOCK_SIDE
                             }
 
                             //If the player is stuck now, it's because of the block change, so remove it again
                             if(world.intersect(aabb))
-                                world.changeBlock(res.x, res.y, res.z, BLOCK_AIR);
+                                world.changeBlock(pos.x, pos.y, pos.z, BLOCK_AIR);
                         }
                     }
                 }
@@ -445,10 +504,8 @@ int main(int argc, char *argv[])
             }
             else if(keyPressed(KEY_NSPIRE_9)) //Remove block
             {
-                Position res; AABB::SIDE side;
-                GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
-                if(world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, res, side) && world.getBlock(res.x, res.y, res.z) != BLOCK_BEDROCK)
-                    world.changeBlock(res.x, res.y, res.z, BLOCK_AIR);
+                if(selection_side != AABB::NONE && world.getBlock(selection_pos.x, selection_pos.y, selection_pos.z) != BLOCK_BEDROCK)
+                    world.changeBlock(selection_pos.x, selection_pos.y, selection_pos.z, BLOCK_AIR);
 
                 key_held_down = true;
             }
