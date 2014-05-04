@@ -1,12 +1,39 @@
 #include "doorrenderer.h"
 
-void DoorRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
+void DoorRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
-    BLOCK_SIDE own_side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & ~(1 << 7)) ^ 1);
-    if(side != own_side)
-        return;
+    const BLOCK_SIDE side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & ~(1 << 7)) ^ 1);
+    const TextureAtlasEntry &tex = (getBLOCKDATA(block) & (1 << 7)) ? terrain_atlas[1][5].current : terrain_atlas[1][6].current;
+    const GLFix door_offset = door_depth;
 
-    renderNormalBlockSide(local_x, local_y, local_z, side, (getBLOCKDATA(block) & (1 << 7)) ? terrain_atlas[1][5].current : terrain_atlas[1][6].current, c, TEXTURE_TRANSPARENT | 0xFFF);
+    switch(side)
+    {
+    case BLOCK_FRONT:
+        c.addUnalignedVertex({x, y, z + door_offset, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x, y + BLOCK_SIZE, z + door_offset, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + BLOCK_SIZE, z + door_offset, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + door_offset, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        break;
+    case BLOCK_BACK:
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z - door_offset + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + BLOCK_SIZE, z - door_offset + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x, y + BLOCK_SIZE, z - door_offset + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x, y, z - door_offset + BLOCK_SIZE, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        break;
+    case BLOCK_LEFT:
+        c.addUnalignedVertex({x + door_offset, y, z + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x + door_offset, y + BLOCK_SIZE, z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x + door_offset, y + BLOCK_SIZE, z, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x + door_offset, y, z, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        break;
+    case BLOCK_RIGHT:
+        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y, z, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y + BLOCK_SIZE, z, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+    default:
+        break;
+    }
 }
 
 AABB DoorRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)

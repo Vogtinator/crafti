@@ -448,7 +448,7 @@ int main(int argc, char *argv[])
                 Position res; AABB::SIDE side;
                 GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
                 if(world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, res, side) && world.getBlock(res.x, res.y, res.z) != BLOCK_BEDROCK)
-                    world.setBlock(res.x, res.y, res.z, BLOCK_AIR);
+                    world.changeBlock(res.x, res.y, res.z, BLOCK_AIR);
 
                 key_held_down = true;
             }

@@ -6,9 +6,9 @@
 class DoorRenderer : public BlockRenderer
 {
 public:
-    virtual void renderSpecialBlock(const BLOCK_WDATA, GLFix, GLFix, GLFix, Chunk &) override {};
+    virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) override;
     virtual int indicesNormalBlock(const BLOCK_WDATA, const int, const int, const int, const BLOCK_SIDE, Chunk &) override { return 0; }
-    virtual void geometryNormalBlock(const BLOCK_WDATA, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
+    virtual void geometryNormalBlock(const BLOCK_WDATA, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {};
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return true; }
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return true; }
@@ -28,7 +28,7 @@ public:
     virtual const char* getName(const BLOCK_WDATA) override;
 
 protected:
-    static constexpr GLFix door_depth = BLOCK_SIZE/100; //As small as possible, a opened door shouldn't be much of an obstacle
+    static constexpr GLFix door_depth = 3; //As small as possible, a opened door shouldn't be much of an obstacle
 };
 
 #endif // DOORRENDERER_H
