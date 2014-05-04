@@ -224,8 +224,8 @@ int main(int argc, char *argv[])
             glPushMatrix();
 
             //Inverted rotation of the world
-            nglRotateX(GLFix(359) - xr);
-            nglRotateY(GLFix(359) - yr);
+            nglRotateX((GLFix(359) - xr).normaliseAngle());
+            nglRotateY((GLFix(359) - yr).normaliseAngle());
             //Inverted translation of the world
             glTranslatef(-x, -y - eye_pos, -z);
 

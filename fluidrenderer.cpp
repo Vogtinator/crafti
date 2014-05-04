@@ -3,6 +3,11 @@
 FluidRenderer::FluidRenderer(const unsigned int tex_x, const unsigned int tex_y, const char *name) : tex_x(tex_x), tex_y(tex_y), name(name)
 {}
 
+constexpr uint8_t maxRange(const BLOCK_WDATA block)
+{
+    return getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA;
+}
+
 void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
     uint8_t range = getBLOCKDATA(block);
@@ -13,7 +18,7 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
     const TextureAtlasEntry &tex = terrain_atlas[tex_x][tex_y].current;
 
     //Height is proportional to its range
-    const GLFix ratio = GLFix(getBLOCKDATA(block)) / (getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA);
+    const GLFix ratio = GLFix(getBLOCKDATA(block)) / maxRange(block);
     GLFix height = GLFix(BLOCK_SIZE) * ratio, tex_top = tex.bottom - (tex.bottom - tex.top) * ratio;
 
     c.addUnalignedVertex({x, y, z, tex.left, tex.bottom, 0});
@@ -46,7 +51,7 @@ void FluidRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local
 {
     uint8_t range = getBLOCKDATA(block);
     //A fluid block is like a normal block if it has full range
-    if(range == (getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA))
+    if(range == maxRange(block))
         return BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[tex_x][tex_y].current, c);
 
     if(side != BLOCK_BOTTOM)
@@ -62,20 +67,20 @@ bool FluidRenderer::isOpaque(const BLOCK_WDATA block)
 {
     uint8_t range = getBLOCKDATA(block);
     //A fluid block is like a normal block if it has full range
-    return range == (getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA);
+    return range == maxRange(block);
 }
 
 bool FluidRenderer::isBlockShaped(const BLOCK_WDATA block)
 {
     uint8_t range = getBLOCKDATA(block);
     //A fluid block is like a normal block if it has full range
-    return range == (getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA);
+    return range == maxRange(block);
 }
 
 AABB FluidRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 {
     //Height is proportional to its range
-    const GLFix ratio = GLFix(getBLOCKDATA(block)) / (getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA);
+    const GLFix ratio = GLFix(getBLOCKDATA(block)) / maxRange(block);
     GLFix height = GLFix(BLOCK_SIZE) * ratio;
 
     return {x, y, z, x + BLOCK_SIZE, y + height, z + BLOCK_SIZE};
@@ -94,11 +99,13 @@ void FluidRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int 
 
     BLOCK_WDATA block_left = c.getGlobalBlockRelative(local_x - 1, local_y, local_z),
             block_right = c.getGlobalBlockRelative(local_x + 1, local_y, local_z),
+            block_top = c.getGlobalBlockRelative(local_x, local_y + 1, local_z),
+            block_bottom = c.getGlobalBlockRelative(local_x, local_y - 1, local_z),
             block_front = c.getGlobalBlockRelative(local_x, local_y, local_z - 1),
             block_back = c.getGlobalBlockRelative(local_x, local_y, local_z + 1);
 
-    //If a block doesn't have the full range, it despawns without a adjacent block > range
-    if(range != (getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA))
+    //If a block doesn't have the full range, it despawns without an adjacent block > range
+    if(range != maxRange(block))
     {
         if(getBLOCK(block_left) == getBLOCK(block) && getBLOCKDATA(block_left) > range)
             goto survive;
@@ -107,6 +114,10 @@ void FluidRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int 
         if(getBLOCK(block_front) == getBLOCK(block) && getBLOCKDATA(block_front) > range)
             goto survive;
         if(getBLOCK(block_back) == getBLOCK(block) && getBLOCKDATA(block_back) > range)
+            goto survive;
+
+        //If there is any water above, survival doesn't depend on its range
+        if(getBLOCK(block_top) == getBLOCK(block))
             goto survive;
 
         //Remove myself, I'm dead :-(
@@ -121,20 +132,26 @@ void FluidRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int 
 
     BLOCK_WDATA next_block = getBLOCKWDATA(getBLOCK(block), range - 1);
 
-    if(getBLOCK(block_left) == BLOCK_AIR)
-        c.setGlobalBlockRelative(local_x - 1, local_y, local_z, next_block);
-    if(getBLOCK(block_right) == BLOCK_AIR)
-        c.setGlobalBlockRelative(local_x + 1, local_y, local_z, next_block);
-    if(getBLOCK(block_front) == BLOCK_AIR)
-        c.setGlobalBlockRelative(local_x, local_y, local_z - 1, next_block);
-    if(getBLOCK(block_back) == BLOCK_AIR)
-        c.setGlobalBlockRelative(local_x, local_y, local_z + 1, next_block);
-
-    //Flowing downwards means full range on block below
-    if(c.getGlobalBlockRelative(local_x, local_y - 1, local_z) == BLOCK_AIR)
+    //Either flow downwards or spread
+    if(getBLOCK(block_bottom) == BLOCK_AIR || getBLOCK(block_bottom) == getBLOCK(block))
     {
-        next_block = getBLOCKWDATA(getBLOCK(block), getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA);
-        c.setGlobalBlockRelative(local_x, local_y - 1, local_z, next_block);
+        //Flowing downwards means full range on block below
+        if(getBLOCKDATA(block_bottom) != maxRange(block))
+        {
+            next_block = getBLOCKWDATA(getBLOCK(block), maxRange(block));
+            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, next_block);
+        }
+    }
+    else
+    {
+        if(getBLOCK(block_left) == BLOCK_AIR || (getBLOCK(block_left) == getBLOCK(block) && getBLOCKDATA(block_left) < range))
+            c.setGlobalBlockRelative(local_x - 1, local_y, local_z, next_block);
+        if(getBLOCK(block_right) == BLOCK_AIR || (getBLOCK(block_right) == getBLOCK(block) && getBLOCKDATA(block_right) < range))
+            c.setGlobalBlockRelative(local_x + 1, local_y, local_z, next_block);
+        if(getBLOCK(block_front) == BLOCK_AIR || (getBLOCK(block_front) == getBLOCK(block) && getBLOCKDATA(block_front) < range))
+            c.setGlobalBlockRelative(local_x, local_y, local_z - 1, next_block);
+        if(getBLOCK(block_back) == BLOCK_AIR || (getBLOCK(block_back) == getBLOCK(block) && getBLOCKDATA(block_back) < range))
+            c.setGlobalBlockRelative(local_x, local_y, local_z + 1, next_block);
     }
 }
 

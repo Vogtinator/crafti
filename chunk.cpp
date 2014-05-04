@@ -73,33 +73,35 @@ void Chunk::buildGeometry()
         {
             for(int z = -1; z <= SIZE; z++)
             {
-                BLOCK_WDATA block = getGlobalBlockRelative(x, y, z);
+                BLOCK_WDATA block = getGlobalBlockRelative(x, y, z), block1;
 
                 if(block != BLOCK_AIR && global_block_renderer.isOpaque(block))
                     continue;
 
-                if(inBounds(x - 1, y, z) && (block = blocks[x - 1][y][z]) != BLOCK_AIR)
-                    global_block_renderer.geometryNormalBlock(block, x - 1, y, z, BLOCK_RIGHT, *this);
+                if(inBounds(x - 1, y, z) && (block1 = blocks[x - 1][y][z]) != BLOCK_AIR)
+                    global_block_renderer.geometryNormalBlock(block1, x - 1, y, z, BLOCK_RIGHT, *this);
 
-                if(inBounds(x + 1, y, z) && (block = blocks[x + 1][y][z]) != BLOCK_AIR)
-                    global_block_renderer.geometryNormalBlock(block, x + 1, y, z, BLOCK_LEFT, *this);
+                if(inBounds(x + 1, y, z) && (block1 = blocks[x + 1][y][z]) != BLOCK_AIR)
+                    global_block_renderer.geometryNormalBlock(block1, x + 1, y, z, BLOCK_LEFT, *this);
 
-                if(inBounds(x, y - 1, z) && (block = blocks[x][y - 1][z]) != BLOCK_AIR)
-                    global_block_renderer.geometryNormalBlock(block, x, y - 1, z, BLOCK_TOP, *this);
+                //Don't render top if a fluid is above
+                if(inBounds(x, y - 1, z) && (block1 = blocks[x][y - 1][z]) != BLOCK_AIR && getBLOCK(block) != BLOCK_WATER && getBLOCK(block) != BLOCK_LAVA)
+                    global_block_renderer.geometryNormalBlock(block1, x, y - 1, z, BLOCK_TOP, *this);
 
-                if(inBounds(x, y + 1, z) && (block = blocks[x][y + 1][z]) != BLOCK_AIR)
-                    global_block_renderer.geometryNormalBlock(block, x, y + 1, z, BLOCK_BOTTOM, *this);
+                if(inBounds(x, y + 1, z) && (block1 = blocks[x][y + 1][z]) != BLOCK_AIR)
+                    global_block_renderer.geometryNormalBlock(block1, x, y + 1, z, BLOCK_BOTTOM, *this);
 
-                if(inBounds(x, y, z - 1) && (block = blocks[x][y][z - 1]) != BLOCK_AIR)
-                    global_block_renderer.geometryNormalBlock(block, x, y, z - 1, BLOCK_BACK, *this);
+                if(inBounds(x, y, z - 1) && (block1 = blocks[x][y][z - 1]) != BLOCK_AIR)
+                    global_block_renderer.geometryNormalBlock(block1, x, y, z - 1, BLOCK_BACK, *this);
 
-                if(inBounds(x, y, z + 1) && (block = blocks[x][y][z + 1]) != BLOCK_AIR)
-                    global_block_renderer.geometryNormalBlock(block, x, y, z + 1, BLOCK_FRONT, *this);
+                if(inBounds(x, y, z + 1) && (block1 = blocks[x][y][z + 1]) != BLOCK_AIR)
+                    global_block_renderer.geometryNormalBlock(block1, x, y, z + 1, BLOCK_FRONT, *this);
             }
         }
     }
 
     //Special blocks
+    //TODO: Render only if adjacent to non-opaque blocks
     GLFix pos_x = abs_x;
     for(int x = 0; x < SIZE; x++, pos_x += BLOCK_SIZE)
     {
@@ -257,7 +259,7 @@ static bool behindClip(const VERTEX &v1)
     return transformation->data[2][0]*v1.x + transformation->data[2][1]*v1.y + transformation->data[2][2]*v1.z + transformation->data[2][3] <= GLFix(CLIP_PLANE);
 }
 
-void Chunk::render()
+void Chunk::logic()
 {
     tick_counter -= 1;
     if(tick_counter == 0)
@@ -273,8 +275,10 @@ void Chunk::render()
                         global_block_renderer.tick(block, x, y, z, *this);
                 }
     }
+}
 
-
+void Chunk::render()
+{
     if(__builtin_expect(render_dirty, 0))
         buildGeometry();
 
@@ -386,16 +390,38 @@ void Chunk::setLocalBlock(const int x, const int y, const int z, const BLOCK_WDA
 {
     blocks[x][y][z] = block;
     setDirty();
+
+    if(x == 0)
+        if(Chunk *c = parent->findChunk(this->x - 1, this->y, this->z))
+            c->setDirty();
+
+    if(x == Chunk::SIZE - 1)
+        if(Chunk *c = parent->findChunk(this->x + 1, this->y, this->z))
+            c->setDirty();
+
+    if(y == 0)
+        if(Chunk *c = parent->findChunk(this->x, this->y - 1, this->z))
+            c->setDirty();
+
+    if(y == Chunk::SIZE - 1)
+        if(Chunk *c = parent->findChunk(this->x, this->y + 1, this->z))
+            c->setDirty();
+
+    if(z == 0)
+        if(Chunk *c = parent->findChunk(this->x, this->y, this->z - 1))
+            c->setDirty();
+
+    if(z == Chunk::SIZE - 1)
+        if(Chunk *c = parent->findChunk(this->x, this->y, this->z + 1))
+            c->setDirty();
 }
 
 void Chunk::changeLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block)
 {
-    BLOCK_WDATA &current_block = blocks[x][y][z];
+    BLOCK_WDATA current_block = blocks[x][y][z];
     global_block_renderer.removedBlock(current_block, x, y, z, *this);
-    current_block = block;
-    global_block_renderer.addedBlock(current_block, x, y, z, *this);
-
-    setDirty();
+    setLocalBlock(x, y, z, block);
+    global_block_renderer.addedBlock(block, x, y, z, *this);
 }
 
 BLOCK_WDATA Chunk::getGlobalBlockRelative(int x, int y, int z)

@@ -25,6 +25,7 @@ class Chunk
 {
 public:
     Chunk(int x, int y, int z, World *parent);
+    void logic();
     void render();
     void setDirty() { render_dirty = true; }
     BLOCK_WDATA getLocalBlock(const int x, const int y, const int z);

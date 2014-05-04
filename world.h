@@ -33,11 +33,11 @@ public:
     void render();
     int fieldOfView() const { return field_of_view; }
     void setFieldOfView(int fov) { field_of_view = fov; loaded = false; }
+    Chunk *findChunk(int x, int y, int z) const;
 
     static constexpr int HEIGHT = 5;
 
 private:
-    Chunk *findChunk(int x, int y, int z) const;
     Chunk *generateChunk(int x, int y, int z);
     void setChunkVisible(int x, int y, int z);
 
