@@ -34,7 +34,13 @@ constexpr BLOCK BLOCK_GRASS = 20;
 constexpr BLOCK BLOCK_PUMPKIN = 21;
 constexpr BLOCK BLOCK_BEDROCK = 22;
 constexpr BLOCK BLOCK_GLASS = 23;
-constexpr BLOCK BLOCK_NORMAL_LAST = BLOCK_GLASS;
+constexpr BLOCK BLOCK_COBBLESTONE = 24;
+constexpr BLOCK BLOCK_GLOWSTONE = 25;
+constexpr BLOCK BLOCK_IRON = 26;
+constexpr BLOCK BLOCK_GOLD = 27;
+constexpr BLOCK BLOCK_DIAMOND = 28;
+constexpr BLOCK BLOCK_NETHERRACK = 29;
+constexpr BLOCK BLOCK_NORMAL_LAST = BLOCK_NETHERRACK;
 
 //Special blocks begin here
 constexpr int BLOCK_SPECIAL_START = 127;
