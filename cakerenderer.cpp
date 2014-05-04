@@ -32,11 +32,6 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix x, GLFi
     c.addUnalignedVertex({x + BLOCK_SIZE, y + cake_height, z, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
 }
 
-int CakeRenderer::indicesNormalBlock(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE side, Chunk &/*c*/)
-{
-    return side == BLOCK_BOTTOM ? 4 : 0;
-}
-
 void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
     if(side != BLOCK_BOTTOM)

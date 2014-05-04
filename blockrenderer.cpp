@@ -3,6 +3,7 @@
 #include "billboardrenderer.h"
 #include "cakerenderer.h"
 #include "doorrenderer.h"
+#include "fluidrenderer.h"
 #include "glassrenderer.h"
 #include "leavesrenderer.h"
 #include "torchrenderer.h"
@@ -105,6 +106,8 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_LEAVES] = std::make_shared<LeavesRenderer>();
     map[BLOCK_PUMPKIN] = oriented_renderer;
     map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();
+    map[BLOCK_WATER] = std::make_shared<FluidRenderer>(13, 12, "Water");
+    map[BLOCK_LAVA] = std::make_shared<FluidRenderer>(13, 14, "Lava");
 
     auto flower_renderer = std::make_shared<BillboardRenderer>();
     flower_renderer->setEntry(0, 12, 0, "Red flower", BLOCK_SIZE, BLOCK_SIZE/2, BLOCK_SIZE);
@@ -135,11 +138,6 @@ UniversalBlockRenderer::~UniversalBlockRenderer()
 void UniversalBlockRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
     return map[getBLOCK(block)]->renderSpecialBlock(block, x, y, z, c);
-}
-
-int UniversalBlockRenderer::indicesNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
-{
-    return map[getBLOCK(block)]->indicesNormalBlock(block, local_x, local_y, local_z, side, c);
 }
 
 void UniversalBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)

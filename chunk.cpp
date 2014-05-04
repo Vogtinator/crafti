@@ -111,7 +111,7 @@ void Chunk::buildGeometry()
             {
                 BLOCK_WDATA block = blocks[x][y][z];
                 if(block != BLOCK_AIR)
-                    global_block_renderer.renderSpecialBlock(blocks[x][y][z], pos_x, pos_y, pos_z, *this);
+                    global_block_renderer.renderSpecialBlock(block, pos_x, pos_y, pos_z, *this);
             }
         }
     }
@@ -259,6 +259,22 @@ static bool behindClip(const VERTEX &v1)
 
 void Chunk::render()
 {
+    tick_counter -= 1;
+    if(tick_counter == 0)
+    {
+        tick_counter = 30; //Do a tick every 30th frame
+
+        for(int x = 0; x < SIZE; x++)
+            for(int y = 0; y < SIZE; y++)
+                for(int z = 0; z < SIZE; z++)
+                {
+                    BLOCK_WDATA block = blocks[x][y][z];
+                    if(block != BLOCK_AIR)
+                        global_block_renderer.tick(block, x, y, z, *this);
+                }
+    }
+
+
     if(__builtin_expect(render_dirty, 0))
         buildGeometry();
 

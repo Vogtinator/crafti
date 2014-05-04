@@ -12,7 +12,6 @@ public:
     virtual ~BlockRenderer() {};
 
     virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) = 0;
-    virtual int indicesNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) = 0;
     virtual void geometryNormalBlock(const BLOCK_WDATA block, const int x, const int y, const int z, const BLOCK_SIDE side, Chunk &c) = 0;
     virtual bool isOpaque(const BLOCK_WDATA block) = 0;
     virtual bool isObstacle(const BLOCK_WDATA block) = 0;
@@ -45,7 +44,6 @@ public:
     virtual ~UniversalBlockRenderer();
 
     virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) override;
-    virtual int indicesNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
     virtual void geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
     virtual bool isOpaque(const BLOCK_WDATA block) override;
     virtual bool isObstacle(const BLOCK_WDATA block) override;
@@ -82,7 +80,6 @@ class NormalBlockRenderer : public DumbBlockRenderer
 {
 public:
     virtual void renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/, Chunk &/*c*/) override {};
-    virtual int indicesNormalBlock(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override { return 4; }
     virtual void geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c) override;
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return true; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return true; }
@@ -109,7 +106,6 @@ class NullBlockRenderer : public DumbBlockRenderer
 {
 public:
     virtual void renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/, Chunk &/*c*/) override {};
-    virtual int indicesNormalBlock(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override { return 0; }
     virtual void geometryNormalBlock(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {}
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return false; }

@@ -7,7 +7,6 @@ class TorchRenderer : public DumbBlockRenderer
 {
 public:
     virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) override;
-    virtual int indicesNormalBlock(const BLOCK_WDATA, const int, const int, const int, const BLOCK_SIDE, Chunk &) override { return 0; }
     virtual void geometryNormalBlock(const BLOCK_WDATA, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {};
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return false; }

@@ -14,7 +14,6 @@ public:
     void setEntry(uint8_t data, unsigned int tex_x, unsigned int tex_y, const char *name, const GLFix w, const GLFix h, const GLFix l);
 
     virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) override;
-    virtual int indicesNormalBlock(const BLOCK_WDATA, int, int, int, const BLOCK_SIDE, Chunk &) override { return 0; };
     virtual void geometryNormalBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {}
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return false; }

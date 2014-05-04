@@ -80,6 +80,7 @@ private:
     std::vector<std::pair<Position, bool>> positions_perspective;
     std::vector<IndexedVertex> vertices;
     std::vector<VERTEX> vertices_unaligned; //The optimized drawing with indices doesn't work with unaligned positions
+    int tick_counter = 1; //1 to trigger a tick the next frame
 };
 
 #endif // CHUNK_H
