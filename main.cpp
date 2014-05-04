@@ -481,21 +481,26 @@ int main(int argc, char *argv[])
                         }
                         if(!world.intersect(aabb))
                         {
-                            if(!global_block_renderer.isOriented(user_selectable[current_block_selection]))
-                                world.changeBlock(pos.x, pos.y, pos.z, user_selectable[current_block_selection]);
-                            else
+                            //Only set the block if there's air
+                            const BLOCK_WDATA current_block = world.getBlock(pos.x, pos.y, pos.z);
+                            if(current_block == BLOCK_AIR)
                             {
-                                AABB::SIDE side = selection_side;
-                                //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
-                                if(!global_block_renderer.isFullyOriented(user_selectable[current_block_selection]) && (side == AABB::TOP || side == AABB::BOTTOM))
-                                    side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
+                                if(!global_block_renderer.isOriented(user_selectable[current_block_selection]))
+                                    world.changeBlock(pos.x, pos.y, pos.z, user_selectable[current_block_selection]);
+                                else
+                                {
+                                    AABB::SIDE side = selection_side;
+                                    //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
+                                    if(!global_block_renderer.isFullyOriented(user_selectable[current_block_selection]) && (side == AABB::TOP || side == AABB::BOTTOM))
+                                        side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
 
-                                world.changeBlock(pos.x, pos.y, pos.z, getBLOCKWDATA(user_selectable[current_block_selection], side)); //AABB::SIDE is compatible to BLOCK_SIDE
+                                    world.changeBlock(pos.x, pos.y, pos.z, getBLOCKWDATA(user_selectable[current_block_selection], side)); //AABB::SIDE is compatible to BLOCK_SIDE
+                                }
+
+                                //If the player is stuck now, it's because of the block change, so remove it again
+                                if(world.intersect(aabb))
+                                    world.changeBlock(pos.x, pos.y, pos.z, BLOCK_AIR);
                             }
-
-                            //If the player is stuck now, it's because of the block change, so remove it again
-                            if(world.intersect(aabb))
-                                world.changeBlock(pos.x, pos.y, pos.z, BLOCK_AIR);
                         }
                     }
                 }
