@@ -101,7 +101,6 @@ void Chunk::buildGeometry()
     }
 
     //Special blocks
-    //TODO: Render only if adjacent to non-opaque blocks
     GLFix pos_x = abs_x;
     for(int x = 0; x < SIZE; x++, pos_x += BLOCK_SIZE)
     {
@@ -112,8 +111,19 @@ void Chunk::buildGeometry()
             for(int z = 0; z < SIZE; z++, pos_z += BLOCK_SIZE)
             {
                 BLOCK_WDATA block = blocks[x][y][z];
-                if(block != BLOCK_AIR)
-                    global_block_renderer.renderSpecialBlock(block, pos_x, pos_y, pos_z, *this);
+
+                if(getBLOCK(block) == BLOCK_AIR)
+                    continue;
+
+                if(global_block_renderer.isOpaque(getGlobalBlockRelative(x - 1, y, z))
+                    && global_block_renderer.isOpaque(getGlobalBlockRelative(x + 1, y, z))
+                    && global_block_renderer.isOpaque(getGlobalBlockRelative(x, y - 1, z))
+                    && global_block_renderer.isOpaque(getGlobalBlockRelative(x, y + 1, z))
+                    && global_block_renderer.isOpaque(getGlobalBlockRelative(x, y, z - 1))
+                    && global_block_renderer.isOpaque(getGlobalBlockRelative(x, y, z + 1)))
+                    continue;
+
+                global_block_renderer.renderSpecialBlock(block, pos_x, pos_y, pos_z, *this);
             }
         }
     }
