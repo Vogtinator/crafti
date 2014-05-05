@@ -393,6 +393,7 @@ int main(int argc, char *argv[])
                     aabb = aabb_moved;
                 }
 
+                aabb_moved = aabb;
                 aabb_moved.low_y += vy;
                 aabb_moved.high_y += vy;
 
