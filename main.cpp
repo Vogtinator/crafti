@@ -12,13 +12,16 @@
 #include "textures/loading.h"
 #include "textures/menu.h"
 #include "textures/selection.h"
+#include "textures/inventory.h"
 
 static GLFix xr = 0, yr = 0;
 static GLFix x = 0, y = BLOCK_SIZE * Chunk::SIZE * World::HEIGHT + BLOCK_SIZE, z = 0;
 static constexpr GLFix incr = 20;
 static World world;
-static int current_block_selection;
-static TEXTURE *screen;
+static int current_inventory_slot, current_block_selection;
+static TEXTURE *screen, *inv_selection;
+constexpr int inventory_count = 5;
+static BLOCK_WDATA inventory_entries[] = { BLOCK_STONE, BLOCK_GRASS, BLOCK_PLANKS_NORMAL, BLOCK_TORCH, BLOCK_FLOWER };
 
 //isKeyPressed checks the hardware-type, but that's slow
 static inline bool keyPressed(const t_key &key)
@@ -26,7 +29,7 @@ static inline bool keyPressed(const t_key &key)
     return *reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col;
 }
 
-static BLOCK_WDATA user_selectable[] = {
+static const BLOCK_WDATA user_selectable[] = {
     BLOCK_STONE,
     BLOCK_COBBLESTONE,
     BLOCK_DIRT,
@@ -81,7 +84,7 @@ static void getRight(GLFix *x, GLFix *z)
     *z = fast_cos((yr + 90).normaliseAngle()) * incr;
 }
 
-static constexpr int savefile_version = 3;
+static constexpr int savefile_version = 4;
 
 #define LOAD_FROM_FILE(var) if(fread(&var, sizeof(var), 1, savefile) != 1) return false;
 #define SAVE_TO_FILE(var) if(fwrite(&var, sizeof(var), 1, savefile) != 1) return false;
@@ -91,7 +94,12 @@ static bool loadFile(FILE *savefile)
     int version;
     LOAD_FROM_FILE(version);
 
-    if(version != savefile_version)
+    //For backwards compatibility
+    if(version == savefile_version)
+    {
+        LOAD_FROM_FILE(inventory_entries)
+    }
+    else if(version != 3)
     {
         printf("Wrong save file version %d!\n", version);
         return false;
@@ -102,6 +110,12 @@ static bool loadFile(FILE *savefile)
     LOAD_FROM_FILE(x)
     LOAD_FROM_FILE(y)
     LOAD_FROM_FILE(z)
+
+    if(version == savefile_version)
+    {
+        LOAD_FROM_FILE(current_inventory_slot)
+    }
+
     LOAD_FROM_FILE(current_block_selection)
 
     return world.loadFromFile(savefile);
@@ -110,11 +124,13 @@ static bool loadFile(FILE *savefile)
 static bool saveFile(FILE *savefile)
 {
     SAVE_TO_FILE(savefile_version)
+    SAVE_TO_FILE(inventory_entries)
     SAVE_TO_FILE(xr)
     SAVE_TO_FILE(yr)
     SAVE_TO_FILE(x)
     SAVE_TO_FILE(y)
     SAVE_TO_FILE(z)
+    SAVE_TO_FILE(current_inventory_slot)
     SAVE_TO_FILE(current_block_selection)
 
     return world.saveToFile(savefile);
@@ -140,6 +156,17 @@ inline void crosshairPixel(int x, int y)
 {
     int pos = SCREEN_WIDTH/2 + x + (SCREEN_HEIGHT/2 + y)*SCREEN_WIDTH;
     screen->bitmap[pos] = ~screen->bitmap[pos];
+}
+
+void drawInventory(TEXTURE &tex)
+{
+    drawTextureOverlay(inventory, 0, 0, tex, (SCREEN_WIDTH - inventory.width) / 2, SCREEN_HEIGHT - inventory.height, inventory.width, inventory.height);
+    for(unsigned int i = 0; i < 5; ++i)
+    {
+        const BLOCK_WDATA block = inventory_entries[i];
+        global_block_renderer.drawPreview(block, tex, (SCREEN_WIDTH - inventory.width) / 2 + 10 + i * 34, SCREEN_HEIGHT - inventory.height + (getBLOCK(block) == BLOCK_DOOR ? 2 : 10));
+    }
+    drawTransparentTexture(*inv_selection, 0, 0, tex, (SCREEN_WIDTH - inventory.width) / 2 + 2 + current_inventory_slot * 34, SCREEN_HEIGHT - inventory.height + 2, 32, 32);
 }
 
 int main(int argc, char *argv[])
@@ -198,6 +225,13 @@ int main(int argc, char *argv[])
     int tp_last_x = 0, tp_last_y = 0;
     GLFix vy = 0; //Y-Velocity for gravity and jumps
     Position selection_pos; AABB::SIDE selection_side; bool do_test = true; //For intersectsRay
+
+    //Resize the glass texture for use as selection overlay in the inventory
+    TEXTURE *glass = newTexture(16, 16);
+    const TextureAtlasEntry &glass_tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].resized;
+    drawTexture(*terrain_resized, glass_tex.left, glass_tex.top, *glass, 0, 0, 16, 16);
+    inv_selection = resizeTexture(*glass, 32, 32);
+    deleteTexture(glass);
 
     //State for GAMESTATE MENU
     int menu_selected_item = 0, menu_width_visible = 0;
@@ -292,7 +326,9 @@ int main(int argc, char *argv[])
             crosshairPixel(0, 1);
             crosshairPixel(0, 2);
 
-            global_block_renderer.drawPreview(user_selectable[current_block_selection], *screen, 0, 0);
+            //Don't draw the inventory if the block list will be opened, it will draw the inventory itself
+            if(!keyPressed(KEY_NSPIRE_PERIOD) || key_held_down)
+                drawInventory(*screen);
 
             //Now display the contents of the screen buffer
             nglDisplay();
@@ -493,16 +529,16 @@ int main(int argc, char *argv[])
                             const BLOCK_WDATA current_block = world.getBlock(pos.x, pos.y, pos.z);
                             if(current_block == BLOCK_AIR)
                             {
-                                if(!global_block_renderer.isOriented(user_selectable[current_block_selection]))
-                                    world.changeBlock(pos.x, pos.y, pos.z, user_selectable[current_block_selection]);
+                                if(!global_block_renderer.isOriented(inventory_entries[current_inventory_slot]))
+                                    world.changeBlock(pos.x, pos.y, pos.z, inventory_entries[current_inventory_slot]);
                                 else
                                 {
                                     AABB::SIDE side = selection_side;
                                     //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
-                                    if(!global_block_renderer.isFullyOriented(user_selectable[current_block_selection]) && (side == AABB::TOP || side == AABB::BOTTOM))
+                                    if(!global_block_renderer.isFullyOriented(inventory_entries[current_inventory_slot]) && (side == AABB::TOP || side == AABB::BOTTOM))
                                         side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
 
-                                    world.changeBlock(pos.x, pos.y, pos.z, getBLOCKWDATA(user_selectable[current_block_selection], side)); //AABB::SIDE is compatible to BLOCK_SIDE
+                                    world.changeBlock(pos.x, pos.y, pos.z, getBLOCKWDATA(inventory_entries[current_inventory_slot], side)); //AABB::SIDE is compatible to BLOCK_SIDE
                                 }
 
                                 //If the player is stuck now, it's because of the block change, so remove it again
@@ -522,19 +558,19 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_1)) //Switch block type
+            else if(keyPressed(KEY_NSPIRE_1)) //Switch inventory slot
             {
-                --current_block_selection;
-                if(current_block_selection < 0)
-                    current_block_selection = user_selectable_count - 1;
+                --current_inventory_slot;
+                if(current_inventory_slot < 0)
+                    current_inventory_slot = inventory_count - 1;
 
                 key_held_down = true;
             }
             else if(keyPressed(KEY_NSPIRE_3))
             {
-                ++current_block_selection;
-                if(current_block_selection == user_selectable_count)
-                    current_block_selection = 0;
+                ++current_inventory_slot;
+                if(current_inventory_slot >= inventory_count)
+                    current_inventory_slot = 0;
 
                 key_held_down = true;
             }
@@ -695,10 +731,10 @@ int main(int argc, char *argv[])
             std::fill(black->bitmap, black->bitmap + black->width*black->height, 0x0000);
             drawTexture(selection, 0, 0, *black, (current_block_selection % fields_x) * field_width + 13 - selection.width, (current_block_selection / fields_x) * field_height + 17, selection.width, selection.height);
 
-            drawTextureOverlay(*black, 0, 0, *screen, 25, 25, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
+            drawTextureOverlay(*black, 0, 0, *screen, 25, 10, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
 
             int block = 0;
-            int screen_x = 39, screen_y = 39;
+            int screen_x = 39, screen_y = 24;
             for(int y = 0; y < fields_y; y++, screen_y += field_height)
             {
                 screen_x = 39;
@@ -718,10 +754,12 @@ int main(int argc, char *argv[])
 
             end:
 
+            drawInventory(*screen);
+
             nglDisplay();
 
             if(key_held_down)
-                key_held_down = keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_2);
+                key_held_down = keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5);
             else if(keyPressed(KEY_NSPIRE_PERIOD))
             {
                 gamestate = WORLD;
@@ -755,6 +793,28 @@ int main(int argc, char *argv[])
             {
                 if(current_block_selection % 8 != 7 && current_block_selection < user_selectable_count - 1)
                     current_block_selection++;
+
+                key_held_down = true;
+            }
+            else if(keyPressed(KEY_NSPIRE_1)) //Switch inventory slot
+            {
+                --current_inventory_slot;
+                if(current_inventory_slot < 0)
+                    current_inventory_slot = inventory_count - 1;
+
+                key_held_down = true;
+            }
+            else if(keyPressed(KEY_NSPIRE_3))
+            {
+                ++current_inventory_slot;
+                if(current_inventory_slot >= inventory_count)
+                    current_inventory_slot = 0;
+
+                key_held_down = true;
+            }
+            else if(keyPressed(KEY_NSPIRE_5))
+            {
+                inventory_entries[current_inventory_slot] = user_selectable[current_block_selection];
 
                 key_held_down = true;
             }
