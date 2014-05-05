@@ -84,8 +84,7 @@ void Chunk::buildGeometry()
                 if(inBounds(x + 1, y, z) && (block1 = blocks[x + 1][y][z]) != BLOCK_AIR)
                     global_block_renderer.geometryNormalBlock(block1, x + 1, y, z, BLOCK_LEFT, *this);
 
-                //Don't render top if a fluid is above
-                if(inBounds(x, y - 1, z) && (block1 = blocks[x][y - 1][z]) != BLOCK_AIR && getBLOCK(block) != BLOCK_WATER && getBLOCK(block) != BLOCK_LAVA)
+                if(inBounds(x, y - 1, z) && (block1 = blocks[x][y - 1][z]) != BLOCK_AIR)
                     global_block_renderer.geometryNormalBlock(block1, x, y - 1, z, BLOCK_TOP, *this);
 
                 if(inBounds(x, y + 1, z) && (block1 = blocks[x][y + 1][z]) != BLOCK_AIR)

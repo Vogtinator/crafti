@@ -23,8 +23,10 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) = 0;
 
-    static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry tex, Chunk &c, const COLOR color = 0);
-    static void renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry tex, Chunk &c);
+    static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color = 0);
+    //Doesn't render sides adjacent to other blocks of the same type, used by glass, water, leaves etc.
+    static void renderNormalConnectedBlockSide(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c);
+    static void renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry &tex, Chunk &c);
     static void drawTextureAtlasEntry(TEXTURE &src, const TextureAtlasEntry &tex, bool transparent, TEXTURE &dest, const int dest_x, const int dest_y);
 
     virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) = 0; //Invoked by e.g. a right click

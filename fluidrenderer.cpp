@@ -12,7 +12,7 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
 {
     uint8_t range = getBLOCKDATA(block);
     //A fluid block is like a normal block if it has full range
-    if(range == (getBLOCK(block) == BLOCK_WATER ? RANGE_WATER : RANGE_LAVA))
+    if(range == maxRange(block))
         return;
 
     const TextureAtlasEntry &tex = terrain_atlas[tex_x][tex_y].current;
@@ -20,26 +20,44 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
     //Height is proportional to its range
     const GLFix ratio = GLFix(getBLOCKDATA(block)) / maxRange(block);
     GLFix height = GLFix(BLOCK_SIZE) * ratio, tex_top = tex.bottom - (tex.bottom - tex.top) * ratio;
+    const int local_x = (x - c.absX()) / BLOCK_SIZE, local_y = (y - c.absY()) / BLOCK_SIZE, local_z = (z - c.absZ()) / BLOCK_SIZE;
+    BLOCK_WDATA block_left = c.getGlobalBlockRelative(local_x - 1, local_y, local_z),
+            block_right = c.getGlobalBlockRelative(local_x + 1, local_y, local_z),
+            block_front = c.getGlobalBlockRelative(local_x, local_y, local_z - 1),
+            block_back = c.getGlobalBlockRelative(local_x, local_y, local_z + 1);
 
-    c.addUnalignedVertex({x, y, z, tex.left, tex.bottom, 0});
-    c.addUnalignedVertex({x, y + height, z, tex.left, tex_top, 0});
-    c.addUnalignedVertex({x + BLOCK_SIZE, y + height, z, tex.right, tex_top, 0});
-    c.addUnalignedVertex({x + BLOCK_SIZE, y, z, tex.right, tex.bottom, 0});
+    //A liquid block with >= range as this block is like an opaque block to this block
+    if(!global_block_renderer.isOpaque(block_front) && !(getBLOCK(block_front) == getBLOCK(block) && getBLOCKDATA(block_front) >= range))
+    {
+        c.addUnalignedVertex({x, y, z, tex.left, tex.bottom, 0});
+        c.addUnalignedVertex({x, y + height, z, tex.left, tex_top, 0});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + height, z, tex.right, tex_top, 0});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z, tex.right, tex.bottom, 0});
+    }
 
-    c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.left, tex.bottom, 0});
-    c.addUnalignedVertex({x + BLOCK_SIZE, y + height, z + BLOCK_SIZE, tex.left, tex_top, 0});
-    c.addUnalignedVertex({x, y + height, z + BLOCK_SIZE, tex.right, tex_top, 0});
-    c.addUnalignedVertex({x, y, z + BLOCK_SIZE, tex.right, tex.bottom, 0});
+    if(!global_block_renderer.isOpaque(block_back) && !(getBLOCK(block_back) == getBLOCK(block) && getBLOCKDATA(block_back) >= range))
+    {
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.left, tex.bottom, 0});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + height, z + BLOCK_SIZE, tex.left, tex_top, 0});
+        c.addUnalignedVertex({x, y + height, z + BLOCK_SIZE, tex.right, tex_top, 0});
+        c.addUnalignedVertex({x, y, z + BLOCK_SIZE, tex.right, tex.bottom, 0});
+    }
 
-    c.addUnalignedVertex({x, y, z + BLOCK_SIZE, tex.left, tex.bottom, 0});
-    c.addUnalignedVertex({x, y + height, z + BLOCK_SIZE, tex.left, tex_top, 0});
-    c.addUnalignedVertex({x, y + height, z, tex.right, tex_top, 0});
-    c.addUnalignedVertex({x, y, z, tex.right, tex.bottom, 0});
+    if(!global_block_renderer.isOpaque(block_left) && !(getBLOCK(block_left) == getBLOCK(block) && getBLOCKDATA(block_left) >= range))
+    {
+        c.addUnalignedVertex({x, y, z + BLOCK_SIZE, tex.left, tex.bottom, 0});
+        c.addUnalignedVertex({x, y + height, z + BLOCK_SIZE, tex.left, tex_top, 0});
+        c.addUnalignedVertex({x, y + height, z, tex.right, tex_top, 0});
+        c.addUnalignedVertex({x, y, z, tex.right, tex.bottom, 0});
+    }
 
-    c.addUnalignedVertex({x + BLOCK_SIZE, y, z, tex.left, tex.bottom, 0});
-    c.addUnalignedVertex({x + BLOCK_SIZE, y + height, z, tex.left, tex_top, 0});
-    c.addUnalignedVertex({x + BLOCK_SIZE, y + height, z + BLOCK_SIZE, tex.right, tex_top, 0});
-    c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.right, tex.bottom, 0});
+    if(!global_block_renderer.isOpaque(block_right) && !(getBLOCK(block_right) == getBLOCK(block) && getBLOCKDATA(block_right) >= range))
+    {
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z, tex.left, tex.bottom, 0});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + height, z, tex.left, tex_top, 0});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + height, z + BLOCK_SIZE, tex.right, tex_top, 0});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.right, tex.bottom, 0});
+    }
 
     c.addUnalignedVertex({x, y + height, z, tex.left, tex.bottom, 0});
     c.addUnalignedVertex({x, y + height, z + BLOCK_SIZE, tex.left, tex.top, 0});
@@ -51,23 +69,39 @@ void FluidRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local
 {
     uint8_t range = getBLOCKDATA(block);
     //A fluid block is like a normal block if it has full range
-    if(range == maxRange(block))
-        return BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[tex_x][tex_y].current, c);
-
-    if(side != BLOCK_BOTTOM)
+    if(range != maxRange(block) && side != BLOCK_BOTTOM)
         return;
 
-    if(global_block_renderer.isOpaque(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)))
-        return;
+    //Don't render sides adjacent to other water blocks with full range
+    switch(side)
+    {
+    case BLOCK_TOP:
+        if(c.getGlobalBlockRelative(local_x, local_y + 1, local_z) == block)
+            return;
+        break;
+    case BLOCK_BOTTOM:
+        if(c.getGlobalBlockRelative(local_x, local_y - 1, local_z) == block)
+            return;
+        break;
+    case BLOCK_LEFT:
+        if(c.getGlobalBlockRelative(local_x - 1, local_y, local_z) == block)
+            return;
+        break;
+    case BLOCK_RIGHT:
+        if(c.getGlobalBlockRelative(local_x + 1, local_y, local_z) == block)
+            return;
+        break;
+    case BLOCK_BACK:
+        if(c.getGlobalBlockRelative(local_x, local_y, local_z + 1) == block)
+            return;
+        break;
+    case BLOCK_FRONT:
+        if(c.getGlobalBlockRelative(local_x, local_y, local_z - 1) == block)
+            return;
+        break;
+    }
 
-    BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, BLOCK_BOTTOM, terrain_atlas[tex_x][tex_y].current, c);
-}
-
-bool FluidRenderer::isOpaque(const BLOCK_WDATA block)
-{
-    uint8_t range = getBLOCKDATA(block);
-    //A fluid block is like a normal block if it has full range
-    return range == maxRange(block);
+    BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[tex_x][tex_y].current, c);
 }
 
 bool FluidRenderer::isBlockShaped(const BLOCK_WDATA block)

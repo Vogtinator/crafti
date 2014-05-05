@@ -10,7 +10,7 @@
 
 UniversalBlockRenderer global_block_renderer;
 
-void BlockRenderer::renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry tex, Chunk &c, const COLOR color)
+void BlockRenderer::renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color)
 {
     switch(side)
     {
@@ -55,7 +55,42 @@ void BlockRenderer::renderNormalBlockSide(int local_x, int local_y, int local_z,
     }
 }
 
-void BlockRenderer::renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry tex, Chunk &c)
+void BlockRenderer::renderNormalConnectedBlockSide(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c)
+{
+    const BLOCK this_block = getBLOCK(block);
+
+    switch(side)
+    {
+    case BLOCK_TOP:
+        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y + 1, local_z)) == this_block)
+            return;
+        break;
+    case BLOCK_BOTTOM:
+        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) == this_block)
+            return;
+        break;
+    case BLOCK_LEFT:
+        if(getBLOCK(c.getGlobalBlockRelative(local_x - 1, local_y, local_z)) == this_block)
+            return;
+        break;
+    case BLOCK_RIGHT:
+        if(getBLOCK(c.getGlobalBlockRelative(local_x + 1, local_y, local_z)) == this_block)
+            return;
+        break;
+    case BLOCK_BACK:
+        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y, local_z + 1)) == this_block)
+            return;
+        break;
+    case BLOCK_FRONT:
+        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y, local_z - 1)) == this_block)
+            return;
+        break;
+    }
+
+    BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, tex, c, TEXTURE_TRANSPARENT);
+}
+
+void BlockRenderer::renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry &tex, Chunk &c)
 {
     //| 0xFFF = no backface culling
     c.addAlignedVertex(local_x, local_y, local_z, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF);
