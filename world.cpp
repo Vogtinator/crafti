@@ -143,9 +143,9 @@ bool World::intersect(AABB &other) const
     return false;
 }
 
-bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side) const
+bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side, GLFix &dist) const
 {
-    GLFix shortest_dist = GLFix::maxValue();
+    dist = GLFix::maxValue();
     Position pos;
     for(Chunk *c : visible_chunks)
     {
@@ -154,18 +154,18 @@ bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix d
 
         if(c->intersectsRay(x, y, z, dx, dy, dz, new_dist, pos, new_side))
         {
-            if(new_dist > shortest_dist)
+            if(new_dist > dist)
                 continue;
 
             result.x = pos.x + c->x*Chunk::SIZE;
             result.y = pos.y + c->y*Chunk::SIZE;
             result.z = pos.z + c->z*Chunk::SIZE;
             side = new_side;
-            shortest_dist = new_dist;
+            dist = new_dist;
         }
     }
 
-    return shortest_dist != GLFix::maxValue();
+    return dist != GLFix::maxValue();
 }
 
 const PerlinNoise &World::noiseGenerator() const
