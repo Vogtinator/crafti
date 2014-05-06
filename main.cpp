@@ -225,6 +225,7 @@ int main(int argc, char *argv[])
     bool key_held_down = true, can_jump = false, tp_had_contact = false, menu_held_down = true;
     int tp_last_x = 0, tp_last_y = 0;
     GLFix vy = 0; //Y-Velocity for gravity and jumps
+    bool in_water = false;
     Position selection_pos; AABB::SIDE selection_side; Position selection_pos_abs; bool do_test = true; //For intersectsRay
 
     //Resize the glass texture for use as selection overlay in the inventory
@@ -401,7 +402,10 @@ int main(int argc, char *argv[])
                 can_jump = world.intersect(aabb_moved);
 
                 if(!can_jump)
+                {
                     y += vy;
+                    aabb = aabb_moved;
+                }
                 else if(vy > GLFix(0))
                 {
                     can_jump = false;
@@ -411,6 +415,11 @@ int main(int argc, char *argv[])
                     vy = 0;
 
                 vy -= 5;
+
+                in_water = getBLOCK(world.getBlock((x / BLOCK_SIZE).floor(), ((y + eye_pos) / BLOCK_SIZE).floor(), (z / BLOCK_SIZE).floor())) == BLOCK_WATER;
+
+                if(in_water)
+                    can_jump = true;
             }
 
             if(keyPressed(KEY_NSPIRE_5) && can_jump) //Jump
@@ -484,7 +493,7 @@ int main(int argc, char *argv[])
             {
                 GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
                 GLFix dist;
-                if(!world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, selection_pos, selection_side, dist))
+                if(!world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, selection_pos, selection_side, dist, in_water))
                     selection_side = AABB::NONE;
                 else
                     selection_pos_abs = {x + dx * dist, y + eye_pos + dy * dist, z + dz * dist};
@@ -532,7 +541,7 @@ int main(int argc, char *argv[])
                         {
                             //Only set the block if there's air
                             const BLOCK_WDATA current_block = world.getBlock(pos.x, pos.y, pos.z);
-                            if(current_block == BLOCK_AIR)
+                            if(current_block == BLOCK_AIR || (in_water && getBLOCK(current_block) == BLOCK_WATER))
                             {
                                 if(!global_block_renderer.isOriented(inventory_entries[current_inventory_slot]))
                                     world.changeBlock(pos.x, pos.y, pos.z, inventory_entries[current_inventory_slot]);

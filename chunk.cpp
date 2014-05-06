@@ -493,7 +493,7 @@ bool Chunk::intersects(AABB &other)
     return false;
 }
 
-bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side)
+bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side, bool ignore_water)
 {
     GLFix shortest_dist;
     if(aabb.intersectsRay(rx, ry, rz, dx, dy, dz, shortest_dist) == AABB::NONE)
@@ -522,7 +522,7 @@ bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFi
 
                 BLOCK_WDATA block = blocks[x][y][z];
 
-                if(block == BLOCK_AIR)
+                if(block == BLOCK_AIR || (getBLOCK(block) == BLOCK_WATER && ignore_water))
                     continue;
 
                 AABB test = aabb;

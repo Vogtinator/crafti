@@ -35,7 +35,7 @@ public:
     void setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block);
     AABB &getAABB() { return aabb; }
     bool intersects(AABB &other);
-    bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side);
+    bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side, bool ignore_water);
     void generate();
     bool saveToFile(FILE *file);
     bool loadFromFile(FILE *file);

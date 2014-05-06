@@ -143,7 +143,7 @@ bool World::intersect(AABB &other) const
     return false;
 }
 
-bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side, GLFix &dist) const
+bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side, GLFix &dist, bool ignore_water) const
 {
     dist = GLFix::maxValue();
     Position pos;
@@ -152,7 +152,7 @@ bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix d
         GLFix new_dist;
         AABB::SIDE new_side;
 
-        if(c->intersectsRay(x, y, z, dx, dy, dz, new_dist, pos, new_side))
+        if(c->intersectsRay(x, y, z, dx, dy, dz, new_dist, pos, new_side, ignore_water))
         {
             if(new_dist > dist)
                 continue;
