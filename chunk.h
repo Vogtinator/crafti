@@ -28,10 +28,10 @@ public:
     void logic();
     void render();
     void setDirty() { render_dirty = true; }
-    BLOCK_WDATA getLocalBlock(const int x, const int y, const int z);
+    BLOCK_WDATA getLocalBlock(const int x, const int y, const int z) const;
     void setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
     void changeLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block); //Calls removeBlock and addBlock
-    BLOCK_WDATA getGlobalBlockRelative(int x, int y, int z);
+    BLOCK_WDATA getGlobalBlockRelative(const int x, const int y, const int z) const;
     void setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block);
     AABB &getAABB() { return aabb; }
     bool intersects(AABB &other);

@@ -390,7 +390,7 @@ void Chunk::render()
     }
 }
 
-BLOCK_WDATA Chunk::getLocalBlock(const int x, const int y, const int z)
+BLOCK_WDATA Chunk::getLocalBlock(const int x, const int y, const int z) const
 {
     return blocks[x][y][z];
 }
@@ -433,7 +433,7 @@ void Chunk::changeLocalBlock(const int x, const int y, const int z, const BLOCK_
     global_block_renderer.addedBlock(block, x, y, z, *this);
 }
 
-BLOCK_WDATA Chunk::getGlobalBlockRelative(int x, int y, int z)
+BLOCK_WDATA Chunk::getGlobalBlockRelative(const int x, const int y, const int z) const
 {
     if(inBounds(x, y, z))
         return getLocalBlock(x, y, z);

@@ -7,6 +7,7 @@
 #include "glassrenderer.h"
 #include "leavesrenderer.h"
 #include "torchrenderer.h"
+#include "wheatrenderer.h"
 
 UniversalBlockRenderer global_block_renderer;
 
@@ -143,6 +144,7 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();
     map[BLOCK_WATER] = std::make_shared<FluidRenderer>(13, 12, "Water");
     map[BLOCK_LAVA] = std::make_shared<FluidRenderer>(13, 14, "Lava");
+    map[BLOCK_WHEAT] = std::make_shared<WheatRenderer>();
 
     auto flower_renderer = std::make_shared<BillboardRenderer>();
     flower_renderer->setEntry(0, 12, 0, "Red flower", BLOCK_SIZE, BLOCK_SIZE/2, BLOCK_SIZE);

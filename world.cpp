@@ -38,7 +38,7 @@ constexpr int getChunk(const int global)
     return global >> 3;
 }
 
-BLOCK_WDATA World::getBlock(int x, int y, int z) const
+BLOCK_WDATA World::getBlock(const int x, const int y, const int z) const
 {
     int chunk_x = getChunk(x), chunk_y = getChunk(y), chunk_z = getChunk(z);
 

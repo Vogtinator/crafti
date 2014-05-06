@@ -19,7 +19,7 @@ public:
     World();
     ~World();
     void generateSeed();
-    BLOCK_WDATA getBlock(int x, int y, int z) const;
+    BLOCK_WDATA getBlock(const int x, const int y, const int z) const;
     void setBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
     void changeBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
     void setPosition(int x, int y, int z);

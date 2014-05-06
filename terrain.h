@@ -52,7 +52,8 @@ constexpr BLOCK BLOCK_MUSHROOM = 131; //Data: Mushroom type
 constexpr BLOCK BLOCK_DOOR = 132; //Data: (top: 1<<7) | BLOCK_SIDE
 constexpr BLOCK BLOCK_WATER = 133; //Data: range
 constexpr BLOCK BLOCK_LAVA = 134; //Data: range
-constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_MUSHROOM;
+constexpr BLOCK BLOCK_WHEAT = 135; //Data: growth
+constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_WHEAT;
 
 constexpr uint8_t RANGE_WATER = 5;
 constexpr uint8_t RANGE_LAVA = 3;
