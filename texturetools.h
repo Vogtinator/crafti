@@ -18,6 +18,8 @@ void drawTextureOverlay(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int d
 void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h);
 //Allocates memory for new texture, deleteTexture must be called
 TEXTURE* resizeTexture(TEXTURE &src, unsigned int w, unsigned int h);
+//Makes the texture greyscale
+void greyscaleTexture(TEXTURE &tex);
 
 //Show loading text above, will be cleared on the next rendered frame, doesn't really belong here
 //Increases internal counter, if it's >= i it's shown, if i == -1, reset the internal counter

@@ -199,11 +199,17 @@ int main(int argc, char *argv[])
         //Allocate a buffer for nGL to render to
         screen = newTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
         nglSetBuffer(screen->bitmap);
+        greyscaleTexture(loading);
         std::copy(loading.bitmap, loading.bitmap + SCREEN_HEIGHT*SCREEN_WIDTH, screen->bitmap);
         nglDisplay();
     }
 
     terrainInit("/documents/ndless/crafti.ppm.tns");
+    if(!lcd_isincolor())
+    {
+        greyscaleTexture(*terrain_current);
+        greyscaleTexture(*terrain_resized);
+    }
     glBindTexture(terrain_current);
 
     glLoadIdentity();

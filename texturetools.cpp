@@ -246,3 +246,16 @@ TEXTURE* resizeTexture(TEXTURE &src, unsigned int w, unsigned int h)
 
     return ret;
 }
+
+void greyscaleTexture(TEXTURE &tex)
+{
+    unsigned int pixels = tex.width * tex.height;
+    COLOR *ptr16 = tex.bitmap;
+    while(pixels--)
+    {
+        RGB rgb = rgbColor(*ptr16);
+        //Somehow only the lowest 5 bits are used
+        *ptr16 = (rgb.r.value + rgb.g.value + rgb.g.value + rgb.b.value) >> 5;
+        ptr16++;
+    }
+}
