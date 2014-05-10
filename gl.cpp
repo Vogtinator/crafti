@@ -20,6 +20,8 @@ static GLDrawMode draw_mode = GL_TRIANGLES;
 static bool recording = false;
 static VERTEX* record_buffer = nullptr;
 static int record_length = 0;
+static bool is_monochrome;
+static COLOR *screen_inverted; //For monochrome calcs
 #ifdef SAFE_MODE
     static int matrix_stack_left = MATRIX_STACK_SIZE;
 #endif
@@ -69,6 +71,18 @@ void nglInit()
     record_buffer = nullptr;
     record_length = 0;
 
+    is_monochrome = !has_colors;
+
+    if(is_monochrome)
+    {
+        //The current LCD buffer isn't large enough, allocate a larger one
+        COLOR *new_buffer = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
+        screen_inverted = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
+        std::fill(new_buffer, new_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, 0xFFFF);
+        SCREEN_BASE_ADDRESS = reinterpret_cast<uint32_t>(new_buffer);
+        *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b1000; //Switch to 8-bit mode
+    }
+
     #ifdef SAFE_MODE
         matrix_stack_left = MATRIX_STACK_SIZE;
     #endif
@@ -107,6 +121,16 @@ void nglUninit()
     uninit_fastmath();
     delete[] transformation;
     delete[] z_buffer;
+
+    if(is_monochrome)
+    {
+        //Switch to 4-bit mode again
+        *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b0100; //Switch to 8-bit mode
+        COLOR *new_buffer = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
+        SCREEN_BASE_ADDRESS = 0xA4000100;
+        delete[] new_buffer;
+        delete[] screen_inverted;
+    }
 
     #ifdef FPS_COUNTER
         //Restore timer and interrupt handler
@@ -191,27 +215,27 @@ void nglPerspective(VERTEX *v)
 
     v->y = GLFix(SCREEN_HEIGHT - 1) - v->y;
 
-#ifdef SAFE_MODE
+#if defined(SAFE_MODE) && defined(TEXTURE_SUPPORT)
     if(v->u > GLFix(texture->width))
     {
         printf("Warning: Texture coord out of bounds!\n");
         v->u = texture->height;
     }
-    else if(res->u < GLFix(0))
+    else if(v->u < GLFix(0))
     {
         printf("Warning: Texture coord out of bounds!\n");
-        res->u = 0;
+        v->u = 0;
     }
 
-    if(res->v > GLFix(texture->height))
+    if(v->v > GLFix(texture->height))
     {
         printf("Warning: Texture coord out of bounds!\n");
-        res->v = texture->height;
+        v->v = texture->height;
     }
-    else if(res->v < GLFix(0))
+    else if(v->v < GLFix(0))
     {
         printf("Warning: Texture coord out of bounds!\n");
-        res->v = 0;
+        v->v = 0;
     }
 #endif
 }
@@ -223,7 +247,18 @@ void nglSetBuffer(COLOR *screenBuf)
 
 void nglDisplay()
 {
-    std::copy(screen, screen + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
+    if(is_monochrome)
+    {
+        //Flip everything, as 0xFFF is white on CX, but black on classic
+        COLOR *ptr = screen + SCREEN_HEIGHT*SCREEN_WIDTH, *ptr_inv = screen_inverted + SCREEN_HEIGHT*SCREEN_WIDTH;
+        while(--ptr >= screen)
+            *--ptr_inv = ~*ptr;
+
+        std::copy(screen_inverted, screen_inverted + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
+    }
+    else
+        std::copy(screen, screen + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
+
     #ifdef FPS_COUNTER
         if(frames == 0)
             printf("FPS: %d\n", fps);
@@ -625,7 +660,7 @@ void nglAddVertex(const VERTEX &vertex)
 
 void nglAddVertex(const VERTEX* vertex)
 {
-    #ifdef SAFE_MODE
+    #if defined(SAFE_MODE) && defined(TEXTURE_SUPPORT)
         if(texture == nullptr)
         {
             printf("ngl.lang.NoTextureException: Please, don't make me dereference the nullptr!\n");

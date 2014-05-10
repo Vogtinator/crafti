@@ -18,6 +18,7 @@ static GLFix xr = 0, yr = 0;
 static GLFix x = 0, y = BLOCK_SIZE * Chunk::SIZE * World::HEIGHT + BLOCK_SIZE, z = 0;
 static constexpr GLFix incr = 20;
 static World world;
+static bool has_touchpad;
 static int current_inventory_slot, current_block_selection;
 static TEXTURE *screen, *inv_selection;
 constexpr int inventory_count = 5;
@@ -26,7 +27,10 @@ static BLOCK_WDATA inventory_entries[] = { BLOCK_STONE, BLOCK_GRASS, BLOCK_PLANK
 //isKeyPressed checks the hardware-type, but that's slow
 static inline bool keyPressed(const t_key &key)
 {
-    return *reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col;
+    if(has_touchpad)
+        return *reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col;
+    else
+        return (*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.row) & key.col) == 0;
 }
 
 static const BLOCK_WDATA user_selectable[] = {
@@ -172,24 +176,32 @@ void drawInventory(TEXTURE &tex)
 
 int main(int argc, char *argv[])
 {
-    if(!lcd_isincolor())
-    {
-        show_msgbox("Error", "Your LCD hasn't got enough colors :-P");
-        return 1;
-    }
-
     //Sometimes there's a clock on screen, switch that off
     __asm__ volatile("mrs r0, cpsr;"
                     "orr r0, r0, #0x80;"
                     "msr cpsr_c, r0;" ::: "r0");
 
-    std::copy(loading.bitmap, loading.bitmap + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
+    //Cache the value
+    has_touchpad = is_touchpad;
 
-    nglInit();
+    if(lcd_isincolor())
+    {
+        std::copy(loading.bitmap, loading.bitmap + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
+        nglInit();
 
-    //Allocate a buffer for nGL to render to
-    screen = newTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-    nglSetBuffer(screen->bitmap);
+        //Allocate a buffer for nGL to render to
+        screen = newTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+        nglSetBuffer(screen->bitmap);
+    }
+    else //Monochrome calcs don't like colored stuff in the framebuffer, so let nGL handle that
+    {
+        nglInit();
+        //Allocate a buffer for nGL to render to
+        screen = newTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+        nglSetBuffer(screen->bitmap);
+        std::copy(loading.bitmap, loading.bitmap + SCREEN_HEIGHT*SCREEN_WIDTH, screen->bitmap);
+        nglDisplay();
+    }
 
     terrainInit("/documents/ndless/crafti.ppm.tns");
     glBindTexture(terrain_current);
@@ -428,47 +440,66 @@ int main(int argc, char *argv[])
                 can_jump = false;
             }
 
-            touchpad_report_t touchpad;
-            touchpad_scan(&touchpad);
+            if(has_touchpad)
+            {
+                touchpad_report_t touchpad;
+                touchpad_scan(&touchpad);
 
-            if(touchpad.pressed)
-            {
-                switch(touchpad.arrow)
+                if(touchpad.pressed)
                 {
-                case TPAD_ARROW_DOWN:
-                    xr += incr/3;
-                    break;
-                case TPAD_ARROW_UP:
-                    xr -= incr/3;
-                    break;
-                case TPAD_ARROW_LEFT:
-                    yr -= incr/3;
-                    break;
-                case TPAD_ARROW_RIGHT:
-                    yr += incr/3;
-                    break;
-                case TPAD_ARROW_RIGHTDOWN:
-                    xr += incr/3;
-                    yr += incr/3;
-                    break;
-                case TPAD_ARROW_UPRIGHT:
-                    xr -= incr/3;
-                    yr += incr/3;
-                    break;
-                case TPAD_ARROW_DOWNLEFT:
-                    xr += incr/3;
-                    yr -= incr/3;
-                    break;
-                case TPAD_ARROW_LEFTUP:
-                    xr -= incr/3;
-                    yr -= incr/3;
-                    break;
+                    switch(touchpad.arrow)
+                    {
+                    case TPAD_ARROW_DOWN:
+                        xr += incr/3;
+                        break;
+                    case TPAD_ARROW_UP:
+                        xr -= incr/3;
+                        break;
+                    case TPAD_ARROW_LEFT:
+                        yr -= incr/3;
+                        break;
+                    case TPAD_ARROW_RIGHT:
+                        yr += incr/3;
+                        break;
+                    case TPAD_ARROW_RIGHTDOWN:
+                        xr += incr/3;
+                        yr += incr/3;
+                        break;
+                    case TPAD_ARROW_UPRIGHT:
+                        xr -= incr/3;
+                        yr += incr/3;
+                        break;
+                    case TPAD_ARROW_DOWNLEFT:
+                        xr += incr/3;
+                        yr -= incr/3;
+                        break;
+                    case TPAD_ARROW_LEFTUP:
+                        xr -= incr/3;
+                        yr -= incr/3;
+                        break;
+                    }
                 }
+                else if(tp_had_contact && touchpad.contact)
+                {
+                    yr += (touchpad.x - tp_last_x) / 50;
+                    xr -= (touchpad.y - tp_last_y) / 50;
+                }
+
+                tp_had_contact = touchpad.contact;
+                tp_last_x = touchpad.x;
+                tp_last_y = touchpad.y;
             }
-            else if(tp_had_contact && touchpad.contact)
+            else
             {
-                yr += (touchpad.x - tp_last_x) / 50;
-                xr -= (touchpad.y - tp_last_y) / 50;
+                if(keyPressed(KEY_NSPIRE_UP))
+                    xr -= incr/3;
+                else if(keyPressed(KEY_NSPIRE_DOWN))
+                    xr += incr/3;
+
+                if(keyPressed(KEY_NSPIRE_LEFT))
+                    yr -= incr/3;
+                else if(keyPressed(KEY_NSPIRE_RIGHT))
+                    yr += incr/3;
             }
 
             //Normalisation required for rotation with nglRotate
@@ -484,10 +515,6 @@ int main(int argc, char *argv[])
                 if(xr >= GLFix(90))
                     xr = 89;
 
-            tp_had_contact = touchpad.contact;
-            tp_last_x = touchpad.x;
-            tp_last_y = touchpad.y;
-
             //Do test only on every second frame, it's expensive
             if(do_test)
             {
@@ -501,11 +528,12 @@ int main(int argc, char *argv[])
 
             do_test = !do_test;
 
+            if(keyPressed(KEY_NSPIRE_ESC)) //Save & Exit
+                break;
+
             if(key_held_down)
                 key_held_down = keyPressed(KEY_NSPIRE_7) || keyPressed(KEY_NSPIRE_9) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_MINUS) || keyPressed(KEY_NSPIRE_PLUS);
 
-            else if(keyPressed(KEY_NSPIRE_ESC)) //Save & Exit
-                break;
             else if(keyPressed(KEY_NSPIRE_7)) //Put block down
             {
                 if(selection_side != AABB::NONE)
