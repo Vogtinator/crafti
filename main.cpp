@@ -246,12 +246,14 @@ int main(int argc, char *argv[])
     bool in_water = false;
     Position selection_pos; AABB::SIDE selection_side; Position selection_pos_abs; bool do_test = true; //For intersectsRay
 
-    //Resize the glass texture for use as selection overlay in the inventory
-    TEXTURE *glass = newTexture(16, 16);
-    const TextureAtlasEntry &glass_tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].resized;
-    drawTexture(*terrain_resized, glass_tex.left, glass_tex.top, *glass, 0, 0, 16, 16);
-    inv_selection = resizeTexture(*glass, 32, 32);
-    deleteTexture(glass);
+    //Resize the glass texture for use as selection overlay in the inventory and block list
+    {
+        TEXTURE *glass = newTexture(16, 16);
+        const TextureAtlasEntry &glass_tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].resized;
+        drawTexture(*terrain_resized, glass_tex.left, glass_tex.top, *glass, 0, 0, 16, 16);
+        inv_selection = resizeTexture(*glass, 32, 32);
+        deleteTexture(glass);
+    }
 
     //State for GAMESTATE MENU
     int menu_selected_item = 0, menu_width_visible = 0;
@@ -259,7 +261,11 @@ int main(int argc, char *argv[])
     TEXTURE *menu_with_selection = newTexture(menu.width, menu.height);
 
     //State for GAMESTATE BLOCK_LIST
-    TEXTURE *black = newTexture(SCREEN_WIDTH - 2*25, SCREEN_HEIGHT - 2*25);
+    const unsigned int blocklist_width = SCREEN_WIDTH - 2*25, blocklist_height = SCREEN_HEIGHT - inventory.height - 2*5;
+    const unsigned int blocklist_left = (SCREEN_WIDTH - blocklist_width) / 2, blocklist_top = (SCREEN_HEIGHT - blocklist_height - inv_selection->height) / 2;
+    //Black texture as background
+    TEXTURE *blocklist_background = newTexture(blocklist_width, blocklist_height);
+    std::fill(blocklist_background->bitmap, blocklist_background->bitmap + blocklist_background->width*blocklist_background->height, 0x0000);
 
     while(true)
     {
@@ -771,28 +777,29 @@ int main(int argc, char *argv[])
             else
                 copyTexture(*background, *screen);
 
-            const int field_width = terrain_resized->width / 16 * 2;
-            const int field_height = terrain_resized->width / 16 * 2;
-            const int fields_x = (SCREEN_WIDTH - 50) / field_width;
-            const int fields_y = (SCREEN_WIDTH - 50) / field_height;
+            const int field_width = 32;
+            const int field_height = 32;
+            const int fields_x = blocklist_width / field_width;
+            const int fields_y = blocklist_height / field_height;
 
-            std::fill(black->bitmap, black->bitmap + black->width*black->height, 0x0000);
-            drawTexture(selection, 0, 0, *black, (current_block_selection % fields_x) * field_width + 13 - selection.width, (current_block_selection / fields_x) * field_height + 17, selection.width, selection.height);
-
-            drawTextureOverlay(*black, 0, 0, *screen, 25, 10, SCREEN_WIDTH - 50, SCREEN_HEIGHT - 50);
+            drawTextureOverlay(*blocklist_background, 0, 0, *screen, blocklist_left, blocklist_top, blocklist_background->width, blocklist_background->height);
 
             int block = 0;
-            int screen_x = 39, screen_y = 24;
+            int screen_x, screen_y = blocklist_top;
             for(int y = 0; y < fields_y; y++, screen_y += field_height)
             {
-                screen_x = 39;
+                screen_x = blocklist_left;
                 for(int x = 0; x < fields_x; x++, screen_x += field_width)
                 {
                     //BLOCK_DOOR is twice as high, so center it manually
                     if(getBLOCK(user_selectable[block]) == BLOCK_DOOR)
-                        global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x, screen_y - 8);
+                        global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x + 8, screen_y);
                     else
-                        global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x, screen_y);
+                        global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x + 8, screen_y + 8);
+
+                    //Again, use the glass texture as selection indicator
+                    if(block == current_block_selection)
+                        drawTransparentTexture(*inv_selection, 0, 0, *screen, screen_x, screen_y, inv_selection->width, inv_selection->height);
 
                     block++;
                     if(block == user_selectable_count)
@@ -886,7 +893,7 @@ int main(int argc, char *argv[])
 
     nglUninit();
 
-    deleteTexture(black);
+    deleteTexture(blocklist_background);
     deleteTexture(menu_with_selection);
     deleteTexture(screen);
 
