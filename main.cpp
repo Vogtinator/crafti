@@ -7,6 +7,7 @@
 #include "world.h"
 #include "terrain.h"
 #include "blockrenderer.h"
+#include "font.h"
 
 //Image resources
 #include "textures/loading.h"
@@ -354,7 +355,10 @@ int main(int argc, char *argv[])
 
             //Don't draw the inventory if the block list will be opened, it will draw the inventory itself
             if(!keyPressed(KEY_NSPIRE_PERIOD) || key_held_down)
+            {
                 drawInventory(*screen);
+                drawStringCenter(global_block_renderer.getName(inventory_entries[current_inventory_slot]), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - inventory.height - fontHeight());
+            }
 
             //Now display the contents of the screen buffer
             nglDisplay();
@@ -784,7 +788,7 @@ int main(int argc, char *argv[])
 
             drawTextureOverlay(*blocklist_background, 0, 0, *screen, blocklist_left, blocklist_top, blocklist_background->width, blocklist_background->height);
 
-            int block = 0;
+            int block_nr = 0;
             int screen_x, screen_y = blocklist_top;
             for(int y = 0; y < fields_y; y++, screen_y += field_height)
             {
@@ -792,17 +796,17 @@ int main(int argc, char *argv[])
                 for(int x = 0; x < fields_x; x++, screen_x += field_width)
                 {
                     //BLOCK_DOOR is twice as high, so center it manually
-                    if(getBLOCK(user_selectable[block]) == BLOCK_DOOR)
-                        global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x + 8, screen_y);
+                    if(getBLOCK(user_selectable[block_nr]) == BLOCK_DOOR)
+                        global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + 8, screen_y);
                     else
-                        global_block_renderer.drawPreview(user_selectable[block], *screen, screen_x + 8, screen_y + 8);
+                        global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + 8, screen_y + 8);
 
                     //Again, use the glass texture as selection indicator
-                    if(block == current_block_selection)
+                    if(block_nr == current_block_selection)
                         drawTransparentTexture(*inv_selection, 0, 0, *screen, screen_x, screen_y, inv_selection->width, inv_selection->height);
 
-                    block++;
-                    if(block == user_selectable_count)
+                    block_nr++;
+                    if(block_nr == user_selectable_count)
                         goto end;
                 }
             }
@@ -810,6 +814,7 @@ int main(int argc, char *argv[])
             end:
 
             drawInventory(*screen);
+            drawStringCenter(global_block_renderer.getName(user_selectable[current_block_selection]), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - inventory.height - fontHeight());
 
             nglDisplay();
 

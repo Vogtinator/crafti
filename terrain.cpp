@@ -2,25 +2,25 @@
 
 #include "textures/terrain.h"
 
-const char *block_names[BLOCK_NORMAL_LAST + 1] =
+const char *block_names[] =
 {
     "Air",
     "Stone",
+    "Dirt",
     "Sand",
     "Wood",
     "Leaves",
-    "Grass",
     "Normal Planks",
     "Wall",
     "Coal Ore",
     "Gold Ore",
+    "Iron Ore",
     "Diamond Ore",
     "Redstone Ore",
     "TNT",
     "Sponge",
     "Dark Planks",
-    "Odd Planks",
-    "Bright Planks"
+    "Bright Planks",
     "Furnace",
     "Crafting Table",
     "Bookshelf",
@@ -28,7 +28,12 @@ const char *block_names[BLOCK_NORMAL_LAST + 1] =
     "Pumpkin",
     "Bedrock",
     "Glass",
-    "Cobblestone"
+    "Cobblestone",
+    "Glowstone",
+    "Iron block",
+    "Gold block",
+    "Diamond block",
+    "Netherrack"
 };
 
 #define BT_FRONT 1
