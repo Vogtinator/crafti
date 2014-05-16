@@ -178,13 +178,13 @@ void FluidRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int 
     }
     else
     {
-        if(getBLOCK(block_left) == BLOCK_AIR || (getBLOCK(block_left) == getBLOCK(block) && getBLOCKDATA(block_left) < range))
+        if(getBLOCK(block_left) == BLOCK_AIR || (getBLOCK(block_left) == getBLOCK(block) && getBLOCKDATA(block_left) < range - 1))
             c.setGlobalBlockRelative(local_x - 1, local_y, local_z, next_block);
-        if(getBLOCK(block_right) == BLOCK_AIR || (getBLOCK(block_right) == getBLOCK(block) && getBLOCKDATA(block_right) < range))
+        if(getBLOCK(block_right) == BLOCK_AIR || (getBLOCK(block_right) == getBLOCK(block) && getBLOCKDATA(block_right) < range - 1))
             c.setGlobalBlockRelative(local_x + 1, local_y, local_z, next_block);
-        if(getBLOCK(block_front) == BLOCK_AIR || (getBLOCK(block_front) == getBLOCK(block) && getBLOCKDATA(block_front) < range))
+        if(getBLOCK(block_front) == BLOCK_AIR || (getBLOCK(block_front) == getBLOCK(block) && getBLOCKDATA(block_front) < range - 1))
             c.setGlobalBlockRelative(local_x, local_y, local_z - 1, next_block);
-        if(getBLOCK(block_back) == BLOCK_AIR || (getBLOCK(block_back) == getBLOCK(block) && getBLOCKDATA(block_back) < range))
+        if(getBLOCK(block_back) == BLOCK_AIR || (getBLOCK(block_back) == getBLOCK(block) && getBLOCKDATA(block_back) < range - 1))
             c.setGlobalBlockRelative(local_x, local_y, local_z + 1, next_block);
     }
 }
