@@ -831,7 +831,7 @@ int main(int argc, char *argv[])
             {
                 current_block_selection += 8;
                 if(current_block_selection >= user_selectable_count)
-                    current_block_selection -= 8;
+                    current_block_selection %= 8;
 
                 key_held_down = true;
             }
@@ -839,12 +839,24 @@ int main(int argc, char *argv[])
             {
                 if(current_block_selection >= 8)
                     current_block_selection -= 8;
+                else
+                {
+                    current_block_selection = ((user_selectable_count - 1) / 8) * 8 + (current_block_selection % 8);
+                    if(current_block_selection >= user_selectable_count)
+                        current_block_selection -= 8;
+                }
 
                 key_held_down = true;
             }
             else if(keyPressed(KEY_NSPIRE_4))
             {
-                if(current_block_selection % 8 != 0)
+                if(current_block_selection % 8 == 0)
+                {
+                    current_block_selection += 7;
+                    if(current_block_selection >= user_selectable_count)
+                        current_block_selection = user_selectable_count - 1;
+                }
+                else
                     current_block_selection--;
 
                 key_held_down = true;
@@ -853,6 +865,8 @@ int main(int argc, char *argv[])
             {
                 if(current_block_selection % 8 != 7 && current_block_selection < user_selectable_count - 1)
                     current_block_selection++;
+                else
+                    current_block_selection -= current_block_selection % 8;
 
                 key_held_down = true;
             }
