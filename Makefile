@@ -21,8 +21,9 @@ all: $(EXE)
 	$(GCC) $(GCCFLAGS) -c $< -o $@
 
 $(EXE): $(OBJS)
-	$(LD) $^ -o $@ $(LDFLAGS)
+	+$(LD) $^ -o $@ $(LDFLAGS)
 
+.PHONY: clean
 clean:
 	rm -f `find . -name \*.o`
 	rm -f $(EXE) $(EXE).gdb

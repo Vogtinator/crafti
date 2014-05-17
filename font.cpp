@@ -44,9 +44,17 @@ void drawStringCenter(const char *str, COLOR color, TEXTURE &tex, unsigned int x
 void drawString(const char *str, COLOR color, TEXTURE &tex, unsigned int x, unsigned int y)
 {
     const char *ptr = str;
+    const unsigned int start_x = x;
     while(*ptr)
     {
+        if(*ptr == '\n')
+        {
+            x = start_x;
+            y += fontHeight();
+        }
+        else
         x += drawChar(*ptr, color, tex, x, y);
+
         ++ptr;
     }
 }

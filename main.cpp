@@ -145,6 +145,7 @@ static bool saveFile(FILE *savefile)
 enum GAMESTATE {
     WORLD = 0,
     MENU,
+    HELP_MSG,
     BLOCK_LIST
 };
 
@@ -154,6 +155,7 @@ enum MENUITEM {
     SAVE_WORLD,
     SAVE_AND_EXIT,
     EXIT,
+    HELP,
     MENU_ITEM_MAX
 };
 
@@ -544,12 +546,11 @@ int main(int argc, char *argv[])
 
             do_test = !do_test;
 
-            if(keyPressed(KEY_NSPIRE_ESC)) //Save & Exit
-                break;
-
             if(key_held_down)
-                key_held_down = keyPressed(KEY_NSPIRE_7) || keyPressed(KEY_NSPIRE_9) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_MINUS) || keyPressed(KEY_NSPIRE_PLUS);
+                key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_7) || keyPressed(KEY_NSPIRE_9) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_MINUS) || keyPressed(KEY_NSPIRE_PLUS);
 
+            else if(keyPressed(KEY_NSPIRE_ESC)) //Save & Exit
+                break;
             else if(keyPressed(KEY_NSPIRE_7)) //Put block down
             {
                 if(selection_side != AABB::NONE)
@@ -689,11 +690,11 @@ int main(int argc, char *argv[])
 
             copyTexture(menu, *menu_with_selection);
 
-            const int selection_y[MENU_ITEM_MAX] = {33, 62, 88, 116, 144};
+            const int selection_y[MENU_ITEM_MAX] = { 14, 36, 63, 88, 112, 136 };
 
-            drawTexture(selection, 0, 0, *menu_with_selection, 0, selection_y[menu_selected_item], selection.width, selection.height);
+            drawTransparentTexture(selection, 0, 0, *menu_with_selection, 23, selection_y[menu_selected_item], selection.width, selection.height);
 
-            drawTextureOverlay(*menu_with_selection, 0, 0, *screen, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection->height);
+            drawTransparentTexture(*menu_with_selection, 0, 0, *screen, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection->height);
 
             nglDisplay();
 
@@ -757,6 +758,10 @@ int main(int argc, char *argv[])
 
                 case EXIT:
                     goto exit;
+
+                case HELP:
+                    gamestate = HELP_MSG;
+                    break;
                 }
 
                 menu_open = false;
@@ -819,8 +824,8 @@ int main(int argc, char *argv[])
             nglDisplay();
 
             if(key_held_down)
-                key_held_down = keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5);
-            else if(keyPressed(KEY_NSPIRE_PERIOD))
+                key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5);
+            else if(keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD))
             {
                 gamestate = WORLD;
                 saved_background = false;
@@ -890,6 +895,45 @@ int main(int argc, char *argv[])
             {
                 inventory_entries[current_inventory_slot] = user_selectable[current_block_selection];
 
+                key_held_down = true;
+            }
+        }
+        else if(gamestate == HELP_MSG)
+        {
+            //Save background, we don't want to render the world
+            if(!saved_background)
+            {
+                copyTexture(*screen, *background);
+                saved_background = true;
+            }
+            else
+                copyTexture(*background, *screen);
+
+            const unsigned int x = (SCREEN_WIDTH - blocklist_background->width) / 2;
+            const unsigned int y = (SCREEN_HEIGHT - blocklist_background->height) / 2;
+            drawTextureOverlay(*blocklist_background, 0, 0, *screen, x, y, blocklist_background->width, blocklist_background->height);
+            drawString("Help for Crafti v0.9\n"
+                       "\n"
+                       "8-4-6-2: Walk around    5: Jump\n"
+                       "7: Put block down    9: Destroy block\n"
+                       "1-3: Change inventory slot\n"
+                       "ESC: Save & Exit\n"
+                       ".: Open list of blocks\n"
+                       "    5: Change block in inventory\n"
+                       "    . or ESC: Close list of blocks\n"
+                       "Menu: Open menu\n"
+                       "    2-8: Move cursor\n"
+                       "    5: Select\n"
+                       "\n"
+                       "Made by Fabian Vogt", 0xFFFF, *screen, x + 10, y - fontHeight());
+
+            nglDisplay();
+
+            if(key_held_down)
+                key_held_down = keyPressed(KEY_NSPIRE_ESC);
+            else if(keyPressed(KEY_NSPIRE_ESC))
+            {
+                gamestate = WORLD;
                 key_held_down = true;
             }
         }

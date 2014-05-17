@@ -216,7 +216,7 @@ void drawLoadingtext(int i)
     screen.width = SCREEN_WIDTH;
     screen.height = SCREEN_HEIGHT;
     screen.bitmap = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
-    drawTextureOverlay(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
+    drawTransparentTexture(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
 }
 
 TEXTURE* resizeTexture(TEXTURE &src, unsigned int w, unsigned int h)
