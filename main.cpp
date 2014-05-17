@@ -29,7 +29,12 @@ static BLOCK_WDATA inventory_entries[] = { BLOCK_STONE, BLOCK_GRASS, BLOCK_PLANK
 static inline bool keyPressed(const t_key &key)
 {
     if(has_touchpad)
-        return *reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col;
+    {
+        if(key.tpad_arrow != TPAD_ARROW_NONE)
+            return touchpad_arrow_pressed(key.tpad_arrow);
+        else
+            return *reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col;
+    }
     else
         return (*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.row) & key.col) == 0;
 }
@@ -824,7 +829,7 @@ int main(int argc, char *argv[])
             nglDisplay();
 
             if(key_held_down)
-                key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5);
+                key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_LEFT) || keyPressed(KEY_NSPIRE_RIGHT);
             else if(keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD))
             {
                 gamestate = WORLD;
@@ -832,7 +837,7 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_2))
+            else if(keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN))
             {
                 current_block_selection += 8;
                 if(current_block_selection >= user_selectable_count)
@@ -840,7 +845,7 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_8))
+            else if(keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_UP))
             {
                 if(current_block_selection >= 8)
                     current_block_selection -= 8;
@@ -853,7 +858,7 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_4))
+            else if(keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_LEFT))
             {
                 if(current_block_selection % 8 == 0)
                 {
@@ -866,7 +871,7 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_6))
+            else if(keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_RIGHT))
             {
                 if(current_block_selection % 8 != 7 && current_block_selection < user_selectable_count - 1)
                     current_block_selection++;
