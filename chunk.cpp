@@ -49,14 +49,49 @@ void Chunk::addUnalignedVertex(const VERTEX &v)
     vertices_unaligned.push_back(v);
 }
 
+void Chunk::addAlignedVertexQuad(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c)
+{
+    vertices_quad.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
+}
+
+void Chunk::setLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
+{
+    sides_rendered[x][y][z] |= side;
+}
+
+void Chunk::setGlobalBlockSideRenderedRelative(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
+{
+    if(inBounds(x, y, z))
+    {
+        sides_rendered[x][y][z] |= side;
+        return;
+    }
+
+    parent->setBlockSideRendered(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, side);
+}
+
+bool Chunk::isLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
+{
+    return sides_rendered[x][y][z] & side;
+}
+
+bool Chunk::isGlobalBlockSideRenderedRelative(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
+{
+    if(inBounds(x, y, z))
+        return sides_rendered[x][y][z] & side;
+
+    return parent->isBlockSideRendered(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, side);
+}
+
 void Chunk::buildGeometry()
 {
     drawLoadingtext(3);
 
-    std::fill(pos_indices[0][0] + 0, pos_indices[SIZE][SIZE] + SIZE + 1, -1);
+    std::fill(pos_indices[0][0] + 0, pos_indices[SIZE + 1][SIZE + 1] + SIZE + 2, -1);
 
     positions.clear();
     vertices.clear();
+    vertices_quad.clear();
     vertices_unaligned.clear();
 
     debug("Updating chunk %d:%d:%d...\n", x, y, z);
@@ -78,22 +113,22 @@ void Chunk::buildGeometry()
                 if(block != BLOCK_AIR && global_block_renderer.isOpaque(block))
                     continue;
 
-                if(inBounds(x - 1, y, z) && (block1 = blocks[x - 1][y][z]) != BLOCK_AIR)
+                if(inBounds(x - 1, y, z) && (block1 = blocks[x - 1][y][z]) != BLOCK_AIR && !(sides_rendered[x - 1][y][z] & BLOCK_RIGHT_BIT))
                     global_block_renderer.geometryNormalBlock(block1, x - 1, y, z, BLOCK_RIGHT, *this);
 
-                if(inBounds(x + 1, y, z) && (block1 = blocks[x + 1][y][z]) != BLOCK_AIR)
+                if(inBounds(x + 1, y, z) && (block1 = blocks[x + 1][y][z]) != BLOCK_AIR && !(sides_rendered[x + 1][y][z] & BLOCK_LEFT_BIT))
                     global_block_renderer.geometryNormalBlock(block1, x + 1, y, z, BLOCK_LEFT, *this);
 
-                if(inBounds(x, y - 1, z) && (block1 = blocks[x][y - 1][z]) != BLOCK_AIR)
+                if(inBounds(x, y - 1, z) && (block1 = blocks[x][y - 1][z]) != BLOCK_AIR && !(sides_rendered[x][y - 1][z] & BLOCK_TOP_BIT))
                     global_block_renderer.geometryNormalBlock(block1, x, y - 1, z, BLOCK_TOP, *this);
 
-                if(inBounds(x, y + 1, z) && (block1 = blocks[x][y + 1][z]) != BLOCK_AIR)
+                if(inBounds(x, y + 1, z) && (block1 = blocks[x][y + 1][z]) != BLOCK_AIR && !(sides_rendered[x][y + 1][z] & BLOCK_BOTTOM_BIT))
                     global_block_renderer.geometryNormalBlock(block1, x, y + 1, z, BLOCK_BOTTOM, *this);
 
-                if(inBounds(x, y, z - 1) && (block1 = blocks[x][y][z - 1]) != BLOCK_AIR)
+                if(inBounds(x, y, z - 1) && (block1 = blocks[x][y][z - 1]) != BLOCK_AIR && !(sides_rendered[x][y][z - 1] & BLOCK_BACK_BIT))
                     global_block_renderer.geometryNormalBlock(block1, x, y, z - 1, BLOCK_BACK, *this);
 
-                if(inBounds(x, y, z + 1) && (block1 = blocks[x][y][z + 1]) != BLOCK_AIR)
+                if(inBounds(x, y, z + 1) && (block1 = blocks[x][y][z + 1]) != BLOCK_AIR && !(sides_rendered[x][y][z + 1] & BLOCK_FRONT_BIT))
                     global_block_renderer.geometryNormalBlock(block1, x, y, z + 1, BLOCK_FRONT, *this);
             }
         }
@@ -126,6 +161,8 @@ void Chunk::buildGeometry()
             }
         }
     }
+
+    std::fill(sides_rendered[0][0] + 0, sides_rendered[SIZE - 1][SIZE - 1] + SIZE, 0);
 
     positions_transformed.resize(positions.size());
     positions_perspective.resize(positions.size());
@@ -358,6 +395,19 @@ void Chunk::render()
         if(drawTriangle(v[0], v[1], v[2], v[0].c != 0xFFFF))
             drawTriangle(v[2], v[3], v[0], false);
     }
+
+    //Now do the same again, but with a different texture bound
+    glBindTexture(terrain_quad);
+
+    v = vertices_quad.data();
+    for(unsigned int i = 0; i < vertices_quad.size(); i += 4, v += 4)
+    {
+        //If it's a billboard texture, skip backface culling
+        if(drawTriangle(v[0], v[1], v[2], v[0].c != 0xFFFF))
+            drawTriangle(v[2], v[3], v[0], false);
+    }
+
+    glBindTexture(terrain_current);
 
     const VERTEX *ve = vertices_unaligned.data();
     for(unsigned int i = 0; i < vertices_unaligned.size(); i += 4, ve += 4)

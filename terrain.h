@@ -72,6 +72,19 @@ enum BLOCK_SIDE {
 };
 constexpr int BLOCK_SIDE_LAST = BLOCK_BOTTOM;
 
+typedef uint8_t BLOCK_SIDE_BITFIELD;
+constexpr BLOCK_SIDE_BITFIELD BLOCK_FRONT_BIT = 1;
+constexpr BLOCK_SIDE_BITFIELD BLOCK_BACK_BIT = 2;
+constexpr BLOCK_SIDE_BITFIELD BLOCK_LEFT_BIT = 4;
+constexpr BLOCK_SIDE_BITFIELD BLOCK_RIGHT_BIT = 8;
+constexpr BLOCK_SIDE_BITFIELD BLOCK_TOP_BIT = 16;
+constexpr BLOCK_SIDE_BITFIELD BLOCK_BOTTOM_BIT = 32;
+
+constexpr BLOCK_SIDE_BITFIELD blockSideToBit(const BLOCK_SIDE side)
+{
+    return 1 << side;
+}
+
 //There may be more than one resolution, so compute TextureAtlasEntries for both
 struct TerrainAtlasEntry {
     TextureAtlasEntry current; //For blocks
@@ -83,7 +96,25 @@ extern TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST +
 extern TerrainAtlasEntry terrain_atlas[16][16];
 
 //terrain_resized is always 256x256 pixels
-extern TEXTURE *terrain_current, *terrain_resized;
+//The included texture or loaded texture without any modifications
+extern TEXTURE *terrain_current;
+//A resized copy (256x256) for non-scalable stuff, like GUI
+extern TEXTURE *terrain_resized;
+/*Contains four times the texture for skipping some triangles:
+* 8 triangles -> 2 triangles!
+*  ___      ___
+* |\|\|    |\  |
+* |\|\| => |  \|
+*  ‾‾‾‾      ‾‾‾‾
+* It's quite space consuming, so only selected textures are used*/
+extern TEXTURE *terrain_quad;
+struct TerrainQuadEntry {
+    bool has_quad;
+    TextureAtlasEntry tae;
+};
+constexpr int DIR_HORIZONTAL = 0;
+constexpr int DIR_VERTICAL = 1;
+extern TerrainQuadEntry quad_block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 
 void terrainInit(const char *texture_path);
 void terrainUninit();

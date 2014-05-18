@@ -414,9 +414,11 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
 }
 
 //I hate code duplication more than macros and includes
-#define TRANSPARENCY
-#include "triangle.inc.h"
-#undef TRANSPARENCY
+#ifdef TEXTURE_SUPPORT
+    #define TRANSPARENCY
+    #include "triangle.inc.h"
+    #undef TRANSPARENCY
+#endif
 #include "triangle.inc.h"
 
 static void interpolateVertexX(const VERTEX *from, const VERTEX *to, VERTEX *res)

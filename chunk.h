@@ -51,6 +51,15 @@ public:
     void addUnalignedVertex(const GLFix x, const GLFix y, const GLFix z, const GLFix u, const GLFix v, const COLOR c);
     void addUnalignedVertex(const VERTEX &v);
 
+    //Same as addAlignedVertex, but terrain_quad is the bound texture
+    void addAlignedVertexQuad(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c);
+
+    //To notify us so that we don't render something twice
+    void setLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
+    void setGlobalBlockSideRenderedRelative(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
+    bool isLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
+    bool isGlobalBlockSideRenderedRelative(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
+
     static constexpr int SIZE = 8;
 
     const int x, y, z;
@@ -76,10 +85,11 @@ private:
 
     //Rendering
     bool render_dirty = true;
-    int pos_indices[SIZE + 1][SIZE + 1][SIZE + 1];
+    int pos_indices[SIZE + 2][SIZE + 2][SIZE + 2];
+    BLOCK_SIDE_BITFIELD sides_rendered[SIZE][SIZE][SIZE] = {}; //It could be that other chunks already rendered parts of our blocks
     std::vector<Position> positions, positions_transformed;
     std::vector<std::pair<Position, bool>> positions_perspective;
-    std::vector<IndexedVertex> vertices;
+    std::vector<IndexedVertex> vertices, vertices_quad;
     std::vector<VERTEX> vertices_unaligned; //The optimized drawing with indices doesn't work with unaligned positions
     int tick_counter = 1; //1 to trigger a tick the next frame
 };

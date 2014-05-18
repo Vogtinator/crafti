@@ -24,6 +24,7 @@ public:
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) = 0;
 
     static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color = 0);
+    static void renderNormalBlockSideQuad(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color = 0);
     //Doesn't render sides adjacent to other blocks of the same type, used by glass, water, leaves etc.
     static void renderNormalConnectedBlockSide(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c);
     static void renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry &tex, Chunk &c);
@@ -94,6 +95,9 @@ public:
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int dest_x, const int dest_y) override;
 
     virtual const char* getName(const BLOCK_WDATA block) override { return block_names[getBLOCK(block)]; }
+
+    //For face-combining (see terrain.h, bottom) we need to know whether we can combine it
+    bool shouldRenderFaceAndItsTheSameAs(const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c, const BLOCK_WDATA block);
 };
 
 class OrientedBlockRenderer : public NormalBlockRenderer

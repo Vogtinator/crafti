@@ -36,30 +36,23 @@ const char *block_names[] =
     "Netherrack"
 };
 
-#define BT_FRONT 1
-#define BT_BACK 2
-#define BT_LEFT 4
-#define BT_RIGHT 8
-#define BT_TOP 16
-#define BT_BOTTOM 32
-
 struct BLOCK_TEXTURE {
     BLOCK block;
-    uint8_t sides;
+    BLOCK_SIDE_BITFIELD sides;
 };
 
 #define NON {BLOCK_AIR, 0}
-#define ALL(block) {block, BT_TOP | BT_BOTTOM | BT_LEFT | BT_RIGHT | BT_FRONT | BT_BACK}
-#define TOP(block) {block, BT_TOP}
-#define BOT(block) {block, BT_BOTTOM}
-#define LEF(block) {block, BT_LEFT}
-#define RIG(block) {block, BT_RIGHT}
-#define FRO(block) {block, BT_FRONT}
-#define BAC(block) {block, BT_BACK}
-#define TAB(block) {block, BT_TOP | BT_BOTTOM}
-#define SID(block) {block, BT_FRONT | BT_BACK | BT_LEFT | BT_RIGHT}
-#define SWF(block) {block, BT_BACK | BT_LEFT | BT_RIGHT}
-#define AWF(block) {block, BT_TOP | BT_BOTTOM | BT_LEFT | BT_RIGHT | BT_BACK}
+#define ALL(block) {block, BLOCK_TOP_BIT | BLOCK_BOTTOM_BIT | BLOCK_LEFT_BIT | BLOCK_RIGHT_BIT | BLOCK_FRONT_BIT | BLOCK_BACK_BIT}
+#define TOP(block) {block, BLOCK_TOP_BIT}
+#define BOT(block) {block, BLOCK_BOTTOM_BIT}
+#define LEF(block) {block, BLOCK_LEFT_BIT}
+#define RIG(block) {block, BLOCK_RIGHT_BIT}
+#define FRO(block) {block, BLOCK_FRONT_BIT}
+#define BAC(block) {block, BLOCK_BACK_BIT}
+#define TAB(block) {block, BLOCK_TOP_BIT | BLOCK_BOTTOM_BIT}
+#define SID(block) {block, BLOCK_FRONT_BIT | BLOCK_BACK_BIT | BLOCK_LEFT_BIT | BLOCK_RIGHT_BIT}
+#define SWF(block) {block, BLOCK_BACK_BIT | BLOCK_LEFT_BIT | BLOCK_RIGHT_BIT}
+#define AWF(block) {block, BLOCK_TOP_BIT | BLOCK_BOTTOM_BIT | BLOCK_LEFT_BIT | BLOCK_RIGHT_BIT | BLOCK_BACK_BIT}
 
 //Maps location in texture atlas to block ID
 BLOCK_TEXTURE texture_atlas[][16] =
@@ -83,9 +76,10 @@ BLOCK_TEXTURE texture_atlas[][16] =
 };
 
 TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
+TerrainQuadEntry quad_block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1], dual_block_textures[2][BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 TerrainAtlasEntry terrain_atlas[16][16];
 
-TEXTURE *terrain_current, *terrain_resized;
+TEXTURE *terrain_current, *terrain_resized, *terrain_quad;
 
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
 static void makeGreen(TEXTURE &texture, const int x, const int y, const int w, const int h)
@@ -135,22 +129,82 @@ void terrainInit(const char *texture_path)
             if(bt.sides == 0)
                 continue;
 
-            if(bt.sides & BT_BOTTOM)
+            if(bt.sides & BLOCK_BOTTOM_BIT)
                 block_textures[bt.block][BLOCK_BOTTOM] = tea;
-            if(bt.sides & BT_TOP)
+            if(bt.sides & BLOCK_TOP_BIT)
                 block_textures[bt.block][BLOCK_TOP] = tea;
-            if(bt.sides & BT_LEFT)
+            if(bt.sides & BLOCK_LEFT_BIT)
                 block_textures[bt.block][BLOCK_LEFT] = tea;
-            if(bt.sides & BT_RIGHT)
+            if(bt.sides & BLOCK_RIGHT_BIT)
                 block_textures[bt.block][BLOCK_RIGHT] = tea;
-            if(bt.sides & BT_FRONT)
+            if(bt.sides & BLOCK_FRONT_BIT)
                 block_textures[bt.block][BLOCK_FRONT] = tea;
-            if(bt.sides & BT_BACK)
+            if(bt.sides & BLOCK_BACK_BIT)
                 block_textures[bt.block][BLOCK_BACK] = tea;
         }
 
     //Slight hack, you can't assign a texture to multiple blocks
     block_textures[BLOCK_GRASS][BLOCK_BOTTOM] = block_textures[BLOCK_DIRT][BLOCK_BOTTOM];
+
+    //Prerender four times the same texture to speed up drawing, see terrain.h
+    const BLOCK_TEXTURE quad_textures[] = { ALL(BLOCK_DIRT), SID(BLOCK_GRASS), TOP(BLOCK_GRASS), ALL(BLOCK_STONE), ALL(BLOCK_SAND), SID(BLOCK_WOOD), ALL(BLOCK_PLANKS_NORMAL), ALL(BLOCK_LEAVES) };
+    terrain_quad = newTexture(field_width * 2 * (sizeof(quad_textures)/sizeof(*quad_textures)), field_height * 2);
+
+    for(BLOCK b = 0; b <= BLOCK_NORMAL_LAST; b++)
+        for(uint8_t s = 0; s <= BLOCK_SIDE_LAST; s++)
+            quad_block_textures[b][s].has_quad = false;
+
+    unsigned int x = 0;
+    for(BLOCK_TEXTURE bt : quad_textures)
+    {
+        TextureAtlasEntry tae;
+
+        if(bt.sides == 0)
+        {
+            printf("Block has no texture: %d!\n", bt.block);
+            continue;
+        }
+
+        if(bt.sides & BLOCK_BOTTOM_BIT)
+            tae = block_textures[bt.block][BLOCK_BOTTOM].current;
+        if(bt.sides & BLOCK_TOP_BIT)
+            tae = block_textures[bt.block][BLOCK_TOP].current;
+        if(bt.sides & BLOCK_LEFT_BIT)
+            tae = block_textures[bt.block][BLOCK_LEFT].current;
+        if(bt.sides & BLOCK_RIGHT_BIT)
+            tae = block_textures[bt.block][BLOCK_RIGHT].current;
+        if(bt.sides & BLOCK_FRONT_BIT)
+            tae = block_textures[bt.block][BLOCK_FRONT].current;
+        if(bt.sides & BLOCK_BACK_BIT)
+            tae = block_textures[bt.block][BLOCK_BACK].current;
+
+        //- 1 to reverse the workaround above. Yes, I hate myself for this.
+        drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x, 0, field_width, field_height);
+        drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x + field_width, 0, field_width, field_height);
+        drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x + field_width, field_height, field_width, field_height);
+        drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x, field_height, field_width, field_height);
+
+        //And add the workaround here again..
+        TerrainQuadEntry tqe = { true, textureArea(x + 1, 1, field_width * 2 - 2, field_height * 2 - 2) };
+
+        if(bt.sides & BLOCK_BOTTOM_BIT)
+            quad_block_textures[bt.block][BLOCK_BOTTOM] = tqe;
+        if(bt.sides & BLOCK_TOP_BIT)
+            quad_block_textures[bt.block][BLOCK_TOP] = tqe;
+        if(bt.sides & BLOCK_LEFT_BIT)
+            quad_block_textures[bt.block][BLOCK_LEFT] = tqe;
+        if(bt.sides & BLOCK_RIGHT_BIT)
+            quad_block_textures[bt.block][BLOCK_RIGHT] = tqe;
+        if(bt.sides & BLOCK_FRONT_BIT)
+            quad_block_textures[bt.block][BLOCK_FRONT] = tqe;
+        if(bt.sides & BLOCK_BACK_BIT)
+            quad_block_textures[bt.block][BLOCK_BACK] = tqe;
+
+        x += field_width * 2;
+    }
+
+    //Part 2 of the hack above
+    quad_block_textures[BLOCK_GRASS][BLOCK_BOTTOM] = quad_block_textures[BLOCK_DIRT][BLOCK_BOTTOM];
 }
 
 void terrainUninit()
@@ -160,4 +214,6 @@ void terrainUninit()
 
     if(terrain_current != &terrain)
         deleteTexture(terrain_current);
+
+    deleteTexture(terrain_quad);
 }

@@ -217,6 +217,7 @@ int main(int argc, char *argv[])
     {
         greyscaleTexture(*terrain_current);
         greyscaleTexture(*terrain_resized);
+        greyscaleTexture(*terrain_quad);
     }
     glBindTexture(terrain_current);
 
