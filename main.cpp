@@ -19,7 +19,7 @@ static GLFix xr = 0, yr = 0;
 static GLFix x = 0, y = BLOCK_SIZE * Chunk::SIZE * World::HEIGHT + BLOCK_SIZE, z = 0;
 static constexpr GLFix incr = 20;
 static World world;
-static bool has_touchpad;
+static bool has_touchpad, keys_inverted;
 static int current_inventory_slot, current_block_selection;
 static TEXTURE *screen, *inv_selection;
 constexpr int inventory_count = 5;
@@ -33,7 +33,7 @@ static inline bool keyPressed(const t_key &key)
         if(key.tpad_arrow != TPAD_ARROW_NONE)
             return touchpad_arrow_pressed(key.tpad_arrow);
         else
-            return *reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col;
+            return !(*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col) == keys_inverted;
     }
     else
         return (*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.row) & key.col) == 0;
@@ -189,8 +189,9 @@ int main(int argc, char *argv[])
                     "orr r0, r0, #0x80;"
                     "msr cpsr_c, r0;" ::: "r0");
 
-    //Cache the value
+    //Cache the values
     has_touchpad = is_touchpad;
+    keys_inverted = is_classic;
 
     if(lcd_isincolor())
     {
@@ -704,16 +705,16 @@ int main(int argc, char *argv[])
 
             nglDisplay();
 
-            //Switch to WORLD GAMESTATE if menu closed
+            //Switch to target GAMESTATE if menu closed
             if(!menu_open && menu_width_visible == 0)
             {
-                gamestate = WORLD;
+                gamestate = menu_selected_item == HELP ? HELP_MSG : WORLD;
                 saved_background = false;
             }
 
             if(key_held_down)
-                key_held_down = keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_5);
-            else if(keyPressed(KEY_NSPIRE_8))
+                key_held_down = keyPressed(KEY_NSPIRE_CLICK) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_5);
+            else if(keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_UP))
             {
                 --menu_selected_item;
                 if(menu_selected_item < 0)
@@ -721,7 +722,7 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_2))
+            else if(keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN))
             {
                 ++menu_selected_item;
                 if(menu_selected_item == MENU_ITEM_MAX)
@@ -729,7 +730,7 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_5))
+            else if(keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_CLICK))
             {
                 switch(menu_selected_item)
                 {
@@ -766,7 +767,7 @@ int main(int argc, char *argv[])
                     goto exit;
 
                 case HELP:
-                    gamestate = HELP_MSG;
+                    //Handled above, after nglDisplay()
                     break;
                 }
 
@@ -830,7 +831,7 @@ int main(int argc, char *argv[])
             nglDisplay();
 
             if(key_held_down)
-                key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_LEFT) || keyPressed(KEY_NSPIRE_RIGHT);
+                key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_LEFT) || keyPressed(KEY_NSPIRE_RIGHT)  || keyPressed(KEY_NSPIRE_CLICK);
             else if(keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD))
             {
                 gamestate = WORLD;
@@ -897,7 +898,7 @@ int main(int argc, char *argv[])
 
                 key_held_down = true;
             }
-            else if(keyPressed(KEY_NSPIRE_5))
+            else if(keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_CLICK))
             {
                 inventory_entries[current_inventory_slot] = user_selectable[current_block_selection];
 
@@ -941,6 +942,7 @@ int main(int argc, char *argv[])
             {
                 gamestate = WORLD;
                 key_held_down = true;
+                saved_background = false;
             }
         }
     }
