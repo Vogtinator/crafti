@@ -80,7 +80,7 @@ void FluidRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local
             return;
         break;
     case BLOCK_BOTTOM:
-        if(c.getGlobalBlockRelative(local_x, local_y - 1, local_z) == block)
+        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) == getBLOCK(block))
             return;
         break;
     case BLOCK_LEFT:
