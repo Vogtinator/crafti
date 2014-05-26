@@ -22,8 +22,6 @@ public:
     BLOCK_WDATA getBlock(const int x, const int y, const int z) const;
     void setBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
     void changeBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
-    void setBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
-    bool isBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
     void setPosition(int x, int y, int z);
     bool blockAction(const int x, const int y, const int z);
     bool intersect(AABB &other) const;

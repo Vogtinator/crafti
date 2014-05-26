@@ -54,11 +54,9 @@ public:
     //Same as addAlignedVertex, but terrain_quad is the bound texture
     void addAlignedVertexQuad(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c);
 
-    //To notify us so that we don't render something twice
+    //Don't render something twice
     void setLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
-    void setGlobalBlockSideRenderedRelative(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
     bool isLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
-    bool isGlobalBlockSideRenderedRelative(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
 
     static constexpr int SIZE = 8;
 

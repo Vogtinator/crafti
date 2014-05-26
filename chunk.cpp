@@ -59,28 +59,9 @@ void Chunk::setLocalBlockSideRendered(const int x, const int y, const int z, con
     sides_rendered[x][y][z] |= side;
 }
 
-void Chunk::setGlobalBlockSideRenderedRelative(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
-{
-    if(inBounds(x, y, z))
-    {
-        sides_rendered[x][y][z] |= side;
-        return;
-    }
-
-    parent->setBlockSideRendered(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, side);
-}
-
 bool Chunk::isLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
 {
     return sides_rendered[x][y][z] & side;
-}
-
-bool Chunk::isGlobalBlockSideRenderedRelative(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
-{
-    if(inBounds(x, y, z))
-        return sides_rendered[x][y][z] & side;
-
-    return parent->isBlockSideRendered(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, side);
 }
 
 void Chunk::buildGeometry()

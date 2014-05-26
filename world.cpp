@@ -80,28 +80,6 @@ void World::changeBlock(const int x, const int y, const int z, const BLOCK_WDATA
         pending_block_changes.push_back({chunk_x, chunk_y, chunk_z, local_x, local_y, local_z, block});
 }
 
-void World::setBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
-{
-    int chunk_x = getChunk(x), chunk_y = getChunk(y), chunk_z = getChunk(z);
-    int local_x = getLocal(x), local_y = getLocal(y), local_z = getLocal(z);
-
-    Chunk *c = findChunk(chunk_x, chunk_y, chunk_z);
-    if(c)
-        c->setLocalBlockSideRendered(local_x, local_y, local_z, side);
-}
-
-bool World::isBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
-{
-    int chunk_x = getChunk(x), chunk_y = getChunk(y), chunk_z = getChunk(z);
-    int local_x = getLocal(x), local_y = getLocal(y), local_z = getLocal(z);
-
-    Chunk *c = findChunk(chunk_x, chunk_y, chunk_z);
-    if(c)
-        return c->isLocalBlockSideRendered(local_x, local_y, local_z, side);
-
-    return false;
-}
-
 void World::setChunkVisible(int x, int y, int z)
 {
     Chunk *c = findChunk(x, y, z);

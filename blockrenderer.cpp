@@ -79,9 +79,9 @@ void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int loca
         c.addAlignedVertexQuad(local_x + 2, local_y, local_z, tex.right, tex.bottom, color);
 
         c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_FRONT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x + 1, local_y, local_z, BLOCK_FRONT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x + 1, local_y + 1, local_z, BLOCK_FRONT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y + 1, local_z, BLOCK_FRONT_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_FRONT_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y + 1, local_z, BLOCK_FRONT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_FRONT_BIT);
         return;
     case BLOCK_BACK:
         c.addAlignedVertexQuad(local_x + 2, local_y, local_z + 1, tex.left, tex.bottom, color);
@@ -89,9 +89,9 @@ void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int loca
         c.addAlignedVertexQuad(local_x, local_y + 2, local_z + 1, tex.right, tex.top, color);
         c.addAlignedVertexQuad(local_x, local_y, local_z + 1, tex.right, tex.bottom, color);
 
-        c.setGlobalBlockSideRenderedRelative(local_x + 1, local_y, local_z, BLOCK_BACK_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x + 1, local_y + 1, local_z, BLOCK_BACK_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y + 1, local_z, BLOCK_BACK_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_BACK_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y + 1, local_z, BLOCK_BACK_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_BACK_BIT);
         c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BACK_BIT);
         return;
     case BLOCK_RIGHT:
@@ -101,9 +101,9 @@ void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int loca
         c.addAlignedVertexQuad(local_x + 1, local_y, local_z + 2, tex.left, tex.bottom, color);
 
         c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_RIGHT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y + 1, local_z, BLOCK_RIGHT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y + 1, local_z + 1, BLOCK_RIGHT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y, local_z + 1, BLOCK_RIGHT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_RIGHT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z + 1, BLOCK_RIGHT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_RIGHT_BIT);
         return;
     case BLOCK_LEFT:
         c.addAlignedVertexQuad(local_x, local_y, local_z + 2, tex.left, tex.bottom, color);
@@ -112,9 +112,9 @@ void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int loca
         c.addAlignedVertexQuad(local_x, local_y, local_z, tex.right, tex.bottom, color);
 
         c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_LEFT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y + 1, local_z, BLOCK_LEFT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y + 1, local_z + 1, BLOCK_LEFT_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y, local_z + 1, BLOCK_LEFT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_LEFT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z + 1, BLOCK_LEFT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_LEFT_BIT);
         return;
     case BLOCK_TOP:
         c.addAlignedVertexQuad(local_x, local_y + 1, local_z, tex.left, tex.bottom, color);
@@ -123,9 +123,9 @@ void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int loca
         c.addAlignedVertexQuad(local_x + 2, local_y + 1, local_z, tex.right, tex.bottom, color);
 
         c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_TOP_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x + 1, local_y, local_z, BLOCK_TOP_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x + 1, local_y, local_z + 1, BLOCK_TOP_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y, local_z + 1, BLOCK_TOP_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_TOP_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z + 1, BLOCK_TOP_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_TOP_BIT);
         return;
     case BLOCK_BOTTOM:
         c.addAlignedVertexQuad(local_x + 2, local_y, local_z, tex.left, tex.bottom, color);
@@ -134,9 +134,9 @@ void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int loca
         c.addAlignedVertexQuad(local_x, local_y, local_z, tex.right, tex.bottom, color);
 
         c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BOTTOM_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x + 1, local_y, local_z, BLOCK_BOTTOM_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x + 1, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
-        c.setGlobalBlockSideRenderedRelative(local_x, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_BOTTOM_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
         return;
     default:
         return; //WTF
@@ -338,15 +338,18 @@ const char *UniversalBlockRenderer::getName(const BLOCK_WDATA block)
 bool NormalBlockRenderer::shouldRenderFaceAndItsTheSameAs(const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c, const BLOCK_WDATA block)
 {
     /* Multiple conditions have to be met:
-     * 1. Has to be same block
-     * 2. Hasn't been rendered already
-     * 3. Not covered by another block */
+     * 1. Be in the same Chunk
+     * 2. Has to be same block
+     * 3. Hasn't been rendered already
+     * 4. Not covered by another block */
 
-    //getGlobalBlockRelative must be used here as the block is not necessarily in the given chunk (->geometryNormalBlock);
-    if(c.getGlobalBlockRelative(local_x, local_y, local_z) != block)
+    if(local_x < 0 || local_y < 0 || local_z < 0 || local_x >= Chunk::SIZE || local_y >= Chunk::SIZE || local_z >= Chunk::SIZE)
         return false;
 
-    if(c.isGlobalBlockSideRenderedRelative(local_x, local_y, local_z, blockSideToBit(side)))
+    if(c.getLocalBlock(local_x, local_y, local_z) != block)
+        return false;
+
+    if(c.isLocalBlockSideRendered(local_x, local_y, local_z, blockSideToBit(side)))
         return false;
 
     switch(side)
