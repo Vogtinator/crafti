@@ -1,0 +1,431 @@
+#include "worldtask.h"
+
+#include "aabb.h"
+#include "blockrenderer.h"
+#include "blocklisttask.h"
+#include "menutask.h"
+#include "fastmath.h"
+#include "font.h"
+#include "inventory.h"
+
+WorldTask world_task;
+
+WorldTask::WorldTask()
+{
+}
+
+void WorldTask::makeCurrent()
+{
+    Task::background_saved = false;
+
+    Task::makeCurrent();
+}
+
+//Invert pixel at (x|y) relative to the center of the screen
+void WorldTask::crosshairPixel(int x, int y)
+{
+    int pos = SCREEN_WIDTH/2 + x + (SCREEN_HEIGHT/2 + y)*SCREEN_WIDTH;
+    screen->bitmap[pos] = ~screen->bitmap[pos];
+}
+
+void WorldTask::getForward(GLFix *x, GLFix *z)
+{
+    *x = fast_sin(yr) * incr;
+    *z = fast_cos(yr) * incr;
+}
+
+void WorldTask::getRight(GLFix *x, GLFix *z)
+{
+    *x = fast_sin((yr + 90).normaliseAngle()) * incr;
+    *z = fast_cos((yr + 90).normaliseAngle()) * incr;
+}
+
+void WorldTask::logic()
+{
+    GLFix dx = 0, dz = 0;
+
+    if(keyPressed(KEY_NSPIRE_8)) //Forward
+    {
+        GLFix dx1, dz1;
+        getForward(&dx1, &dz1);
+
+        dx += dx1;
+        dz += dz1;
+    }
+    else if(keyPressed(KEY_NSPIRE_2)) //Backward
+    {
+        GLFix dx1, dz1;
+        getForward(&dx1, &dz1);
+
+        dx -= dx1;
+        dz -= dz1;
+    }
+
+    if(keyPressed(KEY_NSPIRE_4)) //Left
+    {
+        GLFix dx1, dz1;
+        getRight(&dx1, &dz1);
+
+        dx -= dx1;
+        dz -= dz1;
+    }
+    else if(keyPressed(KEY_NSPIRE_6)) //Right
+    {
+        GLFix dx1, dz1;
+        getRight(&dx1, &dz1);
+
+        dx += dx1;
+        dz += dz1;
+    }
+
+    if(!world.intersect(aabb))
+    {
+        AABB aabb_moved = aabb;
+        aabb_moved.low_x += dx;
+        aabb_moved.high_x += dx;
+
+        if(!world.intersect(aabb_moved))
+        {
+            x += dx;
+            aabb = aabb_moved;
+        }
+
+        aabb_moved = aabb;
+        aabb_moved.low_z += dz;
+        aabb_moved.high_z += dz;
+
+        if(!world.intersect(aabb_moved))
+        {
+            z += dz;
+            aabb = aabb_moved;
+        }
+
+        aabb_moved = aabb;
+        aabb_moved.low_y += vy;
+        aabb_moved.high_y += vy;
+
+        can_jump = world.intersect(aabb_moved);
+
+        if(!can_jump)
+        {
+            y += vy;
+            aabb = aabb_moved;
+        }
+        else if(vy > GLFix(0))
+        {
+            can_jump = false;
+            vy = 0;
+        }
+        else
+            vy = 0;
+
+        vy -= 5;
+
+        in_water = getBLOCK(world.getBlock((x / BLOCK_SIZE).floor(), ((y + eye_pos) / BLOCK_SIZE).floor(), (z / BLOCK_SIZE).floor())) == BLOCK_WATER;
+
+        if(in_water)
+            can_jump = true;
+    }
+
+    if(keyPressed(KEY_NSPIRE_5) && can_jump) //Jump
+    {
+        vy = 50;
+        can_jump = false;
+    }
+
+    if(has_touchpad)
+    {
+        touchpad_report_t touchpad;
+        touchpad_scan(&touchpad);
+
+        if(touchpad.pressed)
+        {
+            switch(touchpad.arrow)
+            {
+            case TPAD_ARROW_DOWN:
+                xr += incr/3;
+                break;
+            case TPAD_ARROW_UP:
+                xr -= incr/3;
+                break;
+            case TPAD_ARROW_LEFT:
+                yr -= incr/3;
+                break;
+            case TPAD_ARROW_RIGHT:
+                yr += incr/3;
+                break;
+            case TPAD_ARROW_RIGHTDOWN:
+                xr += incr/3;
+                yr += incr/3;
+                break;
+            case TPAD_ARROW_UPRIGHT:
+                xr -= incr/3;
+                yr += incr/3;
+                break;
+            case TPAD_ARROW_DOWNLEFT:
+                xr += incr/3;
+                yr -= incr/3;
+                break;
+            case TPAD_ARROW_LEFTUP:
+                xr -= incr/3;
+                yr -= incr/3;
+                break;
+            }
+        }
+        else if(tp_had_contact && touchpad.contact)
+        {
+            yr += (touchpad.x - tp_last_x) / 50;
+            xr -= (touchpad.y - tp_last_y) / 50;
+        }
+
+        tp_had_contact = touchpad.contact;
+        tp_last_x = touchpad.x;
+        tp_last_y = touchpad.y;
+    }
+    else
+    {
+        if(keyPressed(KEY_NSPIRE_UP))
+            xr -= incr/3;
+        else if(keyPressed(KEY_NSPIRE_DOWN))
+            xr += incr/3;
+
+        if(keyPressed(KEY_NSPIRE_LEFT))
+            yr -= incr/3;
+        else if(keyPressed(KEY_NSPIRE_RIGHT))
+            yr += incr/3;
+    }
+
+    //Normalisation required for rotation with nglRotate
+    yr.normaliseAngle();
+    xr.normaliseAngle();
+
+    //xr and yr are normalised, so we can't test for negative values
+    if(xr > GLFix(180))
+        if(xr <= GLFix(270))
+            xr = 269;
+
+    if(xr < GLFix(180))
+        if(xr >= GLFix(90))
+            xr = 89;
+
+    //Do test only on every second frame, it's expensive
+    if(do_test)
+    {
+        GLFix dx = fast_sin(yr)*fast_cos(xr), dy = -fast_sin(xr), dz = fast_cos(yr)*fast_cos(xr);
+        GLFix dist;
+        if(!world.intersectsRay(x, y + eye_pos, z, dx, dy, dz, selection_pos, selection_side, dist, in_water))
+            selection_side = AABB::NONE;
+        else
+            selection_pos_abs = {x + dx * dist, y + eye_pos + dy * dist, z + dz * dist};
+    }
+
+    do_test = !do_test;
+
+    if(key_held_down)
+        key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_7) || keyPressed(KEY_NSPIRE_9) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_MINUS) || keyPressed(KEY_NSPIRE_PLUS) || keyPressed(KEY_NSPIRE_MENU);
+
+    else if(keyPressed(KEY_NSPIRE_ESC)) //Save & Exit
+    {
+        save();
+        Task::running = false;
+        return;
+    }
+    else if(keyPressed(KEY_NSPIRE_7)) //Put block down
+    {
+        if(selection_side != AABB::NONE)
+        {
+            if(!world.blockAction(selection_pos.x, selection_pos.y, selection_pos.z))
+            {
+                Position pos = selection_pos;
+                switch(selection_side)
+                {
+                case AABB::BACK:
+                    ++pos.z;
+                    break;
+                case AABB::FRONT:
+                    --pos.z;
+                    break;
+                case AABB::LEFT:
+                    --pos.x;
+                    break;
+                case AABB::RIGHT:
+                    ++pos.x;
+                    break;
+                case AABB::BOTTOM:
+                    --pos.y;
+                    break;
+                case AABB::TOP:
+                    ++pos.y;
+                    break;
+                default:
+                    puts("This can't normally happen #1");
+                    break;
+                }
+                if(!world.intersect(aabb))
+                {
+                    //Only set the block if there's air
+                    const BLOCK_WDATA current_block = world.getBlock(pos.x, pos.y, pos.z);
+                    if(current_block == BLOCK_AIR || (in_water && getBLOCK(current_block) == BLOCK_WATER))
+                    {
+                        if(!global_block_renderer.isOriented(current_inventory.currentSlot()))
+                            world.changeBlock(pos.x, pos.y, pos.z, current_inventory.currentSlot());
+                        else
+                        {
+                            AABB::SIDE side = selection_side;
+                            //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
+                            if(!global_block_renderer.isFullyOriented(current_inventory.currentSlot()) && (side == AABB::TOP || side == AABB::BOTTOM))
+                                side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
+
+                            world.changeBlock(pos.x, pos.y, pos.z, getBLOCKWDATA(current_inventory.currentSlot(), side)); //AABB::SIDE is compatible to BLOCK_SIDE
+                        }
+
+                        //If the player is stuck now, it's because of the block change, so remove it again
+                        if(world.intersect(aabb))
+                            world.changeBlock(pos.x, pos.y, pos.z, BLOCK_AIR);
+                    }
+                }
+            }
+        }
+
+        key_held_down = true;
+    }
+    else if(keyPressed(KEY_NSPIRE_9)) //Remove block
+    {
+        if(selection_side != AABB::NONE && world.getBlock(selection_pos.x, selection_pos.y, selection_pos.z) != BLOCK_BEDROCK)
+            world.changeBlock(selection_pos.x, selection_pos.y, selection_pos.z, BLOCK_AIR);
+
+        key_held_down = true;
+    }
+    else if(keyPressed(KEY_NSPIRE_1)) //Switch inventory slot
+    {
+        current_inventory.previousSlot();
+
+        key_held_down = true;
+    }
+    else if(keyPressed(KEY_NSPIRE_3))
+    {
+        current_inventory.nextSlot();
+
+        key_held_down = true;
+    }
+    else if(keyPressed(KEY_NSPIRE_PERIOD)) //Open list of blocks
+    {
+        block_list_task.makeCurrent();
+
+        key_held_down = true;
+    }
+    else if(keyPressed(KEY_NSPIRE_MINUS)) //Decrease max view distance
+    {
+        int fov = world.fieldOfView() - 1;
+        world.setFieldOfView(fov < 1 ? 1 : fov);
+
+        key_held_down = true;
+    }
+    else if(keyPressed(KEY_NSPIRE_PLUS)) //Increase max view distance
+    {
+        world.setFieldOfView(world.fieldOfView() + 1);
+
+        key_held_down = true;
+    }
+    else if(keyPressed(KEY_NSPIRE_MENU))
+    {
+        menu_task.makeCurrent();
+
+        key_held_down = true;
+    }
+}
+
+void WorldTask::render()
+{
+    aabb = {x - player_width/2, y, z - player_width/2, x + player_width/2, y + player_height, z + player_width/2};
+    //printf("X: %d Y: %d Z: %d XR: %d YR: %d\n", x.toInt(), y.toInt(), z.toInt(), xr.toInt(), yr.toInt());
+
+    glColor3f(0.4f, 0.6f, 0.8f); //Blue background
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glPushMatrix();
+
+    //Inverted rotation of the world
+    nglRotateX((GLFix(359) - xr).normaliseAngle());
+    nglRotateY((GLFix(359) - yr).normaliseAngle());
+    //Inverted translation of the world
+    glTranslatef(-x, -y - eye_pos, -z);
+
+    world.setPosition(x, y, z);
+
+    world.render();
+
+    //Draw indication
+    glBegin(GL_QUADS);
+    const TextureAtlasEntry &tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].current; //Why not. Transparent, yet visible
+    const GLFix indicator_x = selection_pos.x * BLOCK_SIZE, indicator_y = selection_pos.y * BLOCK_SIZE, indicator_z = selection_pos.z * BLOCK_SIZE;
+    const GLFix selection_offset = 3; //Needed to prevent Z-fighting
+    switch(selection_side)
+    {
+    case AABB::FRONT:
+        nglAddVertex({indicator_x, indicator_y, selection_pos_abs.z - selection_offset, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x, indicator_y + BLOCK_SIZE, selection_pos_abs.z - selection_offset, tex.left, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y + BLOCK_SIZE, selection_pos_abs.z - selection_offset, tex.right, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y, selection_pos_abs.z - selection_offset, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+        break;
+    case AABB::BACK:
+        nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y, selection_pos_abs.z + selection_offset, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x + BLOCK_SIZE, indicator_y + BLOCK_SIZE, selection_pos_abs.z + selection_offset, tex.left, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x, indicator_y + BLOCK_SIZE, selection_pos_abs.z + selection_offset, tex.right, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x, indicator_y, selection_pos_abs.z + selection_offset, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+        break;
+    case AABB::RIGHT:
+        nglAddVertex({selection_pos_abs.x + selection_offset, indicator_y, indicator_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+        nglAddVertex({selection_pos_abs.x + selection_offset, indicator_y + BLOCK_SIZE, indicator_z, tex.right, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({selection_pos_abs.x + selection_offset, indicator_y + BLOCK_SIZE, indicator_z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({selection_pos_abs.x + selection_offset, indicator_y, indicator_z + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+        break;
+    case AABB::LEFT:
+        nglAddVertex({selection_pos_abs.x - selection_offset, indicator_y, indicator_z + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+        nglAddVertex({selection_pos_abs.x - selection_offset, indicator_y + BLOCK_SIZE, indicator_z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({selection_pos_abs.x - selection_offset, indicator_y + BLOCK_SIZE, indicator_z, tex.right, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({selection_pos_abs.x - selection_offset, indicator_y, indicator_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+        break;
+    case AABB::TOP:
+        nglAddVertex({indicator_x, selection_pos_abs.y + selection_offset, indicator_z, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x, selection_pos_abs.y + selection_offset, indicator_z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x + BLOCK_SIZE, selection_pos_abs.y + selection_offset, indicator_z + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x + BLOCK_SIZE, selection_pos_abs.y + selection_offset, indicator_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+        break;
+    case AABB::BOTTOM:
+        nglAddVertex({indicator_x + BLOCK_SIZE, selection_pos_abs.y - selection_offset, indicator_z, tex.left, tex.bottom, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x + BLOCK_SIZE, selection_pos_abs.y - selection_offset, indicator_z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x, selection_pos_abs.y - selection_offset, indicator_z + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT});
+        nglAddVertex({indicator_x, selection_pos_abs.y - selection_offset, indicator_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT});
+        break;
+    case AABB::NONE:
+        break;
+    }
+    glEnd();
+
+    glPopMatrix();
+
+    crosshairPixel(0, 0);
+    crosshairPixel(-1, 0);
+    crosshairPixel(-2, 0);
+    crosshairPixel(0, -1);
+    crosshairPixel(0, -2);
+    crosshairPixel(1, 0);
+    crosshairPixel(2, 0);
+    crosshairPixel(0, 1);
+    crosshairPixel(0, 2);
+
+    //Don't draw the inventory if the block list will be opened, it will draw the inventory itself
+    if(!keyPressed(KEY_NSPIRE_PERIOD) || key_held_down)
+    {
+        current_inventory.draw(*screen);
+        drawStringCenter(global_block_renderer.getName(current_inventory.currentSlot()), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());
+    }
+}
+
+void WorldTask::resetWorld()
+{
+    x = z = 0;
+    world.generateSeed();
+    world.clear();
+}

@@ -112,6 +112,10 @@ struct TerrainQuadEntry {
     bool has_quad;
     TextureAtlasEntry tae;
 };
+
+//The glass texture resized to 32x32
+extern TEXTURE *glass_big;
+
 constexpr int DIR_HORIZONTAL = 0;
 constexpr int DIR_VERTICAL = 1;
 extern TerrainQuadEntry quad_block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];

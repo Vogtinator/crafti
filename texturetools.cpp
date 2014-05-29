@@ -33,7 +33,7 @@ void deleteTexture(TEXTURE *tex)
     delete tex;
 }
 
-void copyTexture(TEXTURE &src, TEXTURE &dest)
+void copyTexture(const TEXTURE &src, TEXTURE &dest)
 {
     #ifdef DEBUG
         if(src.width != dest.width || src.height != dest.height)
@@ -148,14 +148,14 @@ TextureAtlasEntry textureArea(const int x, const int y, const int w, const int h
     };
 }
 
-void drawTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
+void drawTexture(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &dest, const int dest_x, const int dest_y, const int w, const int h)
 {
     for(int y = 0; y < h; y++)
         for(int x = 0; x < w; x++)
             dest.bitmap[dest_x + x + (dest_y + y)*dest.width] = src.bitmap[src_x + x + (src_y + y)*src.width];
 }
 
-void drawTextureOverlay(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
+void drawTextureOverlay(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &dest, const int dest_x, const int dest_y, const int w, const int h)
 {
     for(int y = 0; y < h; y++)
         for(int x = 0; x < w; x++)
@@ -180,7 +180,7 @@ void drawTextureOverlay(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int d
         }
 }
 
-void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, int dest_x, int dest_y, int w, int h)
+void drawTransparentTexture(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &dest, const int dest_x, const int dest_y, const int w, const int h)
 {
     for(int y = 0; y < h; y++)
         for(int x = 0; x < w; x++)
@@ -191,7 +191,7 @@ void drawTransparentTexture(TEXTURE &src, int src_x, int src_y, TEXTURE &dest, i
         }
 }
 
-void drawLoadingtext(int i)
+void drawLoadingtext(const int i)
 {
     static int count = 0;
     static bool shown = false;
@@ -219,7 +219,7 @@ void drawLoadingtext(int i)
     drawTransparentTexture(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
 }
 
-TEXTURE* resizeTexture(TEXTURE &src, unsigned int w, unsigned int h)
+TEXTURE* resizeTexture(const TEXTURE &src, const unsigned int w, const unsigned int h)
 {
     TEXTURE *ret = newTexture(w, h);
 
@@ -230,7 +230,7 @@ TEXTURE* resizeTexture(TEXTURE &src, unsigned int w, unsigned int h)
     }
 
     GLFix srcx = 0, srcy = 0;
-    GLFix dx = GLFix(src.width) / GLFix(w), dy = GLFix(src.height) / GLFix(h);
+    const GLFix dx = GLFix(src.width) / GLFix(w), dy = GLFix(src.height) / GLFix(h);
     COLOR *ptr = ret->bitmap;
 
     while(srcy < GLFix(src.height))
@@ -253,7 +253,7 @@ void greyscaleTexture(TEXTURE &tex)
     COLOR *ptr16 = tex.bitmap;
     while(pixels--)
     {
-        RGB rgb = rgbColor(*ptr16);
+        const RGB rgb = rgbColor(*ptr16);
         //Somehow only the lowest 5 bits are used
         *ptr16 = (rgb.r.value + rgb.g.value + rgb.g.value + rgb.b.value) >> 5;
         ptr16++;
