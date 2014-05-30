@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <list>
+#include <map>
+#include <tuple>
 
 #include "terrain.h"
 #include "chunk.h"
@@ -47,7 +49,8 @@ private:
     PerlinNoise perlin_noise;
     unsigned int *seed;
 
-    std::vector<Chunk*> all_chunks;
+    //std::vector<Chunk*> all_chunks;
+    std::map<std::tuple<int,int,int>,Chunk*> all_chunks;
     std::vector<Chunk*> visible_chunks;
 
     //If a block in a not yet loaded Chunk has been set, it's stored here until the Chunk has been loaded

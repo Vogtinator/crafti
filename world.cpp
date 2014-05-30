@@ -13,8 +13,8 @@ World::World() : perlin_noise(0)
 World::~World()
 {
     free(seed);
-    for(Chunk *c : all_chunks)
-        delete c;
+    for(auto&& c : all_chunks)
+        delete c.second;
 }
 
 void World::generateSeed()
@@ -176,8 +176,8 @@ const PerlinNoise &World::noiseGenerator() const
 
 void World::clear()
 {
-    for(Chunk *c : all_chunks)
-        delete c;
+    for(auto &&c : all_chunks)
+        delete c.second;
 
     all_chunks.clear();
     visible_chunks.clear();
@@ -217,7 +217,7 @@ bool World::loadFromFile(FILE *file)
             delete c;
             return false;
         }
-        all_chunks.push_back(c);
+        all_chunks.insert({std::tuple<int,int,int>(x, y, z), c});
     }
 
     return true;
@@ -237,13 +237,13 @@ bool World::saveToFile(FILE *file) const
 
     SAVE_TO_FILE(field_of_view);
 
-    for(Chunk *c : all_chunks)
+    for(auto&& c : all_chunks)
     {
-        SAVE_TO_FILE(c->x)
-        SAVE_TO_FILE(c->y)
-        SAVE_TO_FILE(c->z)
+        SAVE_TO_FILE(c.second->x)
+        SAVE_TO_FILE(c.second->y)
+        SAVE_TO_FILE(c.second->z)
 
-        if(!c->saveToFile(file))
+        if(!c.second->saveToFile(file))
             return false;
     }
 
@@ -261,11 +261,11 @@ void World::render()
 
 Chunk* World::findChunk(int x, int y, int z) const
 {
-    for(Chunk *c : all_chunks)
-        if(c->x == x && c->y == y && c->z == z)
-            return c;
-
-    return nullptr;
+    auto&& c = all_chunks.find(std::tuple<int,int,int>{x, y, z});
+    if(c == all_chunks.end())
+        return nullptr;
+    else
+        return c->second;
 }
 
 Chunk* World::generateChunk(int x, int y, int z)
@@ -287,7 +287,7 @@ Chunk* World::generateChunk(int x, int y, int z)
 
     Chunk *c = new Chunk(x, y, z, this);
     c->generate();
-    all_chunks.push_back(c);
+    all_chunks.insert({std::tuple<int,int,int>(x, y, z), c});
 
     for(auto it = pending_block_changes.begin(); it != pending_block_changes.end();)
     {
