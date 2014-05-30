@@ -185,6 +185,12 @@ void World::clear()
     loaded = false;
 }
 
+void World::setDirty()
+{
+    for(auto &&c : all_chunks)
+        c.second->setDirty();
+}
+
 #define LOAD_FROM_FILE(var) if(fread(&(var), sizeof(var), 1, file) != 1) return false;
 #define SAVE_TO_FILE(var) if(fwrite(&(var), sizeof(var), 1, file) != 1) return false;
 

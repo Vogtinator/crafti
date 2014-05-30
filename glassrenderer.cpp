@@ -4,7 +4,7 @@ void GlassRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int l
 {
     const TextureAtlasEntry &tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].current;
 
-    BlockRenderer::renderNormalConnectedBlockSide(BLOCK_GLASS, local_x, local_y, local_z, side, tex, c);
+    BlockRenderer::renderNormalConnectedBlockSide(BLOCK_GLASS, local_x, local_y, local_z, side, tex, TEXTURE_TRANSPARENT, c);
 }
 
 void GlassRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)

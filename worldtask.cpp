@@ -4,6 +4,7 @@
 #include "blockrenderer.h"
 #include "blocklisttask.h"
 #include "menutask.h"
+#include "settingstask.h"
 #include "fastmath.h"
 #include "font.h"
 #include "inventory.h"
@@ -30,14 +31,19 @@ void WorldTask::crosshairPixel(int x, int y)
 
 void WorldTask::getForward(GLFix *x, GLFix *z)
 {
-    *x = fast_sin(yr) * incr;
-    *z = fast_cos(yr) * incr;
+    *x = fast_sin(yr) * speed();
+    *z = fast_cos(yr) * speed();
 }
 
 void WorldTask::getRight(GLFix *x, GLFix *z)
 {
-    *x = fast_sin((yr + 90).normaliseAngle()) * incr;
-    *z = fast_cos((yr + 90).normaliseAngle()) * incr;
+    *x = fast_sin((yr + 90).normaliseAngle()) * speed();
+    *z = fast_cos((yr + 90).normaliseAngle()) * speed();
+}
+
+GLFix WorldTask::speed()
+{
+    return 10 * settings_task.getValue(SettingsTask::SPEED) + 10;
 }
 
 void WorldTask::logic()
@@ -143,32 +149,32 @@ void WorldTask::logic()
             switch(touchpad.arrow)
             {
             case TPAD_ARROW_DOWN:
-                xr += incr/3;
+                xr += speed()/3;
                 break;
             case TPAD_ARROW_UP:
-                xr -= incr/3;
+                xr -= speed()/3;
                 break;
             case TPAD_ARROW_LEFT:
-                yr -= incr/3;
+                yr -= speed()/3;
                 break;
             case TPAD_ARROW_RIGHT:
-                yr += incr/3;
+                yr += speed()/3;
                 break;
             case TPAD_ARROW_RIGHTDOWN:
-                xr += incr/3;
-                yr += incr/3;
+                xr += speed()/3;
+                yr += speed()/3;
                 break;
             case TPAD_ARROW_UPRIGHT:
-                xr -= incr/3;
-                yr += incr/3;
+                xr -= speed()/3;
+                yr += speed()/3;
                 break;
             case TPAD_ARROW_DOWNLEFT:
-                xr += incr/3;
-                yr -= incr/3;
+                xr += speed()/3;
+                yr -= speed()/3;
                 break;
             case TPAD_ARROW_LEFTUP:
-                xr -= incr/3;
-                yr -= incr/3;
+                xr -= speed()/3;
+                yr -= speed()/3;
                 break;
             }
         }
@@ -185,14 +191,14 @@ void WorldTask::logic()
     else
     {
         if(keyPressed(KEY_NSPIRE_UP))
-            xr -= incr/3;
+            xr -= speed()/3;
         else if(keyPressed(KEY_NSPIRE_DOWN))
-            xr += incr/3;
+            xr += speed()/3;
 
         if(keyPressed(KEY_NSPIRE_LEFT))
-            yr -= incr/3;
+            yr -= speed()/3;
         else if(keyPressed(KEY_NSPIRE_RIGHT))
-            yr += incr/3;
+            yr += speed()/3;
     }
 
     //Normalisation required for rotation with nglRotate

@@ -143,7 +143,7 @@ void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int loca
     }
 }
 
-void BlockRenderer::renderNormalConnectedBlockSide(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c)
+void BlockRenderer::renderNormalConnectedBlockSide(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, const COLOR col, Chunk &c)
 {
     const BLOCK this_block = getBLOCK(block);
 
@@ -175,7 +175,7 @@ void BlockRenderer::renderNormalConnectedBlockSide(const BLOCK_WDATA block, int 
         break;
     }
 
-    BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, tex, c, TEXTURE_TRANSPARENT);
+    BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, tex, c, col);
 }
 
 void BlockRenderer::renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry &tex, Chunk &c)
@@ -226,8 +226,7 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_DOOR] = std::make_shared<DoorRenderer>();
     map[BLOCK_FURNACE] = oriented_renderer;
     map[BLOCK_GLASS] = std::make_shared<GlassRenderer>();
-    //For now treat LEAVES as normal blocks
-    //map[BLOCK_LEAVES] = std::make_shared<LeavesRenderer>();
+    map[BLOCK_LEAVES] = std::make_shared<LeavesRenderer>();
     map[BLOCK_PUMPKIN] = oriented_renderer;
     map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();
     map[BLOCK_WATER] = std::make_shared<FluidRenderer>(13, 12, "Water");

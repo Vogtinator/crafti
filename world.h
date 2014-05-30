@@ -30,6 +30,7 @@ public:
     bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side, GLFix &dist, bool ignore_water) const;
     const PerlinNoise &noiseGenerator() const;
     void clear();
+    void setDirty();
     bool loadFromFile(FILE *file);
     bool saveToFile(FILE *file) const;
     void render();

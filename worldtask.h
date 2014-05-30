@@ -21,13 +21,15 @@ public:
     World world;
     GLFix x, y, z, xr, yr;
 
-    static constexpr GLFix player_width = BLOCK_SIZE*0.8f, player_height = BLOCK_SIZE*1.8f, eye_pos = BLOCK_SIZE*1.6f, incr = 20;
+    static constexpr GLFix player_width = BLOCK_SIZE*0.8f, player_height = BLOCK_SIZE*1.8f, eye_pos = BLOCK_SIZE*1.6f;
 
 private:
     void crosshairPixel(int x, int y);
 
     void getForward(GLFix *x, GLFix *z);
     void getRight(GLFix *x, GLFix *z);
+
+    GLFix speed();
 
     AABB aabb;
     bool can_jump = false, tp_had_contact = false;

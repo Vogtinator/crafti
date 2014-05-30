@@ -12,7 +12,7 @@ public:
         NEW_WORLD = 0,
         LOAD_WORLD,
         SAVE_WORLD,
-        SAVE_AND_EXIT,
+        SETTINGS,
         EXIT,
         HELP,
         MENU_ITEM_MAX

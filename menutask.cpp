@@ -3,6 +3,7 @@
 #include "texturetools.h"
 #include "worldtask.h"
 #include "helptask.h"
+#include "settingstask.h"
 
 #include "textures/menu.h"
 #include "textures/selection.h"
@@ -60,10 +61,20 @@ void MenuTask::logic()
     //Wait for the menu to be closed, then set the current task
     if(!menu_open && menu_width_visible == 0)
     {
-        if(menu_selected_item == HELP)
+        switch(menu_selected_item)
+        {
+        case HELP:
             help_task.makeCurrent();
-        else
+            break;
+        case SETTINGS:
+            settings_task.makeCurrent();
+            break;
+        default:
             world_task.makeCurrent();
+            break;
+        }
+
+        return;
     }
 
     if(key_held_down)
@@ -100,16 +111,12 @@ void MenuTask::logic()
             save();
             break;
 
-        case SAVE_AND_EXIT:
-            save();
-            running = false;
-            break;
-
         case EXIT:
             running = false;
             break;
 
         case HELP:
+        case SETTINGS:
             //Handled above, at the start of this function
             break;
         }

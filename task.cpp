@@ -3,6 +3,7 @@
 #include "texturetools.h"
 #include "blocklisttask.h"
 #include "worldtask.h"
+#include "settingstask.h"
 #include "inventory.h"
 
 //The values have to stay somewhere
@@ -62,7 +63,7 @@ void Task::drawBackground()
     copyTexture(*background, *screen);
 }
 
-static constexpr int savefile_version = 4;
+static constexpr int savefile_version = 5;
 
 #define LOAD_FROM_FILE(var) if(fread(&var, sizeof(var), 1, file) != 1) { fclose(file); return false; }
 #define SAVE_TO_FILE(var) if(fwrite(&var, sizeof(var), 1, file) != 1) { fclose(file); return false; }
@@ -79,24 +80,25 @@ bool Task::load()
     //For backwards compatibility
     if(version == savefile_version)
     {
-        LOAD_FROM_FILE(current_inventory.entries)
+        if(!settings_task.loadFromFile(file))
+        {
+            fclose(file);
+            return false;
+        }
     }
-    else if(version != 3)
+    else if(version != 4)
     {
         printf("Wrong save file version %d!\n", version);
         return false;
     }
 
+    LOAD_FROM_FILE(current_inventory.entries)
     LOAD_FROM_FILE(world_task.xr)
     LOAD_FROM_FILE(world_task.yr)
     LOAD_FROM_FILE(world_task.x)
     LOAD_FROM_FILE(world_task.y)
     LOAD_FROM_FILE(world_task.z)
-
-    if(version == savefile_version)
-    {
-        LOAD_FROM_FILE(current_inventory.current_slot)
-    }
+    LOAD_FROM_FILE(current_inventory.current_slot)
 
     LOAD_FROM_FILE(block_list_task.current_selection)
 
@@ -114,6 +116,11 @@ bool Task::save()
         return false;
 
     SAVE_TO_FILE(savefile_version)
+    if(!settings_task.saveToFile(file))
+    {
+        fclose(file);
+        return false;
+    }
     SAVE_TO_FILE(current_inventory.entries)
     SAVE_TO_FILE(world_task.xr)
     SAVE_TO_FILE(world_task.yr)
