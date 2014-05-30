@@ -432,6 +432,8 @@ void WorldTask::render()
 void WorldTask::resetWorld()
 {
     x = z = 0;
+    y = World::HEIGHT * Chunk::SIZE * BLOCK_SIZE;
+    xr = yr = 0;
     world.generateSeed();
     world.clear();
 }
