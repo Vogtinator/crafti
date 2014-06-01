@@ -309,6 +309,10 @@ void Chunk::render()
     if(__builtin_expect(render_dirty, 0))
         buildGeometry();
 
+    //If there's nothing to render, skip it completely
+    if(positions.size() == 0 && vertices_unaligned.size() == 0)
+        return;
+
     //Basic culling
     VERTEX v1{abs_x,                            abs_y,                            abs_z, 0, 0, 0},
             v2{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z, 0, 0, 0},
