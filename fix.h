@@ -11,7 +11,7 @@ template <unsigned int s, typename T=int32_t> class Fix
 {   
 public:
     constexpr Fix() : value(0) {}
-    constexpr Fix(const Fix<s,T> &other) : value(other.value) {}
+    //constexpr Fix(const Fix<s,T> &other) : value(other.value) {}
     constexpr Fix(const float v) : value(static_cast<T>(v * static_cast<float>(1<<s))) {}
     constexpr Fix(const unsigned int v) : value(v << s) {}
     constexpr Fix(const int v) : value(v << s) {}

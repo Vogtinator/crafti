@@ -421,13 +421,13 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
 #endif
 #include "triangle.inc.h"
 
-static void interpolateVertexX(const VERTEX *from, const VERTEX *to, VERTEX *res)
+static void interpolateVertexXLeft(const VERTEX *from, const VERTEX *to, VERTEX *res)
 {
     GLFix diff = to->x - from->x;
     if(diff < GLFix(1) && diff > GLFix(-1))
         diff = 1;
 
-    GLFix end = from->x < GLFix(0) ? 0 : (SCREEN_WIDTH - 1);
+    GLFix end = 0;
     GLFix t = (end - from->x) / diff;
 
     res->x = end;
@@ -439,7 +439,9 @@ static void interpolateVertexX(const VERTEX *from, const VERTEX *to, VERTEX *res
     res->u = res->u.wholes();
     res->v = from->v + (to->v - from->v) * t;
     res->v = res->v.wholes();
-#elif defined(INTERPOLATE_COLORS)
+#endif
+
+#ifdef INTERPOLATE_COLORS
     RGB c_from = rgbColor(from->c);
     RGB c_to = rgbColor(to->c);
 
@@ -449,27 +451,24 @@ static void interpolateVertexX(const VERTEX *from, const VERTEX *to, VERTEX *res
 #endif
 }
 
-void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
+//Left X clipping
+void nglDrawTriangleXRightZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
 {
-    //If not on screen, skip
-    if((low->y < GLFix(0) && middle->y < GLFix(0) && high->y < GLFix(0)) || (low->y >= GLFix(SCREEN_HEIGHT) && middle->y >= GLFix(SCREEN_HEIGHT) && high->y >= GLFix(SCREEN_HEIGHT)))
-        return;
-
     const VERTEX* invisible[3];
     const VERTEX* visible[3];
     int count_invisible = -1, count_visible = -1;
 
-    if(low->x < GLFix(0) || low->x >= GLFix(SCREEN_WIDTH))
+    if(low->x < GLFix(0))
         invisible[++count_invisible] = low;
     else
         visible[++count_visible] = low;
 
-    if(middle->x < GLFix(0) || middle->x >= GLFix(SCREEN_WIDTH))
+    if(middle->x < GLFix(0))
         invisible[++count_invisible] = middle;
     else
         visible[++count_visible] = middle;
 
-    if(high->x < GLFix(0) || high->x >= GLFix(SCREEN_WIDTH))
+    if(high->x < GLFix(0))
         invisible[++count_invisible] = high;
     else
         visible[++count_visible] = high;
@@ -482,18 +481,98 @@ void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERT
     case -1:
         break;
     case 0:
-        interpolateVertexX(invisible[0], visible[0], &v1);
-        interpolateVertexX(invisible[1], visible[0], &v2);
+        interpolateVertexXLeft(invisible[0], visible[0], &v1);
+        interpolateVertexXLeft(invisible[1], visible[0], &v2);
         nglDrawTriangleXZClipped(visible[0], &v1, &v2);
         break;
     case 1:
-        interpolateVertexX(invisible[0], visible[0], &v1);
-        interpolateVertexX(invisible[0], visible[1], &v2);
+        interpolateVertexXLeft(invisible[0], visible[0], &v1);
+        interpolateVertexXLeft(invisible[0], visible[1], &v2);
         nglDrawTriangleXZClipped(visible[0], visible[1], &v1);
         nglDrawTriangleXZClipped(visible[1], &v1, &v2);
         break;
     case 2:
         nglDrawTriangleXZClipped(visible[0], visible[1], visible[2]);
+        break;
+    }
+}
+
+static void interpolateVertexXRight(const VERTEX *from, const VERTEX *to, VERTEX *res)
+{
+    GLFix diff = to->x - from->x;
+    if(diff < GLFix(1) && diff > GLFix(-1))
+        diff = 1;
+
+    GLFix end = (SCREEN_WIDTH - 1);
+    GLFix t = (end - from->x) / diff;
+
+    res->x = end;
+    res->y = from->y + (to->y - from->y) * t;
+    res->z = from->z + (to->z - from->z) * t;
+
+#ifdef TEXTURE_SUPPORT
+    res->u = from->u + (to->u - from->u) * t;
+    res->u = res->u.wholes();
+    res->v = from->v + (to->v - from->v) * t;
+    res->v = res->v.wholes();
+#endif
+
+#ifdef INTERPOLATE_COLORS
+    RGB c_from = rgbColor(from->c);
+    RGB c_to = rgbColor(to->c);
+
+    res->c = colorRGB(c_from.r + (c_to.r - c_from.r) * t, c_from.r + (c_to.r - c_from.r) * t, c_from.r + (c_to.r - c_from.r) * t);
+#else
+    res->c = from->c;
+#endif
+}
+
+//Right X clipping
+void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
+{
+    //If not on screen, skip
+    if((low->y < GLFix(0) && middle->y < GLFix(0) && high->y < GLFix(0)) || (low->y >= GLFix(SCREEN_HEIGHT) && middle->y >= GLFix(SCREEN_HEIGHT) && high->y >= GLFix(SCREEN_HEIGHT)))
+        return;
+
+    const VERTEX* invisible[3];
+    const VERTEX* visible[3];
+    int count_invisible = -1, count_visible = -1;
+
+    if(low->x >= GLFix(SCREEN_WIDTH))
+        invisible[++count_invisible] = low;
+    else
+        visible[++count_visible] = low;
+
+    if(middle->x >= GLFix(SCREEN_WIDTH))
+        invisible[++count_invisible] = middle;
+    else
+        visible[++count_visible] = middle;
+
+    if(high->x >= GLFix(SCREEN_WIDTH))
+        invisible[++count_invisible] = high;
+    else
+        visible[++count_visible] = high;
+
+    //Interpolated vertices
+    VERTEX v1, v2;
+
+    switch(count_visible)
+    {
+    case -1:
+        break;
+    case 0:
+        interpolateVertexXRight(invisible[0], visible[0], &v1);
+        interpolateVertexXRight(invisible[1], visible[0], &v2);
+        nglDrawTriangleXRightZClipped(visible[0], &v1, &v2);
+        break;
+    case 1:
+        interpolateVertexXRight(invisible[0], visible[0], &v1);
+        interpolateVertexXRight(invisible[0], visible[1], &v2);
+        nglDrawTriangleXRightZClipped(visible[0], visible[1], &v1);
+        nglDrawTriangleXRightZClipped(visible[1], &v1, &v2);
+        break;
+    case 2:
+        nglDrawTriangleXRightZClipped(visible[0], visible[1], visible[2]);
         break;
     }
 }
@@ -516,7 +595,9 @@ void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERT
             res->u = res->u.wholes();
             res->v = from->v + (to->v - from->v) * t;
             res->v = res->v.wholes();
-        #elif defined(INTERPOLATE_COLORS)
+        #endif
+
+        #ifdef INTERPOLATE_COLORS
             RGB c_from = rgbColor(from->c);
             RGB c_to = rgbColor(to->c);
 
