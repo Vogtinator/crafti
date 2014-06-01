@@ -416,7 +416,7 @@ void NormalBlockRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, co
     BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, false, dest, dest_x, dest_y);
 }
 
-void OrientedBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, Chunk &c)
+void OrientedBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
     BLOCK_SIDE map[BLOCK_SIDE_LAST + 1];
 
