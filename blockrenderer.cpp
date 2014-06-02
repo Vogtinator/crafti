@@ -2,6 +2,7 @@
 
 #include "billboardrenderer.h"
 #include "cakerenderer.h"
+#include "colorrenderer.h"
 #include "doorrenderer.h"
 #include "fluidrenderer.h"
 #include "glassrenderer.h"
@@ -143,6 +144,138 @@ void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int loca
     }
 }
 
+void BlockRenderer::renderNormalBlockSideForceColor(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const COLOR color, Chunk &c)
+{
+    switch(side)
+    {
+    case BLOCK_FRONT:
+        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_FRONT_BIT);
+        return;
+    case BLOCK_BACK:
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z + 1, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BACK_BIT);
+        return;
+    case BLOCK_RIGHT:
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + 1, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_RIGHT_BIT);
+        return;
+    case BLOCK_LEFT:
+        c.addAlignedVertexForceColor(local_x, local_y, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_LEFT_BIT);
+        return;
+    case BLOCK_TOP:
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_TOP_BIT);
+        return;
+    case BLOCK_BOTTOM:
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BOTTOM_BIT);
+        return;
+    default:
+        return; //WTF
+    }
+}
+
+void BlockRenderer::renderNormalBlockSideQuadForceColor(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const COLOR color, Chunk &c)
+{
+    switch(side)
+    {
+    case BLOCK_FRONT:
+        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 2, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 2, local_y + 2, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 2, local_y, local_z, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_FRONT_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_FRONT_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y + 1, local_z, BLOCK_FRONT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_FRONT_BIT);
+        return;
+    case BLOCK_BACK:
+        c.addAlignedVertexForceColor(local_x + 2, local_y, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 2, local_y + 2, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 2, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z + 1, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_BACK_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y + 1, local_z, BLOCK_BACK_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_BACK_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BACK_BIT);
+        return;
+    case BLOCK_RIGHT:
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + 2, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + 2, local_z + 2, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + 2, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_RIGHT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_RIGHT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z + 1, BLOCK_RIGHT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_RIGHT_BIT);
+        return;
+    case BLOCK_LEFT:
+        c.addAlignedVertexForceColor(local_x, local_y, local_z + 2, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 2, local_z + 2, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 2, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_LEFT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_LEFT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z + 1, BLOCK_LEFT_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_LEFT_BIT);
+        return;
+    case BLOCK_TOP:
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + 2, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 2, local_y + 1, local_z + 2, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 2, local_y + 1, local_z, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_TOP_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_TOP_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z + 1, BLOCK_TOP_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_TOP_BIT);
+        return;
+    case BLOCK_BOTTOM:
+        c.addAlignedVertexForceColor(local_x + 2, local_y, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 2, local_y, local_z + 2, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z + 2, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
+
+        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BOTTOM_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_BOTTOM_BIT);
+        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
+        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
+        return;
+    default:
+        return; //WTF
+    }
+}
+
 void BlockRenderer::renderNormalConnectedBlockSide(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, const COLOR col, Chunk &c)
 {
     const BLOCK this_block = getBLOCK(block);
@@ -202,6 +335,7 @@ void BlockRenderer::drawTextureAtlasEntry(TEXTURE &src, const TextureAtlasEntry 
 
 UniversalBlockRenderer::UniversalBlockRenderer()
 {
+    auto color_renderer = std::make_shared<ColorBlockRenderer>();
     auto normal_renderer = std::make_shared<NormalBlockRenderer>();
     auto oriented_renderer = std::make_shared<OrientedBlockRenderer>();
     auto null_renderer = std::make_shared<NullBlockRenderer>();
@@ -223,15 +357,21 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_BOOKSHELF] = oriented_renderer;
     map[BLOCK_CAKE] = std::make_shared<CakeRenderer>();
     map[BLOCK_CRAFTING_TABLE] = oriented_renderer;
+    map[BLOCK_DIRT] = color_renderer;
     map[BLOCK_DOOR] = std::make_shared<DoorRenderer>();
     map[BLOCK_FURNACE] = oriented_renderer;
     map[BLOCK_GLASS] = std::make_shared<GlassRenderer>();
+    map[BLOCK_GRASS] = color_renderer;
     map[BLOCK_LEAVES] = std::make_shared<LeavesRenderer>();
+    map[BLOCK_PLANKS_NORMAL] = color_renderer;
     map[BLOCK_PUMPKIN] = oriented_renderer;
+    map[BLOCK_SAND] = color_renderer;
+    map[BLOCK_STONE] = color_renderer;
     map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();
     map[BLOCK_WATER] = std::make_shared<FluidRenderer>(13, 12, "Water");
     map[BLOCK_LAVA] = std::make_shared<FluidRenderer>(13, 14, "Lava");
     map[BLOCK_WHEAT] = std::make_shared<WheatRenderer>();
+    map[BLOCK_WOOD] = color_renderer;
 
     auto flower_renderer = std::make_shared<BillboardRenderer>();
     flower_renderer->setEntry(0, 12, 0, "Red flower", BLOCK_SIZE, BLOCK_SIZE/2, BLOCK_SIZE);

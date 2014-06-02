@@ -1,13 +1,21 @@
 //This file will be included in gl.cpp for various different versions
 #ifdef TRANSPARENCY
-static void nglDrawTransparentTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
-{
+    static void nglDrawTransparentTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
+    {
 #else
-static void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
-{
-    #ifdef TEXTURE_SUPPORT
-        if(__builtin_expect((low->c & TEXTURE_TRANSPARENT) == TEXTURE_TRANSPARENT, 0))
-            return nglDrawTransparentTriangleXZClipped(low, middle, high);
+    #ifdef FORCE_COLOR
+        static void nglDrawTriangleXZClippedForceColor(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
+        {
+    #else
+        void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
+        {
+            #ifdef TEXTURE_SUPPORT
+                if(force_color)
+                    return nglDrawTriangleXZClippedForceColor(low, middle, high);
+
+                if(__builtin_expect((low->c & TEXTURE_TRANSPARENT) == TEXTURE_TRANSPARENT, 0))
+                    return nglDrawTransparentTriangleXZClipped(low, middle, high);
+            #endif
     #endif
 #endif
     if(middle->y > high->y)

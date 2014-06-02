@@ -186,8 +186,26 @@ void terrainInit(const char *texture_path)
         drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x + field_width, field_height, field_width, field_height);
         drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x, field_height, field_width, field_height);
 
+        //Get an average color of the block
+        RGB sum;
+        for(int tex_x = tae.left - 1; GLFix(tex_x) <= tae.right; ++tex_x)
+            for(int tex_y = tae.top - 1; GLFix(tex_y) <= tae.bottom; ++tex_y)
+            {
+                RGB rgb = rgbColor(terrain_current->bitmap[tex_x + tex_y*terrain_current->width]);
+                sum.r += rgb.r;
+                sum.g += rgb.g;
+                sum.b += rgb.b;
+            }
+
+        int pixels = field_width * field_height;
+        sum.r /= pixels;
+        sum.g /= pixels;
+        sum.b /= pixels;
+
+        const COLOR darker = colorRGB(sum.r / 2, sum.g / 2, sum.b / 2);
+
         //And add the workaround here again..
-        TerrainQuadEntry tqe = { true, textureArea(x + 1, 1, field_width * 2 - 2, field_height * 2 - 2) };
+        TerrainQuadEntry tqe = { true, textureArea(x + 1, 1, field_width * 2 - 2, field_height * 2 - 2), colorRGB(sum), darker };
 
         if(bt.sides & BLOCK_BOTTOM_BIT)
             quad_block_textures[bt.block][BLOCK_BOTTOM] = tqe;

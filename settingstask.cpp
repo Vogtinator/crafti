@@ -19,12 +19,18 @@ const char *speed_values[] = {
     "Fast"
 };
 
+const char *fastmode_values[] = {
+    "Off",
+    "On"
+};
+
 SettingsTask::SettingsTask()
 {
     //Must have the same order as the "Settings" enum
     settings.push_back({"Leaves", leaves_values, 2, 0, 0});
     settings.push_back({"Speed", speed_values, 3, 1, 0});
     settings.push_back({"Distance", nullptr, 10, 2, 1});
+    settings.push_back({"Fast mode", fastmode_values, 2, 0, 0});
 
     background = newTexture(background_width, background_height);
     std::fill(background->bitmap, background->bitmap + background->width * background->height, 0x0000);

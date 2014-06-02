@@ -111,6 +111,8 @@ extern TEXTURE *terrain_quad;
 struct TerrainQuadEntry {
     bool has_quad;
     TextureAtlasEntry tae;
+    COLOR color; //Has nothing to do with quads, but applies to the same textures
+    COLOR darker; //So you can distinguish adjacent blocks
 };
 
 //The glass texture resized to 32x32

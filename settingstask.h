@@ -19,7 +19,8 @@ public:
     enum Settings {
         LEAVES = 0,
         SPEED,
-        DISTANCE //Managed by World, but can be changed here as well
+        DISTANCE, //Managed by World, but can be changed here as well
+        FAST_MODE
     };
 
     SettingsTask();

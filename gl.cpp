@@ -17,7 +17,7 @@ static const TEXTURE *texture;
 static unsigned int vertices_count = 0;
 static VERTEX vertices[4];
 static GLDrawMode draw_mode = GL_TRIANGLES;
-static bool recording = false;
+static bool recording = false, force_color = false;
 static VERTEX* record_buffer = nullptr;
 static int record_length = 0;
 static bool is_monochrome;
@@ -216,6 +216,9 @@ void nglPerspective(VERTEX *v)
     v->y = GLFix(SCREEN_HEIGHT - 1) - v->y;
 
 #if defined(SAFE_MODE) && defined(TEXTURE_SUPPORT)
+    if(force_color)
+        return;
+
     if(v->u > GLFix(texture->width))
     {
         printf("Warning: Texture coord out of bounds!\n");
@@ -249,7 +252,7 @@ void nglDisplay()
 {
     if(is_monochrome)
     {
-        //Flip everything, as 0xFFF is white on CX, but black on classic
+        //Flip everything, as 0xFFFF is white on CX, but black on classic
         COLOR *ptr = screen + SCREEN_HEIGHT*SCREEN_WIDTH, *ptr_inv = screen_inverted + SCREEN_HEIGHT*SCREEN_WIDTH;
         while(--ptr >= screen)
             *--ptr_inv = ~*ptr;
@@ -418,6 +421,11 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
     #define TRANSPARENCY
     #include "triangle.inc.h"
     #undef TRANSPARENCY
+    #undef TEXTURE_SUPPORT
+    #define FORCE_COLOR
+    #include "triangle.inc.h"
+    #define TEXTURE_SUPPORT
+    #undef FORCE_COLOR
 #endif
 #include "triangle.inc.h"
 
@@ -744,7 +752,7 @@ void nglAddVertex(const VERTEX &vertex)
 void nglAddVertex(const VERTEX* vertex)
 {
     #if defined(SAFE_MODE) && defined(TEXTURE_SUPPORT)
-        if(texture == nullptr)
+        if(texture == nullptr && !force_color)
         {
             printf("ngl.lang.NoTextureException: Please, don't make me dereference the nullptr!\n");
             return;
@@ -846,6 +854,11 @@ const TEXTURE *nglGetTexture()
 void glBindTexture(const TEXTURE *tex)
 {
     texture = tex;
+}
+
+void nglForceColor(const bool force)
+{
+    force_color = force;
 }
 
 void glColor3f(const GLFix r, const GLFix g, const GLFix b)

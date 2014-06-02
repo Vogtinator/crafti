@@ -48,11 +48,16 @@ public:
 
     //Used by BlockRenderers, had to make it public because friendship is not inheritable
     void addAlignedVertex(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c);
-    void addUnalignedVertex(const GLFix x, const GLFix y, const GLFix z, const GLFix u, const GLFix v, const COLOR c);
-    void addUnalignedVertex(const VERTEX &v);
 
     //Same as addAlignedVertex, but terrain_quad is the bound texture
     void addAlignedVertexQuad(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c);
+
+    //Same as addAlignedVertex, but with nglForceColor on
+    void addAlignedVertexForceColor(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c);
+
+    //Doesn't have to be aligned, terrain_current is bound
+    void addUnalignedVertex(const GLFix x, const GLFix y, const GLFix z, const GLFix u, const GLFix v, const COLOR c);
+    void addUnalignedVertex(const VERTEX &v);
 
     //Don't render something twice
     void setLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
@@ -83,11 +88,11 @@ private:
 
     //Rendering
     bool render_dirty = true;
-    int pos_indices[SIZE + 2][SIZE + 2][SIZE + 2];
+    int pos_indices[SIZE + 1][SIZE + 1][SIZE + 1];
     BLOCK_SIDE_BITFIELD sides_rendered[SIZE][SIZE][SIZE] = {}; //It could be that other chunks already rendered parts of our blocks
     std::vector<Position> positions, positions_transformed;
     std::vector<std::pair<Position, bool>> positions_perspective;
-    std::vector<IndexedVertex> vertices, vertices_quad;
+    std::vector<IndexedVertex> vertices, vertices_quad, vertices_color;
     std::vector<VERTEX> vertices_unaligned; //The optimized drawing with indices doesn't work with unaligned positions
     int tick_counter = 1; //1 to trigger a tick the next frame
 };

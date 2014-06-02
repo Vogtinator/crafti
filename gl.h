@@ -1,7 +1,7 @@
 #ifndef GL_H
 #define GL_H
 
-//nGL version 0.6.2
+//nGL version 0.6.3
 #include "fix.h"
 
 //Either colors or textures, but not both
@@ -102,6 +102,10 @@ int nglStopRecording();
 void nglAddVertices(VERTEX *buffer, unsigned int length);
 void nglAddVertex(const VERTEX &vertex);
 void nglAddVertex(const VERTEX *vertex);
+#ifdef TEXTURE_SUPPORT
+    //Basically glDisable(GL_TEXTURE_2D)
+    void nglForceColor(const bool force);
+#endif
 //Warning: The nglDraw*-Functions apply perspective projection!
 //Returns whether the triangle is front-facing
 bool nglDrawTriangle(const VERTEX *low, const VERTEX *middle, const VERTEX *high, bool backface_culling = true);

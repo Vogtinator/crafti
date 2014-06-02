@@ -54,6 +54,11 @@ void Chunk::addAlignedVertexQuad(const int x, const int y, const int z, GLFix u,
     vertices_quad.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
 }
 
+void Chunk::addAlignedVertexForceColor(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c)
+{
+    vertices_color.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
+}
+
 void Chunk::setLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side)
 {
     sides_rendered[x][y][z] |= side;
@@ -68,11 +73,12 @@ void Chunk::buildGeometry()
 {
     drawLoadingtext(3);
 
-    std::fill(pos_indices[0][0] + 0, pos_indices[SIZE + 1][SIZE + 1] + SIZE + 2, -1);
+    std::fill(pos_indices[0][0] + 0, pos_indices[SIZE][SIZE] + SIZE + 1, -1);
 
     positions.clear();
     vertices.clear();
     vertices_quad.clear();
+    vertices_color.clear();
     vertices_unaligned.clear();
 
     debug("Updating chunk %d:%d:%d...\n", x, y, z);
@@ -373,7 +379,17 @@ void Chunk::render()
         positions_transformed[i] = {t2.x, t2.y, t2.z};
     }
 
-    const IndexedVertex *v = vertices.data();
+    nglForceColor(true);
+    const IndexedVertex *v = vertices_color.data();
+    for(unsigned int i = 0; i < vertices_color.size(); i += 4, v += 4)
+    {
+        if(drawTriangle(v[0], v[1], v[2], true))
+            drawTriangle(v[2], v[3], v[0], false);
+    }
+    nglForceColor(false);
+
+    //Same, but with textures
+    v = vertices.data();
     for(unsigned int i = 0; i < vertices.size(); i += 4, v += 4)
     {
         //If it's a billboard texture, skip backface culling

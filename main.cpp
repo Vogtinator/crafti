@@ -24,7 +24,8 @@ int main(int argc, char *argv[])
     {
         nglInit();
         greyscaleTexture(loading);
-        std::copy(loading.bitmap, loading.bitmap + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
+        nglSetBuffer(loading.bitmap);
+        nglDisplay();
     }
 
     terrainInit("/documents/ndless/crafti.ppm.tns");
