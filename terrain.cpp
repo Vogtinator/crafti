@@ -202,7 +202,7 @@ void terrainInit(const char *texture_path)
         sum.g /= pixels;
         sum.b /= pixels;
 
-        const COLOR darker = colorRGB(sum.r / 2, sum.g / 2, sum.b / 2);
+        const COLOR darker = colorRGB(sum.r / GLFix(1.5f), sum.g / GLFix(1.5f), sum.b / GLFix(1.5f));
 
         //And add the workaround here again..
         TerrainQuadEntry tqe = { true, textureArea(x + 1, 1, field_width * 2 - 2, field_height * 2 - 2), colorRGB(sum), darker };
