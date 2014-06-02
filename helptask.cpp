@@ -26,9 +26,9 @@ void HelpTask::render()
     const unsigned int x = (SCREEN_WIDTH - background->width) / 2;
     const unsigned int y = (SCREEN_HEIGHT - background->height) / 2;
     drawTextureOverlay(*background, 0, 0, *screen, x, y, background->width, background->height);
-    drawString("Help for Crafti v1.0\n"
-               "\n"
-               "8-4-6-2: Walk around    5: Jump\n"
+    drawString("Help for Crafti v1.0", 0xFFFF, *screen, x, y - fontHeight());
+
+    drawString("8-4-6-2: Walk around    5: Jump\n"
                "7: Put block down    9: Destroy block\n"
                "1-3: Change inventory slot\n"
                "ESC: Save & Exit\n"
@@ -39,7 +39,7 @@ void HelpTask::render()
                "    2-8: Move cursor\n"
                "    5: Select\n"
                "\n"
-               "Made by Fabian Vogt", 0xFFFF, *screen, x + 10, y - fontHeight());
+               "Made by Fabian Vogt", 0xFFFF, *screen, x + 10, y + 8);
 }
 
 void HelpTask::logic()

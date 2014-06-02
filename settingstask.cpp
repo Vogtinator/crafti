@@ -57,12 +57,12 @@ void SettingsTask::render()
 {
     drawBackground();
 
-    const unsigned int x = (SCREEN_WIDTH - background->width) / 2 + 5;
+    const unsigned int x = (SCREEN_WIDTH - background->width) / 2;
     unsigned int y = (SCREEN_HEIGHT - background->height) / 2;
     drawTextureOverlay(*background, 0, 0, *screen, x, y, background->width, background->height);
     drawString("Settings", 0xFFFF, *screen, x, y - fontHeight());
 
-    y += 5;
+    y += 8;
 
     for(unsigned int i = 0; i < settings.size(); ++i)
     {
