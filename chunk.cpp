@@ -262,8 +262,9 @@ bool Chunk::drawTriangle(const IndexedVertex &low, const IndexedVertex &middle, 
         t1 = perspective(visible[1], *pos_visible[1]);
         nglPerspective(&v1);
 
-        if(backface_culling && nglIsBackface(&t0, &t1, &v1))
-            return false;
+        //TODO: Hack: This doesn't work as expected
+        /*if(backface_culling && nglIsBackface(&t0, &t1, &v1))
+            return false;*/
 
         nglPerspective(&v2);
         nglDrawTriangleZClipped(&t0, &t1, &v1);
