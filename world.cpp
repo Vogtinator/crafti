@@ -86,7 +86,8 @@ void World::setChunkVisible(int x, int y, int z)
     if(!c)
         c = generateChunk(x, y, z);
 
-    visible_chunks.push_back(c);
+    if(c)
+        visible_chunks.push_back(c);
 }
 
 void World::setPosition(int x, int y, int z)
@@ -292,6 +293,9 @@ Chunk* World::generateChunk(int x, int y, int z)
         c->setDirty();
 
     Chunk *c = new Chunk(x, y, z, this);
+    if(c == nullptr)
+        return c;
+
     c->generate();
     all_chunks.insert({std::tuple<int,int,int>(x, y, z), c});
 
