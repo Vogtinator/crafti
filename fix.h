@@ -24,7 +24,7 @@ public:
     T round() const { T ret = value >> (s-1); return (ret>>1) + (ret&1); }
     constexpr T floor() const { return value >> s; }
 
-    Fix<s,T> wholes() const { Fix<s,T> ret; ret.value = value & ~((1<<(s+1))-1); return ret; }
+    Fix<s,T> wholes() const { Fix<s,T> ret; ret.value = value & ~((1<<s)-1); return ret; }
 
     Fix<s,T> operator -() const { Fix<s,T> ret; ret.value = -value; return ret; }
     Fix<s,T>& operator +() const { return *this; }

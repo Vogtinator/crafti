@@ -1,7 +1,7 @@
 #ifndef GL_H
 #define GL_H
 
-//nGL version 0.6.3
+//nGL version 0.6.4
 #include "fix.h"
 
 //Either colors or textures, but not both
