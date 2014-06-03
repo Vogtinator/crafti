@@ -125,7 +125,7 @@ void nglUninit()
     if(is_monochrome)
     {
         //Switch to 4-bit mode again
-        *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b0100; //Switch to 8-bit mode
+        *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b0100;
         COLOR *new_buffer = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
         SCREEN_BASE_ADDRESS = 0xA4000100;
         delete[] new_buffer;

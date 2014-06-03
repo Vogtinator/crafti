@@ -9,7 +9,7 @@ void WheatRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
 
 AABB WheatRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 {
-    const GLFix height = BLOCK_SIZE / max_growth * getBLOCKDATA(block);
+    const GLFix height = BLOCK_SIZE / (max_growth + 1) * (getBLOCKDATA(block) + 1);
 
     return {x, y, z, x + BLOCK_SIZE, y + height, z + BLOCK_SIZE};
 }
