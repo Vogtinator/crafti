@@ -28,10 +28,27 @@ int main(int argc, char *argv[])
         nglDisplay();
     }
 
+    //Early exit #1
+    //(Task::keyPressed can only be used after initializeGlobals)
+    if(isKeyPressed(KEY_NSPIRE_ESC))
+    {
+        nglUninit();
+        return 0;
+    }
+
     terrainInit("/documents/ndless/crafti.ppm.tns");
     glBindTexture(terrain_current);
 
     glLoadIdentity();
+
+    //Early exit #2
+    if(isKeyPressed(KEY_NSPIRE_ESC))
+    {
+        terrainUninit();
+        nglUninit();
+
+        return 0;
+    }
 
     //If crafti has been started by the file extension association, use the first argument as savefile path
     Task::initializeGlobals(argc > 1 ? argv[1] : "/documents/ndless/crafti.map.tns");
