@@ -56,14 +56,14 @@ BLOCK_WDATA World::getBlock(const int x, const int y, const int z) const
     return c->getLocalBlock(getLocal(x), getLocal(y), getLocal(z));
 }
 
-void World::setBlock(const int x, const int y, const int z, const BLOCK_WDATA block)
+void World::setBlock(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty)
 {
     int chunk_x = getChunk(x), chunk_y = getChunk(y), chunk_z = getChunk(z);
     int local_x = getLocal(x), local_y = getLocal(y), local_z = getLocal(z);
 
     Chunk *c = findChunk(chunk_x, chunk_y, chunk_z);
     if(c)
-        c->setLocalBlock(local_x, local_y, local_z, block);
+        c->setLocalBlock(local_x, local_y, local_z, block, set_dirty);
     else
         pending_block_changes.push_back({chunk_x, chunk_y, chunk_z, local_x, local_y, local_z, block});
 }

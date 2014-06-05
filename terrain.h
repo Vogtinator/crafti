@@ -49,17 +49,22 @@ constexpr BLOCK BLOCK_FLOWER = 128; //Data: Flower type
 constexpr BLOCK BLOCK_SPIDERWEB = 129;
 constexpr BLOCK BLOCK_CAKE = 130;
 constexpr BLOCK BLOCK_MUSHROOM = 131; //Data: Mushroom type
-constexpr BLOCK BLOCK_DOOR = 132; //Data: (top: 1<<7) | BLOCK_SIDE
+constexpr BLOCK BLOCK_DOOR = 132; //Data: (top: 1<<3) | BLOCK_SIDE
 constexpr BLOCK BLOCK_WATER = 133; //Data: range
 constexpr BLOCK BLOCK_LAVA = 134; //Data: range
 constexpr BLOCK BLOCK_WHEAT = 135; //Data: growth
-constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_WHEAT;
+constexpr BLOCK BLOCK_REDSTONE_LAMP = 146; //Data: On/Off
+constexpr BLOCK BLOCK_REDSTONE_SWITCH = 147; //Data: On/Off
+constexpr BLOCK BLOCK_REDSTONE_WIRE = 148; //Data: (active: 1<<6, visited: 1<<5)
+constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_REDSTONE_WIRE;
 
 constexpr uint8_t RANGE_WATER = 5;
 constexpr uint8_t RANGE_LAVA = 3;
 
 constexpr BLOCK getBLOCK(BLOCK_WDATA bd) { return bd & 0xFF; }
-constexpr uint8_t getBLOCKDATA(BLOCK_WDATA bd) { return (bd >> 8) & 0xFF; }
+constexpr uint8_t getBLOCKDATA(BLOCK_WDATA bd) { return (bd >> 8) & 0x7F; }
+constexpr bool getPOWERSTATE(BLOCK_WDATA bd) { return bd & (1 << 15); }
+constexpr BLOCK_WDATA getBLOCKWDATAPower(BLOCK b, uint8_t data, bool powering) { return (data << 8) | b | (powering ? 1 << 15 : 0); }
 constexpr BLOCK_WDATA getBLOCKWDATA(BLOCK b, uint8_t data) { return (data << 8) | b; }
 
 enum BLOCK_SIDE {

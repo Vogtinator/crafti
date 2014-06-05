@@ -2,8 +2,8 @@
 
 void DoorRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
-    const BLOCK_SIDE side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & ~(1 << 7)) ^ 1);
-    const TextureAtlasEntry &tex = (getBLOCKDATA(block) & (1 << 7)) ? terrain_atlas[1][5].current : terrain_atlas[1][6].current;
+    const BLOCK_SIDE side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & ~(1 << 3)) ^ 1);
+    const TextureAtlasEntry &tex = (getBLOCKDATA(block) & (1 << 3)) ? terrain_atlas[1][5].current : terrain_atlas[1][6].current;
     const GLFix door_offset = door_depth;
 
     switch(side)
@@ -38,7 +38,7 @@ void DoorRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 
 AABB DoorRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 {
-    BLOCK_SIDE side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & ~(1 << 7)) ^ 1);
+    BLOCK_SIDE side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & ~(1 << 3)) ^ 1);
     switch(side)
     {
     case BLOCK_FRONT:
@@ -68,7 +68,7 @@ void DoorRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x
 
 bool DoorRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)
 {
-    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & ~(1 << 7));
+    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & ~(1 << 3));
     switch(side)
     {
     case BLOCK_FRONT:
@@ -87,38 +87,38 @@ bool DoorRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
         break;
     }
 
-    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), side | (getBLOCKDATA(block) & 1<<7)));
+    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), side | (getBLOCKDATA(block) & 1<<3)));
 
     //Change the other door part as well
-    if(getBLOCKDATA(block) & 1<<7) //If top
-            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCKWDATA(getBLOCK(block), side | ((getBLOCKDATA(block) & 1<<7) ^ 1<<7)));
+    if(getBLOCKDATA(block) & 1<<3) //If top
+            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCKWDATA(getBLOCK(block), side | ((getBLOCKDATA(block) & 1<<3) ^ 1<<3)));
     else
-            c.setGlobalBlockRelative(local_x, local_y + 1, local_z, getBLOCKWDATA(getBLOCK(block), side | ((getBLOCKDATA(block) & 1<<7) ^ 1<<7)));
+            c.setGlobalBlockRelative(local_x, local_y + 1, local_z, getBLOCKWDATA(getBLOCK(block), side | ((getBLOCKDATA(block) & 1<<3) ^ 1<<3)));
 
     return true;
 }
 
 void DoorRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    if(getBLOCKDATA(block) & 1<<7) //If top
+    if(getBLOCKDATA(block) & 1<<3) //If top
     {
         if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) != BLOCK_AIR)
             c.setLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
         else
-            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCKWDATA(getBLOCK(block), getBLOCKDATA(block) ^ 1<<7));
+            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCKWDATA(getBLOCK(block), getBLOCKDATA(block) ^ 1<<3));
     }
     else
     {
         if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y + 1, local_z)) != BLOCK_AIR)
             c.setLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
         else
-            c.setGlobalBlockRelative(local_x, local_y + 1, local_z, getBLOCKWDATA(getBLOCK(block), getBLOCKDATA(block) ^ 1<<7));
+            c.setGlobalBlockRelative(local_x, local_y + 1, local_z, getBLOCKWDATA(getBLOCK(block), getBLOCKDATA(block) ^ 1<<3));
     }
 }
 
 void DoorRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    if(getBLOCKDATA(block) & 1<<7) //If top
+    if(getBLOCKDATA(block) & 1<<3) //If top
     {
         if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) == BLOCK_DOOR)
             c.setGlobalBlockRelative(local_x, local_y - 1, local_z, BLOCK_AIR);

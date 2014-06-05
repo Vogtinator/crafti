@@ -71,7 +71,7 @@ bool Chunk::isLocalBlockSideRendered(const int x, const int y, const int z, cons
 
 void Chunk::buildGeometry()
 {
-    drawLoadingtext(3);
+    drawLoadingtext(5);
 
     std::fill(pos_indices[0][0] + 0, pos_indices[SIZE][SIZE] + SIZE + 1, -1);
 
@@ -447,9 +447,12 @@ BLOCK_WDATA Chunk::getLocalBlock(const int x, const int y, const int z) const
     return blocks[x][y][z];
 }
 
-void Chunk::setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block)
+void Chunk::setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty)
 {
     blocks[x][y][z] = block;
+    if(!set_dirty)
+        return;
+
     setDirty();
 
     if(x == 0)
@@ -480,8 +483,8 @@ void Chunk::setLocalBlock(const int x, const int y, const int z, const BLOCK_WDA
 void Chunk::changeLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block)
 {
     BLOCK_WDATA current_block = blocks[x][y][z];
-    global_block_renderer.removedBlock(current_block, x, y, z, *this);
     setLocalBlock(x, y, z, block);
+    global_block_renderer.removedBlock(current_block, x, y, z, *this);
     global_block_renderer.addedBlock(block, x, y, z, *this);
 }
 
@@ -493,12 +496,12 @@ BLOCK_WDATA Chunk::getGlobalBlockRelative(const int x, const int y, const int z)
     return parent->getBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE);
 }
 
-void Chunk::setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block)
+void Chunk::setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty)
 {
     if(inBounds(x, y, z))
-        return setLocalBlock(x, y, z, block);
+        return setLocalBlock(x, y, z, block, set_dirty);
 
-    return parent->setBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, block);
+    return parent->setBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, block, set_dirty);
 }
 
 //Ignores any non-obstacle blocks
@@ -708,6 +711,16 @@ bool Chunk::loadFromFile(FILE *file)
         debug("Loading chunk %d:%d:%d failed!\n", x, y, z);
         return false;
     }
+}
+
+bool Chunk::isBlockPowered(const int x, const int y, const int z)
+{
+    return getPOWERSTATE(getGlobalBlockRelative(x - 1, y, z))
+            || getPOWERSTATE(getGlobalBlockRelative(x + 1, y, z))
+            || getPOWERSTATE(getGlobalBlockRelative(x, y - 1, z))
+            || getPOWERSTATE(getGlobalBlockRelative(x, y + 1, z))
+            || getPOWERSTATE(getGlobalBlockRelative(x, y, z - 1))
+            || getPOWERSTATE(getGlobalBlockRelative(x, y, z + 1));
 }
 
 void Chunk::makeTree(unsigned int x, unsigned int y, unsigned int z)

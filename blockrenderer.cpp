@@ -6,9 +6,12 @@
 #include "doorrenderer.h"
 #include "fluidrenderer.h"
 #include "glassrenderer.h"
+#include "lamprenderer.h"
 #include "leavesrenderer.h"
+#include "switchrenderer.h"
 #include "torchrenderer.h"
 #include "wheatrenderer.h"
+#include "wirerenderer.h"
 
 UniversalBlockRenderer global_block_renderer;
 
@@ -365,6 +368,9 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_LEAVES] = std::make_shared<LeavesRenderer>();
     map[BLOCK_PLANKS_NORMAL] = color_renderer;
     map[BLOCK_PUMPKIN] = oriented_renderer;
+    map[BLOCK_REDSTONE_LAMP] = std::make_shared<LampRenderer>();
+    map[BLOCK_REDSTONE_SWITCH] = std::make_shared<SwitchRenderer>();
+    map[BLOCK_REDSTONE_WIRE] = std::make_shared<WireRenderer>();
     map[BLOCK_SAND] = color_renderer;
     map[BLOCK_STONE] = color_renderer;
     map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();

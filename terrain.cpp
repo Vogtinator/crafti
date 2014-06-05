@@ -84,16 +84,15 @@ TerrainAtlasEntry terrain_atlas[16][16];
 TEXTURE *terrain_current, *terrain_resized, *terrain_quad, *glass_big;
 
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
-static void makeGreen(TEXTURE &texture, const int x, const int y, const int w, const int h)
+static void makeColor(const RGB &color, TEXTURE &texture, const int x, const int y, const int w, const int h)
 {
-    RGB green = { 0.5f, 0.8f, 0.3f };
     for(int x1 = x; x1 < w + x; x1++)
         for(int y1 = y; y1 < h + y; y1++)
         {
             RGB grey = rgbColor(texture.bitmap[x1 + y1*texture.width]);
-            grey.r *= green.r;
-            grey.g *= green.g;
-            grey.b *= green.b;
+            grey.r *= color.r;
+            grey.g *= color.g;
+            grey.b *= color.b;
             texture.bitmap[x1 + y1*texture.width] = colorRGB(grey);
         }
 }
@@ -111,9 +110,18 @@ void terrainInit(const char *texture_path)
     int field_width = terrain_current->width / fields_x;
     int field_height = terrain_current->height / fields_y;
 
-    makeGreen(*terrain_current, 0, 0, field_width, field_height);
-    makeGreen(*terrain_current, 5 * field_width, 3 * field_height, field_width, field_height);
-    makeGreen(*terrain_current, 4 * field_width, 3 * field_height, field_width, field_height);
+    //Give grass and leaves color
+    const RGB green = { 0.5f, 0.8f, 0.3f };
+    makeColor(green, *terrain_current, 0, 0, field_width, field_height);
+    makeColor(green, *terrain_current, 5 * field_width, 3 * field_height, field_width, field_height);
+    makeColor(green, *terrain_current, 4 * field_width, 3 * field_height, field_width, field_height);
+
+    //Also redstone
+    drawTexture(*terrain_current, 4 * field_width, 10 * field_height, *terrain_current, 4 * field_width, 11 * field_height, field_width, field_height);
+    drawTexture(*terrain_current, 5 * field_width, 10 * field_height, *terrain_current, 5 * field_width, 11 * field_height, field_width, field_height);
+    const RGB red = { 0.9f, 0.1f, 0.0f };
+    makeColor(red, *terrain_current, 4 * field_width, 11 * field_height, field_width, field_height);
+    makeColor(red, *terrain_current, 5 * field_width, 11 * field_height, field_width, field_height);
 
     if(terrain_current->width == 256 && terrain_current->height == 256)
         terrain_resized = terrain_current;

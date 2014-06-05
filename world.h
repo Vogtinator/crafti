@@ -22,7 +22,7 @@ public:
     ~World();
     void generateSeed();
     BLOCK_WDATA getBlock(const int x, const int y, const int z) const;
-    void setBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
+    void setBlock(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty = true);
     void changeBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
     void setPosition(int x, int y, int z);
     bool blockAction(const int x, const int y, const int z);

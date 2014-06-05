@@ -27,12 +27,13 @@ public:
     Chunk(int x, int y, int z, World *parent);
     void logic();
     void render();
-    void setDirty() { render_dirty = true; }
+    void setDirty(bool dirty = true) { render_dirty = dirty; }
+    bool isDirty() { return render_dirty; }
     BLOCK_WDATA getLocalBlock(const int x, const int y, const int z) const;
-    void setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block);
+    void setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty = true);
     void changeLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block); //Calls removeBlock and addBlock
     BLOCK_WDATA getGlobalBlockRelative(const int x, const int y, const int z) const;
-    void setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block);
+    void setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty = true);
     AABB &getAABB() { return aabb; }
     bool intersects(AABB &other);
     bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side, bool ignore_water);
@@ -40,7 +41,7 @@ public:
     bool saveToFile(FILE *file);
     bool loadFromFile(FILE *file);
 
-    void setBlocksDirtyAround(const int x, const int y, const int z);
+    bool isBlockPowered(const int x, const int y, const int z);
 
     GLFix absX() { return abs_x; }
     GLFix absY() { return abs_y; }

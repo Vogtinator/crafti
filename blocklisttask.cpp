@@ -50,7 +50,10 @@ static const BLOCK_WDATA user_selectable[] = {
     getBLOCKWDATA(BLOCK_WHEAT, 0),
     BLOCK_SPIDERWEB,
     BLOCK_TORCH,
-    BLOCK_CAKE
+    BLOCK_CAKE,
+    BLOCK_REDSTONE_LAMP,
+    BLOCK_REDSTONE_SWITCH,
+    BLOCK_REDSTONE_WIRE
 };
 
 //The values have to stay somewhere
