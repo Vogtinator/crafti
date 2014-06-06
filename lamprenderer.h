@@ -1,5 +1,5 @@
-#ifndef LampRENDERER_H
-#define LampRENDERER_H
+#ifndef LAMPRENDERER_H
+#define LAMPRENDERER_H
 
 #include "blockrenderer.h"
 
@@ -18,4 +18,4 @@ protected:
     };
 };
 
-#endif // LampRENDERER_H
+#endif // LAMPRENDERER_H

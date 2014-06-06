@@ -10,6 +10,7 @@
 #include "leavesrenderer.h"
 #include "redtorchrenderer.h"
 #include "switchrenderer.h"
+#include "tntrenderer.h"
 #include "torchrenderer.h"
 #include "wheatrenderer.h"
 #include "wirerenderer.h"
@@ -367,6 +368,7 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_GLASS] = std::make_shared<GlassRenderer>();
     map[BLOCK_GRASS] = color_renderer;
     map[BLOCK_LEAVES] = std::make_shared<LeavesRenderer>();
+    map[BLOCK_TNT] = std::make_shared<TNTRenderer>();
     map[BLOCK_PLANKS_NORMAL] = color_renderer;
     map[BLOCK_PUMPKIN] = oriented_renderer;
     map[BLOCK_REDSTONE_LAMP] = std::make_shared<LampRenderer>();

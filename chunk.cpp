@@ -488,6 +488,14 @@ void Chunk::changeLocalBlock(const int x, const int y, const int z, const BLOCK_
     global_block_renderer.addedBlock(block, x, y, z, *this);
 }
 
+void Chunk::changeGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block)
+{
+    if(inBounds(x, y, z))
+        return changeLocalBlock(x, y, z, block);
+
+    parent->changeBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, block);
+}
+
 BLOCK_WDATA Chunk::getGlobalBlockRelative(const int x, const int y, const int z) const
 {
     if(inBounds(x, y, z))

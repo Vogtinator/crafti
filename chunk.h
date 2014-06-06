@@ -32,6 +32,7 @@ public:
     BLOCK_WDATA getLocalBlock(const int x, const int y, const int z) const;
     void setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty = true);
     void changeLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block); //Calls removeBlock and addBlock
+    void changeGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block);
     BLOCK_WDATA getGlobalBlockRelative(const int x, const int y, const int z) const;
     void setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty = true);
     AABB &getAABB() { return aabb; }
