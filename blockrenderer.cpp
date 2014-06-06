@@ -8,6 +8,7 @@
 #include "glassrenderer.h"
 #include "lamprenderer.h"
 #include "leavesrenderer.h"
+#include "redtorchrenderer.h"
 #include "switchrenderer.h"
 #include "torchrenderer.h"
 #include "wheatrenderer.h"
@@ -371,6 +372,7 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_REDSTONE_LAMP] = std::make_shared<LampRenderer>();
     map[BLOCK_REDSTONE_SWITCH] = std::make_shared<SwitchRenderer>();
     map[BLOCK_REDSTONE_WIRE] = std::make_shared<WireRenderer>();
+    map[BLOCK_REDSTONE_TORCH] = std::make_shared<RedstoneTorchRenderer>();
     map[BLOCK_SAND] = color_renderer;
     map[BLOCK_STONE] = color_renderer;
     map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();
