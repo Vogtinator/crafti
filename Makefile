@@ -1,15 +1,16 @@
 GCC = nspire-gcc
 GPP = nspire-g++
 LD = nspire-ld
+GENZEHN = genzehn
 OPTIMIZE ?= 3
-GCCFLAGS = -O$(OPTIMIZE) -g -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fomit-frame-pointer -flto
+GCCFLAGS = -O$(OPTIMIZE) -g -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fomit-frame-pointer -flto -fno-rtti
 LDFLAGS = -lm -flto -Wl,-flto,-O$(OPTIMIZE) -O$(OPTIMIZE) -g
-EXE = crafti.tns
+EXE = crafti
 OBJS = $(patsubst %.c, %.o, $(shell find . -name \*.c))
 OBJS += $(patsubst %.cpp, %.o, $(shell find . -name \*.cpp))
 OBJS += $(patsubst %.S, %.o, $(shell find . -name \*.S))
 
-all: $(EXE)
+all: $(EXE).tns $(EXE).prg.tns
 
 %.o: %.cpp
 	$(GPP) -std=c++11 $(GCCFLAGS) -c $< -o $@
@@ -20,10 +21,16 @@ all: $(EXE)
 %.o: %.S
 	$(GCC) $(GCCFLAGS) -c $< -o $@
 
-$(EXE): $(OBJS)
+$(EXE).elf: $(OBJS)
 	+$(LD) $^ -o $@ $(LDFLAGS)
+
+$(EXE).tns: $(EXE).elf
+	$(GENZEHN) --input $^ --output $@ --name "Crafti" --version 10 --author "Fabian Vogt" --notice "3D Minecraft"
+
+$(EXE).prg.tns: $(EXE).tns
+	cat /opt/nspire/Ndless/ndless/src/resources-loader/zehn_loader.tns $^ > $@
 
 .PHONY: clean
 clean:
 	rm -f `find . -name \*.o`
-	rm -f $(EXE) $(EXE).gdb
+	rm -f $(EXE) $(EXE).elf

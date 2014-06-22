@@ -1,6 +1,6 @@
 *.o
-*.tns
-*.gdb
+*.tns*
+*.elf
 *.creator
 *.creator.user*
 *.files
