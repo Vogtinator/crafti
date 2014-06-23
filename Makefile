@@ -2,9 +2,9 @@ GCC = nspire-gcc
 GPP = nspire-g++
 LD = nspire-ld
 GENZEHN = genzehn
-OPTIMIZE ?= 3
-GCCFLAGS = -O$(OPTIMIZE) -g -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fomit-frame-pointer -flto -fno-rtti
-LDFLAGS = -lm -flto -Wl,-flto,-O$(OPTIMIZE) -O$(OPTIMIZE) -g
+OPTIMIZE ?= fast
+GCCFLAGS = -O$(OPTIMIZE) -g -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fomit-frame-pointer -flto -fno-rtti -fgcse-sm -fgcse-las -funsafe-loop-optimizations -fno-fat-lto-objects -frename-registers -fprefetch-loop-arrays
+LDFLAGS = -lm
 EXE = crafti
 OBJS = $(patsubst %.c, %.o, $(shell find . -name \*.c))
 OBJS += $(patsubst %.cpp, %.o, $(shell find . -name \*.cpp))
@@ -22,7 +22,7 @@ all: $(EXE).tns $(EXE).prg.tns
 	$(GCC) $(GCCFLAGS) -c $< -o $@
 
 $(EXE).elf: $(OBJS)
-	+$(LD) $^ -o $@ $(LDFLAGS)
+	+$(LD) $^ -o $@ $(GCCFLAGS) $(LDFLAGS)
 
 $(EXE).tns: $(EXE).elf
 	$(GENZEHN) --input $^ --output $@ --name "Crafti" --version 10 --author "Fabian Vogt" --notice "3D Minecraft"
