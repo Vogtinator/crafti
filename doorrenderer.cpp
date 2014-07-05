@@ -1,9 +1,17 @@
 #include "doorrenderer.h"
 
+//If the door is open, this array maps the side of the closed door to the side of an open door and vice-versa
+static const BLOCK_SIDE door_side_map[] {
+        BLOCK_RIGHT,
+        BLOCK_LEFT,
+        BLOCK_BACK,
+        BLOCK_FRONT
+};
+
 void DoorRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
-    const BLOCK_SIDE side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & ~(1 << 3)) ^ 1);
-    const TextureAtlasEntry &tex = (getBLOCKDATA(block) & (1 << 3)) ? terrain_atlas[1][5].current : terrain_atlas[1][6].current;
+    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
+    const TextureAtlasEntry &tex = terrain_atlas[1][(getBLOCKDATA(block) & DOOR_TOP) ? 5 : 6].current;
     const GLFix door_offset = door_depth;
 
     switch(side)
@@ -38,7 +46,8 @@ void DoorRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 
 AABB DoorRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 {
-    BLOCK_SIDE side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & ~(1 << 3)) ^ 1);
+    BLOCK_SIDE side = static_cast<BLOCK_SIDE>((getBLOCKDATA(block) & BLOCK_SIDE_BITS));
+
     switch(side)
     {
     case BLOCK_FRONT:
@@ -68,57 +77,58 @@ void DoorRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x
 
 bool DoorRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)
 {
-    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & ~(1 << 3));
-    switch(side)
-    {
-    case BLOCK_FRONT:
-        side = BLOCK_RIGHT;
-        break;
-    case BLOCK_RIGHT:
-        side = BLOCK_FRONT;
-        break;
-    case BLOCK_LEFT:
-        side = BLOCK_BACK;
-        break;
-    case BLOCK_BACK:
-        side = BLOCK_LEFT;
-        break;
-    default:
-        break;
-    }
+    bool door_open = getBLOCKDATA(block) & DOOR_OPEN;
 
-    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), side | (getBLOCKDATA(block) & 1<<3)));
-
-    //Change the other door part as well
-    if(getBLOCKDATA(block) & 1<<3) //If top
-            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCKWDATA(getBLOCK(block), side | ((getBLOCKDATA(block) & 1<<3) ^ 1<<3)));
-    else
-            c.setGlobalBlockRelative(local_x, local_y + 1, local_z, getBLOCKWDATA(getBLOCK(block), side | ((getBLOCKDATA(block) & 1<<3) ^ 1<<3)));
+    toggleState(block, local_x, local_y, local_z, c, door_open ? 0 : (DOOR_OPEN | DOOR_FORCE_OPEN));
 
     return true;
 }
 
+void DoorRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
+{
+    //Only the bottom reacts
+    if(getBLOCKDATA(block) & DOOR_TOP)
+        return;
+
+    //A manually opened door doesn't change state by itself
+    if(getBLOCKDATA(block) & DOOR_FORCE_OPEN)
+        return;
+
+    bool redstone_state = c.isBlockPowered(local_x, local_y - 1, local_z) || c.isBlockPowered(local_x, local_y + 2, local_z)
+            || c.isBlockPowered(local_x - 1, local_y, local_z) || c.isBlockPowered(local_x - 1, local_y + 1, local_z)
+            || c.isBlockPowered(local_x + 1, local_y, local_z) || c.isBlockPowered(local_x + 1, local_y + 1, local_z)
+            || c.isBlockPowered(local_x, local_y, local_z - 1) || c.isBlockPowered(local_x, local_y + 1, local_z - 1)
+            || c.isBlockPowered(local_x, local_y, local_z + 1) || c.isBlockPowered(local_x, local_y + 1, local_z + 1);
+
+    bool door_open = getBLOCKDATA(block) & DOOR_OPEN;
+
+    if(redstone_state == door_open)
+        return;
+
+    toggleState(block, local_x, local_y, local_z, c, redstone_state ? DOOR_OPEN : 0);
+}
+
 void DoorRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    if(getBLOCKDATA(block) & 1<<3) //If top
+    if(getBLOCKDATA(block) & DOOR_TOP)
     {
         if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) != BLOCK_AIR)
             c.setLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
         else
-            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCKWDATA(getBLOCK(block), getBLOCKDATA(block) ^ 1<<3));
+            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCKWDATA(getBLOCK(block), getBLOCKDATA(block) ^ DOOR_TOP));
     }
     else
     {
         if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y + 1, local_z)) != BLOCK_AIR)
             c.setLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
         else
-            c.setGlobalBlockRelative(local_x, local_y + 1, local_z, getBLOCKWDATA(getBLOCK(block), getBLOCKDATA(block) ^ 1<<3));
+            c.setGlobalBlockRelative(local_x, local_y + 1, local_z, getBLOCKWDATA(getBLOCK(block), getBLOCKDATA(block) ^ DOOR_TOP));
     }
 }
 
 void DoorRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    if(getBLOCKDATA(block) & 1<<3) //If top
+    if(getBLOCKDATA(block) & DOOR_TOP)
     {
         if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) == BLOCK_DOOR)
             c.setGlobalBlockRelative(local_x, local_y - 1, local_z, BLOCK_AIR);
@@ -133,4 +143,19 @@ void DoorRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_
 const char *DoorRenderer::getName(const BLOCK_WDATA /*block*/)
 {
     return "Door";
+}
+
+void DoorRenderer::toggleState(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t open_state)
+{
+    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
+
+    uint8_t new_data = door_side_map[side] | open_state | (getBLOCKDATA(block) & DOOR_TOP);
+
+    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
+
+    //Change the other door part as well
+    if(getBLOCKDATA(block) & DOOR_TOP) //If top
+            c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCKWDATA(getBLOCK(block), new_data ^ DOOR_TOP));
+    else
+            c.setGlobalBlockRelative(local_x, local_y + 1, local_z, getBLOCKWDATA(getBLOCK(block), new_data ^ DOOR_TOP));
 }

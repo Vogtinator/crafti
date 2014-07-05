@@ -68,7 +68,7 @@ constexpr bool getPOWERSTATE(BLOCK_WDATA bd) { return bd & (1 << 15); }
 constexpr BLOCK_WDATA getBLOCKWDATAPower(BLOCK b, uint8_t data, bool powering) { return (data << 8) | b | (powering ? 1 << 15 : 0); }
 constexpr BLOCK_WDATA getBLOCKWDATA(BLOCK b, uint8_t data) { return (data << 8) | b; }
 
-enum BLOCK_SIDE {
+enum BLOCK_SIDE{
     BLOCK_FRONT=0,
     BLOCK_BACK,
     BLOCK_LEFT,
@@ -77,6 +77,7 @@ enum BLOCK_SIDE {
     BLOCK_BOTTOM
 };
 constexpr int BLOCK_SIDE_LAST = BLOCK_BOTTOM;
+constexpr int BLOCK_SIDE_BITS = 0b111;
 
 typedef uint8_t BLOCK_SIDE_BITFIELD;
 constexpr BLOCK_SIDE_BITFIELD BLOCK_FRONT_BIT = 1;
