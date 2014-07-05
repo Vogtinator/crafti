@@ -50,7 +50,6 @@ private:
     PerlinNoise perlin_noise;
     unsigned int *seed;
 
-    //std::vector<Chunk*> all_chunks;
     std::map<std::tuple<int,int,int>,Chunk*> all_chunks;
     std::vector<Chunk*> visible_chunks;
 

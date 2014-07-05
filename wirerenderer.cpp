@@ -2,7 +2,7 @@
 
 void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
-    renderBillboard((x - c.absX()) / BLOCK_SIZE, (y - c.absY()) / BLOCK_SIZE, (z - c.absZ()) / BLOCK_SIZE, getPOWERSTATE(block) ? terrain_atlas[5][11].current : terrain_atlas[5][10].current, c);
+    renderBillboard((x - c.absX()) / BLOCK_SIZE, (y - c.absY()) / BLOCK_SIZE, (z - c.absZ()) / BLOCK_SIZE, getPOWERSTATE(block) ? terrain_atlas[4][11].current : terrain_atlas[4][10].current, c);
 }
 
 void WireRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, const int x, const int y)
@@ -38,6 +38,7 @@ void WireRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_
 
 void WireRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
+    //Don't do anything if nothing around is powering
     if(!c.isBlockPowered(local_x, local_y, local_z))
         return;
 
@@ -45,12 +46,12 @@ void WireRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y,
     if(isDirectlyPowered(local_x, local_y, local_z, c))
     {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, ACTIVE_BIT, true));
-
-        //Now inform the whole redstone chain to become powering
-        setCircuitState(true, local_x, local_y, local_z, c);
     }
     else
         c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, 0, true));
+
+    //Now inform the whole redstone chain to become powering
+    setCircuitState(true, local_x, local_y, local_z, c);
 }
 
 void WireRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
