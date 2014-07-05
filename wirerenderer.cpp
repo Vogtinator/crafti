@@ -43,12 +43,7 @@ void WireRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y,
         return;
 
     //Switch to powering state and become active if directly powered
-    if(isDirectlyPowered(local_x, local_y, local_z, c))
-    {
-        c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, ACTIVE_BIT, true));
-    }
-    else
-        c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, 0, true));
+    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, isDirectlyPowered(local_x, local_y, local_z, c) ? ACTIVE_BIT : 0, true));
 
     //Now inform the whole redstone chain to become powering
     setCircuitState(true, local_x, local_y, local_z, c);
