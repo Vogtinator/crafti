@@ -71,7 +71,7 @@ bool Chunk::isLocalBlockSideRendered(const int x, const int y, const int z, cons
 
 void Chunk::buildGeometry()
 {
-    drawLoadingtext(5);
+    drawLoadingtext(8);
 
     std::fill(pos_indices[0][0] + 0, pos_indices[SIZE][SIZE] + SIZE + 1, -1);
 
@@ -298,7 +298,7 @@ void Chunk::logic()
     tick_counter -= 1;
     if(tick_counter == 0)
     {
-        tick_counter = 30; //Do a tick every 30th frame
+        tick_counter = 10; //Do a tick every 10th frame
 
         for(int x = 0; x < SIZE; x++)
             for(int y = 0; y < SIZE; y++)
