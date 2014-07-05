@@ -731,6 +731,12 @@ bool Chunk::isBlockPowered(const int x, const int y, const int z)
             || getPOWERSTATE(getGlobalBlockRelative(x, y, z + 1));
 }
 
+bool Chunk::isBlockPoweredOrPowering(const int x, const int y, const int z)
+{
+    return getPOWERSTATE(getGlobalBlockRelative(x, y, z))
+            || isBlockPowered(x, y, z);
+}
+
 void Chunk::makeTree(unsigned int x, unsigned int y, unsigned int z)
 {
     int max_height = World::HEIGHT * Chunk::SIZE - (y + this->y * Chunk::SIZE);

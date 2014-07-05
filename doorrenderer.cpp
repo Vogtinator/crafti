@@ -94,11 +94,11 @@ void DoorRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int l
     if(getBLOCKDATA(block) & DOOR_FORCE_OPEN)
         return;
 
-    bool redstone_state = c.isBlockPowered(local_x, local_y - 1, local_z) || c.isBlockPowered(local_x, local_y + 2, local_z)
-            || c.isBlockPowered(local_x - 1, local_y, local_z) || c.isBlockPowered(local_x - 1, local_y + 1, local_z)
-            || c.isBlockPowered(local_x + 1, local_y, local_z) || c.isBlockPowered(local_x + 1, local_y + 1, local_z)
-            || c.isBlockPowered(local_x, local_y, local_z - 1) || c.isBlockPowered(local_x, local_y + 1, local_z - 1)
-            || c.isBlockPowered(local_x, local_y, local_z + 1) || c.isBlockPowered(local_x, local_y + 1, local_z + 1);
+    bool redstone_state = c.isBlockPoweredOrPowering(local_x, local_y - 1, local_z) || c.isBlockPoweredOrPowering(local_x, local_y + 2, local_z)
+            || c.isBlockPoweredOrPowering(local_x - 1, local_y, local_z) || c.isBlockPoweredOrPowering(local_x - 1, local_y + 1, local_z)
+            || c.isBlockPoweredOrPowering(local_x + 1, local_y, local_z) || c.isBlockPoweredOrPowering(local_x + 1, local_y + 1, local_z)
+            || c.isBlockPoweredOrPowering(local_x, local_y, local_z - 1) || c.isBlockPoweredOrPowering(local_x, local_y + 1, local_z - 1)
+            || c.isBlockPoweredOrPowering(local_x, local_y, local_z + 1) || c.isBlockPoweredOrPowering(local_x, local_y + 1, local_z + 1);
 
     bool door_open = getBLOCKDATA(block) & DOOR_OPEN;
 
