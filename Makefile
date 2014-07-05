@@ -33,4 +33,4 @@ $(EXE).prg.tns: $(EXE).tns
 .PHONY: clean
 clean:
 	rm -f `find . -name \*.o`
-	rm -f $(EXE) $(EXE).elf
+	rm -f $(EXE).tns $(EXE).prg.tns $(EXE).elf

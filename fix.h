@@ -89,7 +89,7 @@ public:
     }
 
     template <unsigned int s2, typename T2>
-    operator Fix<s2, T2>()
+    operator Fix<s2, T2>() const
     {
         Fix<s2, T2> ret;
         if(s2 > s)
