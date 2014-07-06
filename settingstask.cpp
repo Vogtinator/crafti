@@ -32,8 +32,7 @@ SettingsTask::SettingsTask()
     settings.push_back({"Distance", nullptr, 10, 2, 1});
     settings.push_back({"Fast mode", fastmode_values, 2, 0, 0});
 
-    background = newTexture(background_width, background_height);
-    std::fill(background->bitmap, background->bitmap + background->width * background->height, 0x0000);
+    background = newTexture(background_width, background_height, 0);
 }
 
 SettingsTask::~SettingsTask()

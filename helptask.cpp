@@ -7,8 +7,12 @@ HelpTask help_task;
 
 HelpTask::HelpTask()
 {
-    background = newTexture(background_width, background_height);
-    std::fill(background->bitmap, background->bitmap + background->width * background->height, 0x0000);
+    background = newTexture(background_width, background_height, 0);
+}
+
+HelpTask::~HelpTask()
+{
+    deleteTexture(background);
 }
 
 void HelpTask::makeCurrent()

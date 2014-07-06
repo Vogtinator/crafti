@@ -3,7 +3,8 @@
 
 #include "gl.h"
 
-TEXTURE* newTexture(unsigned int w, unsigned int h);
+//Throws if allocation failed
+TEXTURE* newTexture(const unsigned int w, const unsigned int h, const COLOR fill = 0);
 void deleteTexture(TEXTURE *tex);
 
 //Textures have to have the same resolution

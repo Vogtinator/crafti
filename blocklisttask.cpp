@@ -69,8 +69,7 @@ BlockListTask::BlockListTask()
     blocklist_height = SCREEN_HEIGHT - current_inventory.height() - 2*5;
     blocklist_top = (SCREEN_HEIGHT - blocklist_height - current_inventory.height()) / 2;
 
-    blocklist_background = newTexture(blocklist_width, blocklist_height);
-    std::fill(blocklist_background->bitmap, blocklist_background->bitmap + blocklist_background->width*blocklist_background->height, 0x0000);
+    blocklist_background = newTexture(blocklist_width, blocklist_height, 0);
 }
 
 BlockListTask::~BlockListTask()

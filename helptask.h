@@ -9,6 +9,7 @@ class HelpTask : public Task
 {
 public:
     HelpTask();
+    virtual ~HelpTask();
 
     virtual void makeCurrent() override;
 

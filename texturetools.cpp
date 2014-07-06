@@ -9,20 +9,13 @@
 //Texture with "Loading" written on it
 #include "textures/loadingtext.h"
 
-TEXTURE* newTexture(unsigned int w, unsigned int h)
+TEXTURE* newTexture(const unsigned int w, const unsigned int h, const COLOR fill)
 {
     TEXTURE *ret = new TEXTURE;
-    if(!ret)
-        return nullptr;
 
     ret->width = w;
     ret->height = h;
-    ret->bitmap = new COLOR[w * h];
-    if(!ret->bitmap)
-    {
-        delete ret;
-        return nullptr;
-    }
+    ret->bitmap = new COLOR[w * h]{fill};
 
     return ret;
 }
@@ -243,12 +236,12 @@ TEXTURE* resizeTexture(const TEXTURE &src, const unsigned int w, const unsigned 
     const GLFix dx = GLFix(src.width) / GLFix(w), dy = GLFix(src.height) / GLFix(h);
     COLOR *ptr = ret->bitmap;
 
-    while(srcy < GLFix(src.height))
+    for(unsigned int i = h; i--;)
     {
         srcx = 0;
-        while(srcx < GLFix(src.width))
+        for(unsigned int j = w; j--;)
         {
-            *ptr++ = src.bitmap[srcx.floor() + srcy.floor() * src.height];
+            *ptr++ = src.bitmap[srcx.floor() + srcy.floor() * src.width];
             srcx += dx;
         }
         srcy += dy;
