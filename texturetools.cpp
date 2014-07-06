@@ -150,9 +150,19 @@ TextureAtlasEntry textureArea(const int x, const int y, const int w, const int h
 
 void drawTexture(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &dest, const int dest_x, const int dest_y, const int w, const int h)
 {
-    for(int y = 0; y < h; y++)
-        for(int x = 0; x < w; x++)
-            dest.bitmap[dest_x + x + (dest_y + y)*dest.width] = src.bitmap[src_x + x + (src_y + y)*src.width];
+    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width,
+            *src_ptr = src.bitmap + src_x + src_y * src.width;
+
+    const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
+
+    for(unsigned int i = h; i--;)
+    {
+        for(unsigned int j = w; j--;)
+            *dest_ptr++ = *src_ptr++;
+
+        dest_ptr += nextline_dest;
+        src_ptr += nextline_src;
+    }
 }
 
 void drawTextureOverlay(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &dest, const int dest_x, const int dest_y, const int w, const int h)
