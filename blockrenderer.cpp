@@ -319,16 +319,15 @@ void BlockRenderer::renderNormalConnectedBlockSide(const BLOCK_WDATA block, int 
 
 void BlockRenderer::renderBillboard(int local_x, int local_y, int local_z, const TextureAtlasEntry &tex, Chunk &c)
 {
-    //| 0xFFF = no backface culling
-    c.addAlignedVertex(local_x, local_y, local_z, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF);
-    c.addAlignedVertex(local_x, local_y + 1, local_z, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF);
-    c.addAlignedVertex(local_x + 1, local_y + 1, local_z + 1, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF);
-    c.addAlignedVertex(local_x + 1, local_y, local_z + 1, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF);
+    c.addAlignedVertex(local_x, local_y, local_z, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
+    c.addAlignedVertex(local_x, local_y + 1, local_z, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
+    c.addAlignedVertex(local_x + 1, local_y + 1, local_z + 1, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
+    c.addAlignedVertex(local_x + 1, local_y, local_z + 1, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
 
-    c.addAlignedVertex(local_x, local_y, local_z + 1, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF);
-    c.addAlignedVertex(local_x, local_y + 1, local_z + 1, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF);
-    c.addAlignedVertex(local_x + 1, local_y + 1, local_z, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF);
-    c.addAlignedVertex(local_x + 1, local_y, local_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF);
+    c.addAlignedVertex(local_x, local_y, local_z + 1, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
+    c.addAlignedVertex(local_x, local_y + 1, local_z + 1, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
+    c.addAlignedVertex(local_x + 1, local_y + 1, local_z, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
+    c.addAlignedVertex(local_x + 1, local_y, local_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
 }
 
 void BlockRenderer::drawTextureAtlasEntry(TEXTURE &src, const TextureAtlasEntry &tex, bool transparent, TEXTURE &dest, const int dest_x, const int dest_y)

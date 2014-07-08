@@ -50,15 +50,15 @@ void TorchRenderer::renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFi
     std::vector<VERTEX> torch_vertices;
     torch_vertices.reserve(16);
 
-    torch_vertices.push_back({0, 0, BLOCK_SIZE/2, tex.left, tex.bottom, 0xFFFF});
-    torch_vertices.push_back({0, BLOCK_SIZE, BLOCK_SIZE/2, tex.left, tex.top, 0xFFFF});
-    torch_vertices.push_back({BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE/2, tex.right, tex.top, 0xFFFF});
-    torch_vertices.push_back({BLOCK_SIZE, 0, BLOCK_SIZE/2, tex.right, tex.bottom, 0xFFFF});
+    torch_vertices.push_back({0, 0, BLOCK_SIZE/2, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    torch_vertices.push_back({0, BLOCK_SIZE, BLOCK_SIZE/2, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    torch_vertices.push_back({BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE/2, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    torch_vertices.push_back({BLOCK_SIZE, 0, BLOCK_SIZE/2, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
 
-    torch_vertices.push_back({BLOCK_SIZE/2, 0, BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
-    torch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE, BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
-    torch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE, 0, tex.right, tex.top, 0xFFFF});
-    torch_vertices.push_back({BLOCK_SIZE/2, 0, 0, tex.right, tex.bottom, 0xFFFF});
+    torch_vertices.push_back({BLOCK_SIZE/2, 0, BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    torch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE, BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    torch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE, 0, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    torch_vertices.push_back({BLOCK_SIZE/2, 0, 0, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
 
     switch(side)
     {

@@ -17,28 +17,28 @@ void DoorRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     switch(side)
     {
     case BLOCK_FRONT:
-        c.addUnalignedVertex({x, y, z + door_offset, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x, y + BLOCK_SIZE, z + door_offset, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + BLOCK_SIZE, z + door_offset, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + door_offset, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x, y, z + door_offset, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x, y + BLOCK_SIZE, z + door_offset, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + BLOCK_SIZE, z + door_offset, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + door_offset, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
         break;
     case BLOCK_BACK:
-        c.addUnalignedVertex({x + BLOCK_SIZE, y, z - door_offset + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + BLOCK_SIZE, z - door_offset + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x, y + BLOCK_SIZE, z - door_offset + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x, y, z - door_offset + BLOCK_SIZE, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z - door_offset + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + BLOCK_SIZE, z - door_offset + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x, y + BLOCK_SIZE, z - door_offset + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x, y, z - door_offset + BLOCK_SIZE, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
         break;
     case BLOCK_LEFT:
-        c.addUnalignedVertex({x + door_offset, y, z + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x + door_offset, y + BLOCK_SIZE, z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x + door_offset, y + BLOCK_SIZE, z, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x + door_offset, y, z, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x + door_offset, y, z + BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x + door_offset, y + BLOCK_SIZE, z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x + door_offset, y + BLOCK_SIZE, z, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x + door_offset, y, z, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
         break;
     case BLOCK_RIGHT:
-        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y, z, tex.left, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y + BLOCK_SIZE, z, tex.left, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT | 0xFFF});
-        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.right, tex.bottom, TEXTURE_TRANSPARENT | 0xFFF});
+        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y, z, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y + BLOCK_SIZE, z, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+        c.addUnalignedVertex({x - door_offset + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
     default:
         break;
     }

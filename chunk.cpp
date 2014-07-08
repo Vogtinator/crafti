@@ -397,8 +397,7 @@ void Chunk::render()
     v = vertices.data();
     for(unsigned int i = 0; i < vertices.size(); i += 4, v += 4)
     {
-        //If it's a billboard texture, skip backface culling
-        if(drawTriangle(v[0], v[1], v[2], v[0].c != 0xFFFF))
+        if(drawTriangle(v[0], v[1], v[2], v[0].c & TEXTURE_DRAW_BACKFACE))
             drawTriangle(v[2], v[3], v[0], false);
     }
 
@@ -408,8 +407,7 @@ void Chunk::render()
     v = vertices_quad.data();
     for(unsigned int i = 0; i < vertices_quad.size(); i += 4, v += 4)
     {
-        //If it's a billboard texture, skip backface culling
-        if(drawTriangle(v[0], v[1], v[2], v[0].c != 0xFFFF))
+        if(drawTriangle(v[0], v[1], v[2], v[0].c & TEXTURE_DRAW_BACKFACE))
             drawTriangle(v[2], v[3], v[0], false);
     }
 
@@ -433,8 +431,7 @@ void Chunk::render()
         v3.v = ve[2].v;
         v3.c = ve[2].c;
 
-        //If it's a billboard texture, skip backface culling
-        if(nglDrawTriangle(&v1, &v2, &v3, ve[0].c != 0xFFFF))
+        if(nglDrawTriangle(&v1, &v2, &v3, ve[0].c & TEXTURE_DRAW_BACKFACE))
         {
             nglMultMatVectRes(transformation, ve + 3, &v4);
             v4.u = ve[3].u;

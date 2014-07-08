@@ -14,15 +14,15 @@ void SwitchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix 
     std::vector<VERTEX> switch_vertices;
     switch_vertices.reserve(16);
 
-    switch_vertices.push_back({0, -BLOCK_SIZE/4, BLOCK_SIZE/2, tex.left, tex.bottom, 0xFFFF});
-    switch_vertices.push_back({0, BLOCK_SIZE - BLOCK_SIZE/4, BLOCK_SIZE/2, tex.left, tex.top, 0xFFFF});
-    switch_vertices.push_back({BLOCK_SIZE, BLOCK_SIZE - BLOCK_SIZE/3, BLOCK_SIZE/2, tex.right, tex.top, 0xFFFF});
-    switch_vertices.push_back({BLOCK_SIZE, -BLOCK_SIZE/4, BLOCK_SIZE/2, tex.right, tex.bottom, 0xFFFF});
+    switch_vertices.push_back({0, -BLOCK_SIZE/4, BLOCK_SIZE/2, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({0, BLOCK_SIZE - BLOCK_SIZE/4, BLOCK_SIZE/2, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE, BLOCK_SIZE - BLOCK_SIZE/3, BLOCK_SIZE/2, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE, -BLOCK_SIZE/4, BLOCK_SIZE/2, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
 
-    switch_vertices.push_back({BLOCK_SIZE/2, -BLOCK_SIZE/4, BLOCK_SIZE, tex.left, tex.bottom, 0xFFFF});
-    switch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE-BLOCK_SIZE/4, BLOCK_SIZE, tex.left, tex.top, 0xFFFF});
-    switch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE-BLOCK_SIZE/4, 0, tex.right, tex.top, 0xFFFF});
-    switch_vertices.push_back({BLOCK_SIZE/2, -BLOCK_SIZE/4, 0, tex.right, tex.bottom, 0xFFFF});
+    switch_vertices.push_back({BLOCK_SIZE/2, -BLOCK_SIZE/4, BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE-BLOCK_SIZE/4, BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE-BLOCK_SIZE/4, 0, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE/2, -BLOCK_SIZE/4, 0, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
 
     const BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block));
 
