@@ -26,7 +26,17 @@ void PressurePlateRenderer::tick(const BLOCK_WDATA block, int local_x, int local
     if(getPOWERSTATE(block) == triggered)
         return;
 
-    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, 0, triggered));
+    if(triggered)
+        c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, 5, true));
+    else
+    {
+        //Keep it active for 5 ticks after the player left the plate
+        uint8_t kept_triggered = getBLOCKDATA(block);
+        if(--kept_triggered)
+            c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, kept_triggered, true), false);
+        else
+            c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, 0, false), true);
+    }
 }
 
 void PressurePlateRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
