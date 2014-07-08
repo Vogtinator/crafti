@@ -205,8 +205,8 @@ void nglPerspective(VERTEX *v)
     GLFix div = GLFix(NEAR_PLANE)/v->z;
 
     //Round to integers, as we don't lose the topmost 8 bits with integer multiplication
-    v->x.value = v->x.toInt() * div.value;
-    v->y.value = v->y.toInt() * div.value;
+    v->x.value = v->x.toInteger<int>() * div.value;
+    v->y.value = v->y.toInteger<int>() * div.value;
 #endif
 
     // (0/0) is in the center of the screen

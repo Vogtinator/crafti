@@ -170,37 +170,37 @@ void terrainInit(const char *texture_path)
     unsigned int x = 0;
     for(BLOCK_TEXTURE bt : quad_textures)
     {
-        TextureAtlasEntry tae;
+        TextureAtlasEntry *tae = nullptr;
 
-        if(bt.sides == 0)
+        if(bt.sides & BLOCK_BOTTOM_BIT)
+            tae = &block_textures[bt.block][BLOCK_BOTTOM].current;
+        if(bt.sides & BLOCK_TOP_BIT)
+            tae = &block_textures[bt.block][BLOCK_TOP].current;
+        if(bt.sides & BLOCK_LEFT_BIT)
+            tae = &block_textures[bt.block][BLOCK_LEFT].current;
+        if(bt.sides & BLOCK_RIGHT_BIT)
+            tae = &block_textures[bt.block][BLOCK_RIGHT].current;
+        if(bt.sides & BLOCK_FRONT_BIT)
+            tae = &block_textures[bt.block][BLOCK_FRONT].current;
+        if(bt.sides & BLOCK_BACK_BIT)
+            tae = &block_textures[bt.block][BLOCK_BACK].current;
+
+        if(!tae)
         {
-            printf("Block has no texture: %d!\n", bt.block);
+            printf("Block %d has no texture!\n", bt.block);
             continue;
         }
 
-        if(bt.sides & BLOCK_BOTTOM_BIT)
-            tae = block_textures[bt.block][BLOCK_BOTTOM].current;
-        if(bt.sides & BLOCK_TOP_BIT)
-            tae = block_textures[bt.block][BLOCK_TOP].current;
-        if(bt.sides & BLOCK_LEFT_BIT)
-            tae = block_textures[bt.block][BLOCK_LEFT].current;
-        if(bt.sides & BLOCK_RIGHT_BIT)
-            tae = block_textures[bt.block][BLOCK_RIGHT].current;
-        if(bt.sides & BLOCK_FRONT_BIT)
-            tae = block_textures[bt.block][BLOCK_FRONT].current;
-        if(bt.sides & BLOCK_BACK_BIT)
-            tae = block_textures[bt.block][BLOCK_BACK].current;
-
         //- 1 to reverse the workaround above. Yes, I hate myself for this.
-        drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x, 0, field_width, field_height);
-        drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x + field_width, 0, field_width, field_height);
-        drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x + field_width, field_height, field_width, field_height);
-        drawTexture(*terrain_current, tae.left - 1, tae.top - 1, *terrain_quad, x, field_height, field_width, field_height);
+        drawTexture(*terrain_current, tae->left - 1, tae->top - 1, *terrain_quad, x, 0, field_width, field_height);
+        drawTexture(*terrain_current, tae->left - 1, tae->top - 1, *terrain_quad, x + field_width, 0, field_width, field_height);
+        drawTexture(*terrain_current, tae->left - 1, tae->top - 1, *terrain_quad, x + field_width, field_height, field_width, field_height);
+        drawTexture(*terrain_current, tae->left - 1, tae->top - 1, *terrain_quad, x, field_height, field_width, field_height);
 
         //Get an average color of the block
         RGB sum;
-        for(int tex_x = tae.left - 1; GLFix(tex_x) <= tae.right; ++tex_x)
-            for(int tex_y = tae.top - 1; GLFix(tex_y) <= tae.bottom; ++tex_y)
+        for(unsigned int tex_x = tae->left - 1; tex_x <= tae->right; ++tex_x)
+            for(unsigned int tex_y = tae->top - 1; tex_y <= tae->bottom; ++tex_y)
             {
                 RGB rgb = rgbColor(terrain_current->bitmap[tex_x + tex_y*terrain_current->width]);
                 sum.r += rgb.r;

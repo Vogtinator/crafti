@@ -8,6 +8,7 @@
 #include "glassrenderer.h"
 #include "lamprenderer.h"
 #include "leavesrenderer.h"
+#include "pressurerenderer.h"
 #include "redtorchrenderer.h"
 #include "switchrenderer.h"
 #include "tntrenderer.h"
@@ -375,6 +376,7 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_REDSTONE_SWITCH] = std::make_shared<SwitchRenderer>();
     map[BLOCK_REDSTONE_WIRE] = std::make_shared<WireRenderer>();
     map[BLOCK_REDSTONE_TORCH] = std::make_shared<RedstoneTorchRenderer>();
+    map[BLOCK_PRESSURE_PLATE] = std::make_shared<PressurePlateRenderer>();
     map[BLOCK_SAND] = color_renderer;
     map[BLOCK_STONE] = color_renderer;
     map[BLOCK_TORCH] = std::make_shared<TorchRenderer>();
@@ -462,11 +464,6 @@ bool UniversalBlockRenderer::action(const BLOCK_WDATA block, const int local_x, 
 void UniversalBlockRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
     return map[getBLOCK(block)]->tick(block, local_x, local_y, local_z, c);
-}
-
-void UniversalBlockRenderer::updateBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
-{
-    return map[getBLOCK(block)]->updateBlock(block, local_x, local_y, local_z, c);
 }
 
 void UniversalBlockRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)

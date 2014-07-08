@@ -6,9 +6,6 @@
 #include "gl.h"
 #include "texturetools.h"
 
-//Texture with "Loading" written on it
-#include "textures/loadingtext.h"
-
 TEXTURE* newTexture(const unsigned int w, const unsigned int h, const COLOR fill)
 {
     TEXTURE *ret = new TEXTURE;
@@ -131,7 +128,7 @@ TEXTURE* loadTextureFromFile(const char* filename)
     return texture;
 }
 
-TextureAtlasEntry textureArea(const int x, const int y, const int w, const int h)
+TextureAtlasEntry textureArea(const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h)
 {
     return TextureAtlasEntry{
         .left = x,
@@ -141,8 +138,17 @@ TextureAtlasEntry textureArea(const int x, const int y, const int w, const int h
     };
 }
 
-void drawTexture(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &dest, const int dest_x, const int dest_y, const int w, const int h)
+void drawTexture(const TEXTURE &src, const unsigned int src_x, const unsigned int src_y, TEXTURE &dest, const unsigned int dest_x, const unsigned int dest_y, unsigned int w, unsigned int h)
 {
+    if(dest_x >= dest.width || dest_y >= dest.height)
+        return;
+
+    if(src_x >= src.width || src_y >= src.height)
+        return;
+
+    w = std::min(w, dest.width - dest_x);
+    h = std::min(h, dest.height - dest_y);
+
     COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width,
             *src_ptr = src.bitmap + src_x + src_y * src.width;
 
@@ -158,68 +164,80 @@ void drawTexture(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &
     }
 }
 
-void drawTextureOverlay(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &dest, const int dest_x, const int dest_y, const int w, const int h)
+void drawTextureOverlay(const TEXTURE &src, const unsigned int src_x, const unsigned int src_y, TEXTURE &dest, const unsigned int dest_x, const unsigned int dest_y, unsigned int w, unsigned int h)
 {
-    for(int y = 0; y < h; y++)
-        for(int x = 0; x < w; x++)
+    if(dest_x >= dest.width || dest_y >= dest.height)
+        return;
+
+    if(src_x >= src.width || src_y >= src.height)
+        return;
+
+    w = std::min(w, dest.width - dest_x);
+    h = std::min(h, dest.height - dest_y);
+
+    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width,
+            *src_ptr = src.bitmap + src_x + src_y * src.width;
+
+    const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
+
+    for(unsigned int i = h; i--;)
+    {
+        for(unsigned int j = w; j--;)
         {
-            COLOR *old_c = dest.bitmap + (dest_x + x + (dest_y + y)*dest.width);
-            COLOR new_c = src.bitmap[src_x + x + (src_y + y)*src.width];
+            COLOR src = *src_ptr++;
+            COLOR *dest = dest_ptr++;
 
-            const unsigned int r_o = (*old_c >> 11) & 0b11111;
-            const unsigned int g_o = (*old_c >> 5) & 0b111111;
-            const unsigned int b_o = (*old_c >> 0) & 0b11111;
+            const unsigned int r_o = (*dest >> 11) & 0b11111;
+            const unsigned int g_o = (*dest >> 5) & 0b111111;
+            const unsigned int b_o = (*dest >> 0) & 0b11111;
 
-            const unsigned int r_n = (new_c >> 11) & 0b11111;
-            const unsigned int g_n = (new_c >> 5) & 0b111111;
-            const unsigned int b_n = (new_c >> 0) & 0b11111;
+            const unsigned int r_n = (src >> 11) & 0b11111;
+            const unsigned int g_n = (src >> 5) & 0b111111;
+            const unsigned int b_n = (src >> 0) & 0b11111;
 
             //Generate 50% opacity
             unsigned int r = (r_n + r_o) >> 1;
             unsigned int g = (g_n + g_o) >> 1;
             unsigned int b = (b_n + b_o) >> 1;
 
-            *old_c = (r << 11) | (g << 5) | (b << 0);
+            *dest = (r << 11) | (g << 5) | (b << 0);
         }
-}
 
-void drawTransparentTexture(const TEXTURE &src, const int src_x, const int src_y, TEXTURE &dest, const int dest_x, const int dest_y, const int w, const int h)
-{
-    for(int y = 0; y < h; y++)
-        for(int x = 0; x < w; x++)
-        {
-            COLOR c = src.bitmap[src_x + x + (src_y + y)*src.width];
-            if(c != 0x0000)
-                dest.bitmap[dest_x + x + (dest_y + y)*dest.width] = c;
-        }
-}
-
-void drawLoadingtext(const int i)
-{
-    static int count = 0;
-    static bool shown = false;
-
-    if(i == -1)
-    {
-        count = 0;
-        shown = false;
-        return;
+        dest_ptr += nextline_dest;
+        src_ptr += nextline_src;
     }
+}
 
-    if(shown == true)
+void drawTransparentTexture(const TEXTURE &src, const unsigned int src_x, const unsigned int src_y, TEXTURE &dest, const unsigned int dest_x, const unsigned int dest_y, unsigned int w, unsigned int h)
+{
+    if(dest_x >= dest.width || dest_y >= dest.height)
         return;
 
-    count += 1;
-    if(count < i)
+    if(src_x >= src.width || src_y >= src.height)
         return;
 
-    shown = true;
+    w = std::min(w, dest.width - dest_x);
+    h = std::min(h, dest.height - dest_y);
 
-    TEXTURE screen;
-    screen.width = SCREEN_WIDTH;
-    screen.height = SCREEN_HEIGHT;
-    screen.bitmap = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
-    drawTransparentTexture(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
+    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width,
+            *src_ptr = src.bitmap + src_x + src_y * src.width;
+
+    const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
+
+    for(unsigned int i = h; i--;)
+    {
+        for(unsigned int j = w; j--;)
+        {
+            COLOR src = *src_ptr++;
+            COLOR *dest = dest_ptr++;
+
+            if(src != 0x0000)
+                *dest = src;
+        }
+
+        dest_ptr += nextline_dest;
+        src_ptr += nextline_src;
+    }
 }
 
 TEXTURE* resizeTexture(const TEXTURE &src, const unsigned int w, const unsigned int h)

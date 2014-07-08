@@ -19,7 +19,7 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
 
     //Height is proportional to its range
     const GLFix ratio = GLFix(getBLOCKDATA(block)) / maxRange(block);
-    GLFix height = GLFix(BLOCK_SIZE) * ratio, tex_top = tex.bottom - (tex.bottom - tex.top) * ratio;
+    const GLFix height = GLFix(BLOCK_SIZE) * ratio, tex_top = GLFix(tex.bottom) - ratio * (tex.bottom - tex.top);
     const int local_x = (x - c.absX()) / BLOCK_SIZE, local_y = (y - c.absY()) / BLOCK_SIZE, local_z = (z - c.absZ()) / BLOCK_SIZE;
     BLOCK_WDATA block_left = c.getGlobalBlockRelative(local_x - 1, local_y, local_z),
             block_right = c.getGlobalBlockRelative(local_x + 1, local_y, local_z),

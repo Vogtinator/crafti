@@ -100,4 +100,7 @@ private:
     int tick_counter = 1; //1 to trigger a tick the next frame
 };
 
+//Doesn't really belong here, but still more than everywhere else
+void drawLoadingtext(const int i);
+
 #endif // CHUNK_H

@@ -16,8 +16,8 @@ public:
     constexpr Fix(const unsigned int v) : value(v << s) {}
     constexpr Fix(const int v) : value(v << s) {}
     constexpr operator float() { return toFloat(); }
-    constexpr operator int() { return toInt(); }
-    constexpr operator unsigned int() { return toUint(); }
+    constexpr operator int() { return toInteger<int>(); }
+    constexpr operator unsigned int() { return toInteger<unsigned int>(); }
 
     Fix<s,T>& operator=(const Fix<s,T> &other) { value = other.value; return *this; }
 
@@ -32,19 +32,20 @@ public:
     Fix<s,T>& operator ++() { value += 1 << s; return *this; }
     Fix<s,T>& operator --() { value -= 1 << s; return *this; }
 
-    Fix<s,T> operator >>(const int other) const { Fix<s,T> ret; ret.value = value >> other; return ret; }
-    Fix<s,T> operator <<(const int other) const { Fix<s,T> ret; ret.value = value << other; return ret; }
+    template <typename U> Fix<s,T> operator >>(const U other) const { Fix<s,T> ret; ret.value = value >> other; return ret; }
+    template <typename U> Fix<s,T> operator <<(const U other) const { Fix<s,T> ret; ret.value = value << other; return ret; }
 
-    Fix<s,T> operator +(const int other) const { Fix<s,T> ret; ret.value = value + (other<<s); return ret; }
     Fix<s,T> operator +(const Fix<s,T>& other) const { Fix<s,T> ret; ret.value = value + other.value; return ret; }
-    Fix<s,T> operator -(const int other) const { Fix<s,T> ret; ret.value = value - (other<<s); return ret; }
+    template <typename U> Fix<s,T> operator +(const U other) const { Fix<s,T> ret; ret.value = value + (other<<s); return ret; }
+
     Fix<s,T> operator -(const Fix<s,T>& other) const { Fix<s,T> ret; ret.value = value - other.value; return ret; }
-    Fix<s,T> operator *(const int other) const { Fix<s,T> ret; ret.value = value * other; return ret; }
-    Fix<s,T> operator *(const float other) const { Fix<s,T> ret; ret.value = value * other; return ret; }
+    template <typename U> Fix<s,T> operator -(const U other) const { Fix<s,T> ret; ret.value = value - (other<<s); return ret; }
+
     Fix<s,T> operator *(const Fix<s,T>& other) const { Fix<s,T> ret; ret.value = (value * other.value) >> s; return ret; }
-    Fix<s,T> operator /(const float other) const { Fix<s,T> ret; ret.value = value / other; return ret; }
-    Fix<s,T> operator /(const int other) const { Fix<s,T> ret; ret.value = value / other; return ret; }
+    template <typename U> Fix<s,T> operator *(const U other) const { Fix<s,T> ret; ret.value = value * other; return ret; }
+
     Fix<s,T> operator /(const Fix<s,T>& other) const { Fix<s,T> ret; ret.value = (value << s) / other.value; return ret; }
+    template <typename U> Fix<s,T> operator /(const U other) const { Fix<s,T> ret; ret.value = value / other; return ret; }
 
     Fix<s,T>& operator +=(const Fix<s,T>& other) { value += other.value; return *this; }
     Fix<s,T>& operator -=(const Fix<s,T>& other) { value -= other.value; return *this; }
@@ -57,18 +58,14 @@ public:
 
     constexpr bool operator >(const Fix<s,T>& other) { return value > other.value; }
     constexpr bool operator <(const Fix<s,T>& other) { return value < other.value; }
-    constexpr bool operator >=(const int other) { return value >= other<<s; }
+    template <typename U> constexpr bool operator >=(const U other) { return value >= other<<s; }
     constexpr bool operator >=(const Fix<s,T>& other) { return value >= other.value; }
     constexpr bool operator <=(const Fix<s,T>& other) { return value <= other.value; }
     constexpr bool operator ==(const Fix<s,T>& other) { return value == other.value; }
     constexpr bool operator !=(const Fix<s,T>& other) { return value != other.value; }
 
-    constexpr unsigned int toUint()
-    {
-        return value >> s;
-    }
-
-    constexpr int toInt()
+    template <typename U>
+    constexpr U toInteger()
     {
         return value >> s;
     }
@@ -78,7 +75,8 @@ public:
         return static_cast<float>(value) / static_cast<float>(1<<s);
     }
 
-    void fromInt(const int v)
+    template <typename U>
+    void fromInteger(const U v)
     {
         value = v << s;
     }

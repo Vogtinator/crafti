@@ -6,6 +6,9 @@
 #include "terrain.h"
 #include "chunk.h"
 
+//No backface culling (handled in Chunk::render)
+#define TEXTURE_DRAW_BACKFACE 0x0FFF
+
 class BlockRenderer
 {
 public:
@@ -34,7 +37,6 @@ public:
 
     virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) = 0; //Invoked by e.g. a right click
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked every now-and-then
-    virtual void updateBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked if block needs updating
     virtual void addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked if this block has been placed
     virtual void removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked if this block has been removed
 
@@ -62,7 +64,6 @@ public:
 
     virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) override;
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
-    virtual void updateBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
     virtual void addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
     virtual void removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
 
@@ -74,11 +75,24 @@ private:
 
 class DumbBlockRenderer : public BlockRenderer
 {
+    virtual void renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/, Chunk &/*c*/) override {};
+    virtual void geometryNormalBlock(const BLOCK_WDATA /*block*/, const int /*x*/, const int /*y*/, const int /*z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {};
+    virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return true; }
+    virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
+
+    virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return true; }
+    virtual AABB getAABB(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/) override { return {}; }
+
+    virtual void drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &/*dest*/, const int /*x*/, const int /*y*/) override { return; }
+
     virtual bool action(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, Chunk &/*c*/) override { return false; }
     virtual void tick(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
-    virtual void updateBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
     virtual void addedBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
     virtual void removedBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
+
+    virtual const char* getName(const BLOCK_WDATA /*block*/) = 0;
 };
 
 class NormalBlockRenderer : public DumbBlockRenderer

@@ -1,10 +1,14 @@
 #include <cstdlib>
 #include <algorithm>
+#include <libndls.h>
 
 #include "world.h"
 #include "chunk.h"
 #include "fastmath.h"
 #include "blockrenderer.h"
+
+//Texture with "Loading" written on it
+#include "textures/loadingtext.h"
 
 #ifdef DEBUG
     #define debug(...) printf(__VA_ARGS__)
@@ -598,9 +602,9 @@ bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFi
                 {
                     if(new_dist < shortest_dist)
                     {
-                        pos.x.fromInt(x);
-                        pos.y.fromInt(y);
-                        pos.z.fromInt(z);
+                        pos.x = x;
+                        pos.y = y;
+                        pos.z = z;
                         side = new_side;
                         shortest_dist = new_dist;
                     }
@@ -763,4 +767,32 @@ void Chunk::makeTree(unsigned int x, unsigned int y, unsigned int z)
     }
 
     setGlobalBlockRelative(x, y + max_height + 2, z, BLOCK_LEAVES);
+}
+
+void drawLoadingtext(const int i)
+{
+    static int count = 0;
+    static bool shown = false;
+
+    if(i == -1)
+    {
+        count = 0;
+        shown = false;
+        return;
+    }
+
+    if(shown == true)
+        return;
+
+    count += 1;
+    if(count < i)
+        return;
+
+    shown = true;
+
+    TEXTURE screen;
+    screen.width = SCREEN_WIDTH;
+    screen.height = SCREEN_HEIGHT;
+    screen.bitmap = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
+    drawTransparentTexture(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
 }

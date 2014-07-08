@@ -145,5 +145,5 @@ void AABB::render()
 
 void AABB::print()
 {
-    printf("X: %d-%d Y: %d-%d Z: %d-%d", low_x.toInt(), high_x.toInt(), low_y.toInt(), high_y.toInt(), low_z.toInt(), high_z.toInt());
+    printf("X: %d-%d Y: %d-%d Z: %d-%d", low_x.toInteger<int>(), high_x.toInteger<int>(), low_y.toInteger<int>(), high_y.toInteger<int>(), low_z.toInteger<int>(), high_z.toInteger<int>());
 }
