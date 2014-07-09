@@ -9,8 +9,6 @@
 class WorldTask : public Task
 {
 public:
-    WorldTask();
-
     virtual void makeCurrent() override;
 
     virtual void logic() override;
@@ -31,11 +29,16 @@ private:
 
     GLFix speed();
 
+    //Player position and movement
     AABB aabb;
     bool can_jump = false, tp_had_contact = false;
     int tp_last_x = 0, tp_last_y = 0;
     GLFix vy = 0; //Y-Velocity for gravity and jumps
     bool in_water = false;
+
+    static constexpr unsigned int blockselection_frames = 2;
+    unsigned int blockselection_frame = 0, blockselection_frame_fraction = 0;
+
     Position selection_pos; AABB::SIDE selection_side; Position selection_pos_abs; bool do_test = true; //For intersectsRay
 };
 

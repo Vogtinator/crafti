@@ -9,11 +9,9 @@
 #include "font.h"
 #include "inventory.h"
 
-WorldTask world_task;
+#include "textures/blockselection.h"
 
-WorldTask::WorldTask()
-{
-}
+WorldTask world_task;
 
 void WorldTask::makeCurrent()
 {
@@ -225,6 +223,8 @@ void WorldTask::logic()
             selection_pos_abs = {x + dx * dist, y + eye_pos + dy * dist, z + dz * dist};
     }
 
+    world.setPosition(x, y, z);
+
     do_test = !do_test;
 
     if(key_held_down)
@@ -357,13 +357,30 @@ void WorldTask::render()
     //Inverted translation of the world
     glTranslatef(-x, -y - eye_pos, -z);
 
-    world.setPosition(x, y, z);
+    glBindTexture(terrain_current);
 
     world.render();
 
     //Draw indication
+    glBindTexture(&blockselection);
+
     glBegin(GL_QUADS);
-    const TextureAtlasEntry &tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].current; //Why not. Transparent, yet visible
+
+    //Do a quick animation
+    const unsigned int blockselection_frame_width = blockselection.width / blockselection_frames;
+    TextureAtlasEntry tex = textureArea(0, 0, blockselection_frame_width, blockselection.height);
+    tex.left += blockselection_frame_width * blockselection_frame;
+    tex.right += blockselection_frame_width * blockselection_frame;
+
+    //Only increment the frame nr each 5 frames
+    if(++blockselection_frame_fraction == 5)
+    {
+        blockselection_frame_fraction = 0;
+
+        if(++blockselection_frame == blockselection_frames)
+            blockselection_frame = 0;
+    }
+
     const GLFix indicator_x = selection_pos.x * BLOCK_SIZE, indicator_y = selection_pos.y * BLOCK_SIZE, indicator_z = selection_pos.z * BLOCK_SIZE;
     const GLFix selection_offset = 3; //Needed to prevent Z-fighting
     switch(selection_side)
