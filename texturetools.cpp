@@ -100,8 +100,6 @@ TEXTURE* loadTextureFromFile(const char* filename)
 
     pixels = width * height;
     buffer = new RGB24[pixels];
-    if(!buffer)
-        goto end;
 
     if(fread(buffer, sizeof(RGB24), pixels, texture_file) != pixels)
     {
@@ -126,6 +124,44 @@ TEXTURE* loadTextureFromFile(const char* filename)
     fclose(texture_file);
 
     return texture;
+}
+
+bool saveTextureToFile(const TEXTURE &texture, const char *filename)
+{
+    FILE *f = fopen(filename, "wb");
+    if(!f)
+        return false;
+
+    if(fprintf(f, "P6 %d %d %d ", texture.width, texture.height, 255) < 0)
+    {
+        fclose(f);
+        return false;
+    }
+
+    unsigned int pixels = texture.width * texture.height;
+    RGB24 *buffer24 = new RGB24[pixels];
+
+    //Convert to RGB24
+    RGB24 *ptr24 = buffer24;
+    COLOR *ptr16 = texture.bitmap;
+    while(pixels--)
+    {
+        ptr24->r = (*ptr16 & 0b1111100000000000) >> 8;
+        ptr24->g = (*ptr16 & 0b0000011111100000) >> 3;
+        ptr24->b = (*ptr16 & 0b0000000000011111) << 3;
+        ++ptr24;
+        ++ptr16;
+    }
+
+    if(fwrite(buffer24, sizeof(RGB24), texture.width * texture.height, f) != texture.width * texture.height)
+    {
+        delete[] buffer24;
+        fclose(f);
+        return false;
+    }
+
+    delete[] buffer24;
+    return true;
 }
 
 TextureAtlasEntry textureArea(const unsigned int x, const unsigned int y, const unsigned int w, const unsigned int h)

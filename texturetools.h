@@ -12,6 +12,7 @@ void copyTexture(const TEXTURE &src, TEXTURE &dest);
 
 //Returns nullptr if loading failed
 TEXTURE *loadTextureFromFile(const char* filename);
+bool saveTextureToFile(const TEXTURE &texture, const char* filename);
 
 //Normal blitting
 void drawTexture(const TEXTURE &src, const unsigned int src_x, const unsigned int src_y, TEXTURE &dest, const unsigned int dest_x, const unsigned int dest_y, unsigned int w, unsigned int h);

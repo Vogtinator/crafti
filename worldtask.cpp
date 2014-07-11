@@ -314,9 +314,17 @@ void WorldTask::logic()
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_PERIOD)) //Open list of blocks
+    else if(keyPressed(KEY_NSPIRE_PERIOD)) //Open list of blocks (or take screenshot with Crtl + .)
     {
-        block_list_task.makeCurrent();
+        if(keyPressed(KEY_NSPIRE_CTRL))
+        {
+            if(!saveTextureToFile(*screen, "/documents/ndless/screenshot.ppm.tns"))
+                printf("Oops, didn't work >:-(\n");
+            else
+                printf("Screenshow taken.\n");
+        }
+        else
+            block_list_task.makeCurrent();
 
         key_held_down = true;
     }
