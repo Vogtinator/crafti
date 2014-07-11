@@ -1,3 +1,5 @@
+#include <sys/stat.h>
+
 #include "worldtask.h"
 
 #include "aabb.h"
@@ -314,14 +316,30 @@ void WorldTask::logic()
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_PERIOD)) //Open list of blocks (or take screenshot with Crtl + .)
+    else if(keyPressed(KEY_NSPIRE_PERIOD)) //Open list of blocks (or take screenshot with Ctrl + .)
     {
         if(keyPressed(KEY_NSPIRE_CTRL))
         {
-            if(!saveTextureToFile(*screen, "/documents/ndless/screenshot.ppm.tns"))
-                printf("Oops, didn't work >:-(\n");
+            //Find a filename that doesn't exist
+            char buf[45];
+
+            unsigned int i;
+            for(i = 0; i <= 999; ++i)
+            {
+                sprintf(buf, "/documents/ndless/screenshot_%d.ppm.tns", i);
+
+                struct stat stat_buf;
+                if(stat(buf, &stat_buf) != 0)
+                    break;
+            }
+
+            if(i > 999 || !saveTextureToFile(*screen, buf))
+                setMessage("Screenshot failed!");
             else
-                printf("Screenshow taken.\n");
+            {
+                sprintf(message, "Screenshot taken (%d)!", i);
+                message_timeout = 20;
+            }
         }
         else
             block_list_task.makeCurrent();
@@ -452,6 +470,12 @@ void WorldTask::render()
         current_inventory.draw(*screen);
         drawStringCenter(global_block_renderer.getName(current_inventory.currentSlot()), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());
     }
+
+    if(message_timeout > 0)
+    {
+        drawString(message, 0xFFFF, *screen, 2, 5);
+        --message_timeout;
+    }
 }
 
 void WorldTask::resetWorld()
@@ -461,4 +485,13 @@ void WorldTask::resetWorld()
     xr = yr = 0;
     world.generateSeed();
     world.clear();
+}
+
+void WorldTask::setMessage(const char *message)
+{
+    if(strlen(message) >= sizeof(this->message))
+        return;
+
+    strcpy(this->message, message);
+    message_timeout = 20;
 }

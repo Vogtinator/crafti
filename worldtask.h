@@ -21,6 +21,8 @@ public:
 
     static constexpr GLFix player_width = BLOCK_SIZE*0.8f, player_height = BLOCK_SIZE*1.8f, eye_pos = BLOCK_SIZE*1.6f;
 
+    void setMessage(const char *message);
+
 private:
     void crosshairPixel(int x, int y);
 
@@ -40,6 +42,8 @@ private:
     unsigned int blockselection_frame = 0, blockselection_frame_fraction = 0;
 
     Position selection_pos; AABB::SIDE selection_side; Position selection_pos_abs; bool do_test = true; //For intersectsRay
+
+    char message[40]; unsigned int message_timeout = 0;
 };
 
 extern WorldTask world_task;
