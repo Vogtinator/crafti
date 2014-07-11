@@ -149,8 +149,8 @@ void drawTexture(const TEXTURE &src, const unsigned int src_x, const unsigned in
     w = std::min(w, dest.width - dest_x);
     h = std::min(h, dest.height - dest_y);
 
-    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width,
-            *src_ptr = src.bitmap + src_x + src_y * src.width;
+    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width;
+    const COLOR *src_ptr = src.bitmap + src_x + src_y * src.width;
 
     const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
 
@@ -175,8 +175,8 @@ void drawTextureOverlay(const TEXTURE &src, const unsigned int src_x, const unsi
     w = std::min(w, dest.width - dest_x);
     h = std::min(h, dest.height - dest_y);
 
-    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width,
-            *src_ptr = src.bitmap + src_x + src_y * src.width;
+    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width;
+    const COLOR *src_ptr = src.bitmap + src_x + src_y * src.width;
 
     const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
 
@@ -219,8 +219,8 @@ void drawTransparentTexture(const TEXTURE &src, const unsigned int src_x, const 
     w = std::min(w, dest.width - dest_x);
     h = std::min(h, dest.height - dest_y);
 
-    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width,
-            *src_ptr = src.bitmap + src_x + src_y * src.width;
+    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width;
+    const COLOR *src_ptr = src.bitmap + src_x + src_y * src.width;
 
     const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
 
