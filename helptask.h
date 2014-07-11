@@ -17,7 +17,7 @@ public:
     virtual void logic() override;
 
 private:
-    static constexpr int background_width = SCREEN_WIDTH - 50, background_height = SCREEN_HEIGHT - 50;
+    static constexpr int background_width = SCREEN_WIDTH - 40, background_height = SCREEN_HEIGHT - 40;
     TEXTURE *background;
 };
 

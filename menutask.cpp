@@ -68,6 +68,7 @@ void MenuTask::logic()
             break;
         case SETTINGS:
             settings_task.makeCurrent();
+            world_task.setMessage("Settings applied.");
             break;
         default:
             world_task.makeCurrent();
@@ -105,10 +106,12 @@ void MenuTask::logic()
 
         case LOAD_WORLD:
             load();
+            world_task.setMessage("World loaded.");
             break;
 
         case SAVE_WORLD:
             save();
+            world_task.setMessage("World saved.");
             break;
 
         case EXIT:

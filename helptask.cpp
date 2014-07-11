@@ -42,6 +42,7 @@ void HelpTask::render()
                "Menu: Open menu\n"
                "    2-8: Move cursor\n"
                "    5: Select\n"
+               "Ctrl+.: Take screenshot\n"
                "\n"
                "Made by Fabian Vogt", 0xFFFF, *screen, x + 10, y + 8);
 }
