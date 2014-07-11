@@ -3,10 +3,10 @@ OBJS := font.h font_dat.h inventory.h loading.h loadingtext.h menu.h selection.h
 all: $(OBJS)
 
 %.h: %.bmp
-	ConvertImg $^ > $@
+	ConvertImg --format=ngl $^ $@
 
 %.h: %.png
-	ConvertImg $^ > $@
+	ConvertImg --format=ngl $^ $@
 
 font_dat.h: font.dat
 	xxd -i $^ > $@
