@@ -27,10 +27,11 @@ const char *fastmode_values[] = {
 SettingsTask::SettingsTask()
 {
     //Must have the same order as the "Settings" enum
-    settings.push_back({"Leaves", leaves_values, 2, 0, 0});
-    settings.push_back({"Speed", speed_values, 3, 1, 0});
-    settings.push_back({"Distance", nullptr, 10, 2, 1});
-    settings.push_back({"Fast mode", fastmode_values, 2, 0, 0});
+    settings.push_back({"Leaves", leaves_values, 2, 0, 0, 1});
+    settings.push_back({"Speed", speed_values, 3, 1, 0, 1});
+    settings.push_back({"Distance", nullptr, 10, 2, 1, 1});
+    settings.push_back({"Fast mode", fastmode_values, 2, 0, 0, 1});
+    settings.push_back({"Near plane", nullptr, 500, 256, 120, 16});
 
     background = newTexture(background_width, background_height, 0);
 }
@@ -100,6 +101,8 @@ void SettingsTask::logic()
         {
             world_task.world.setDirty();
             world_task.world.setFieldOfView(settings[DISTANCE].current_value);
+
+            nglSetNearPlane(settings[NEARPLANE_Z].current_value);
         }
 
         key_held_down = true;
@@ -124,10 +127,10 @@ void SettingsTask::logic()
     else if(keyPressed(KEY_NSPIRE_LEFT) || keyPressed(KEY_NSPIRE_4))
     {
         SettingsEntry &entry = settings[current_selection];
-        if(entry.current_value == entry.min_value)
+        if(entry.current_value < entry.min_value + entry.step)
             entry.current_value = entry.values_count - 1;
         else
-            --entry.current_value;
+            entry.current_value -= entry.step;
 
         changed_something = true;
 
@@ -136,7 +139,7 @@ void SettingsTask::logic()
     else if(keyPressed(KEY_NSPIRE_RIGHT) || keyPressed(KEY_NSPIRE_6))
     {
         SettingsEntry &entry = settings[current_selection];
-        ++entry.current_value;
+        entry.current_value += entry.step;
         if(entry.current_value >= entry.values_count)
             entry.current_value = entry.min_value;
 
@@ -170,6 +173,8 @@ bool SettingsTask::loadFromFile(FILE *file)
     }
 
     world_task.world.setDirty();
+
+    nglSetNearPlane(settings[NEARPLANE_Z].current_value);
 
     return true;
 }

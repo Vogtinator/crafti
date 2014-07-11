@@ -1,7 +1,7 @@
 #ifndef GL_H
 #define GL_H
 
-//nGL version 0.6.4
+//nGL version 0.6.5
 #include "fix.h"
 
 //Either colors or textures, but not both
@@ -29,7 +29,6 @@
 #error "Colors and textures cannot be used simultaneously!"
 #endif
 
-#define NEAR_PLANE 256
 #define CLIP_PLANE 25
 
 #define MATRIX_STACK_SIZE 10
@@ -89,6 +88,7 @@ void nglInit();
 void nglUninit();
 //The buffer to render to
 void nglSetBuffer(COLOR *screenBuf);
+void nglSetNearPlane(const GLFix near_plane);
 //Display the buffer
 void nglDisplay();
 void nglSetColor(const COLOR c);

@@ -13,6 +13,7 @@ static COLOR color;
 static GLFix u, v;
 static COLOR *screen;
 static GLFix *z_buffer;
+static GLFix near_plane = 256;
 static const TEXTURE *texture;
 static unsigned int vertices_count = 0;
 static VERTEX vertices[4];
@@ -202,7 +203,7 @@ void nglPerspective(VERTEX *v)
     v->x = new_x;
     v->y = new_y;
 #else
-    GLFix div = GLFix(NEAR_PLANE)/v->z;
+    GLFix div = near_plane/v->z;
 
     //Round to integers, as we don't lose the topmost 8 bits with integer multiplication
     v->x.value = v->x.toInteger<int>() * div.value;
@@ -859,6 +860,11 @@ void glBindTexture(const TEXTURE *tex)
 void nglForceColor(const bool force)
 {
     force_color = force;
+}
+
+void nglSetNearPlane(const GLFix new_near_plane)
+{
+    near_plane = new_near_plane;
 }
 
 void glColor3f(const GLFix r, const GLFix g, const GLFix b)

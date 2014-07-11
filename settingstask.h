@@ -14,13 +14,15 @@ public:
         unsigned int values_count;
         unsigned int current_value;
         unsigned int min_value; //Only makes sense if values == nullptr
+        unsigned int step;
     };
 
     enum Settings {
         LEAVES = 0,
         SPEED,
         DISTANCE, //Managed by World, but can be changed here as well
-        FAST_MODE
+        FAST_MODE,
+        NEARPLANE_Z
     };
 
     SettingsTask();
