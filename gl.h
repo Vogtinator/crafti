@@ -1,37 +1,10 @@
 #ifndef GL_H
 #define GL_H
 
-//nGL version 0.6.5
+//nGL version 0.6.6
 #include "fix.h"
 
-//Either colors or textures, but not both
-#define TEXTURE_SUPPORT
-
-//Warning, this will be slower than textures!
-//#define INTERPOLATE_COLORS
-
-//#define WIREFRAME_MODE
-
-//If disabled, triangles partially behind the CLIP_PLANE will be discarded
-#define Z_CLIPPING
-
-//Deactivate after you don't get any warnings.
-//Otherwise it may corrupt random memory and crash.
-//#define SAFE_MODE
-
-//If some geometry inaccuracies annoy you, enable this.
-//It's a bit slower though.
-//#define BETTER_PERSPECTIVE
-
-//#define FPS_COUNTER
-
-#if defined(TEXTURE_SUPPORT) && defined(INTERPOLATE_COLORS)
-#error "Colors and textures cannot be used simultaneously!"
-#endif
-
-#define CLIP_PLANE 25
-
-#define MATRIX_STACK_SIZE 10
+#include "glconfig.h"
 
 //These values are used to calculate offsets into the buffer.
 //If you want something like FBOs, make them variables and set them accordingly.

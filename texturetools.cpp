@@ -12,7 +12,13 @@ TEXTURE* newTexture(const unsigned int w, const unsigned int h, const COLOR fill
 
     ret->width = w;
     ret->height = h;
-    ret->bitmap = new COLOR[w * h]{fill};
+    if(fill == 0)
+        ret->bitmap = new COLOR[w * h]{fill};
+    else
+    {
+        ret->bitmap = new COLOR[w * h];
+        std::fill(ret->bitmap, ret->bitmap + w * h, fill);
+    }
 
     return ret;
 }
