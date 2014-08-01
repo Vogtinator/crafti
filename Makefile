@@ -3,7 +3,7 @@ GPP = nspire-g++
 LD = nspire-ld
 GENZEHN = genzehn
 OPTIMIZE ?= fast
-GCCFLAGS = -O$(OPTIMIZE) -g -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fomit-frame-pointer -flto -fno-rtti -fgcse-sm -fgcse-las -funsafe-loop-optimizations -fno-fat-lto-objects -frename-registers -fprefetch-loop-arrays
+GCCFLAGS = -O$(OPTIMIZE) -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fomit-frame-pointer -flto -fno-rtti -fgcse-sm -fgcse-las -funsafe-loop-optimizations -fno-fat-lto-objects -frename-registers -fprefetch-loop-arrays
 LDFLAGS = -lm
 EXE = crafti
 OBJS = $(patsubst %.c, %.o, $(shell find . -name \*.c))
@@ -25,10 +25,10 @@ $(EXE).elf: $(OBJS)
 	+$(LD) $^ -o $@ $(GCCFLAGS) $(LDFLAGS)
 
 $(EXE).tns: $(EXE).elf
-	$(GENZEHN) --input $^ --output $@ --name "Crafti" --version 10 --author "Fabian Vogt" --notice "3D Minecraft"
+	$(GENZEHN) --input $^ --output $@ --name "Crafti" --version 11 --author "Fabian Vogt" --notice "3D Minecraft"
 
 $(EXE).prg.tns: $(EXE).tns
-	cat /opt/nspire/Ndless/ndless/src/resources-loader/zehn_loader.tns $^ > $@
+	+make-prg $^ $@
 
 .PHONY: clean
 clean:

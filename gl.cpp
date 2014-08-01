@@ -80,7 +80,7 @@ void nglInit()
         COLOR *new_buffer = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
         screen_inverted = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
         std::fill(new_buffer, new_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, 0xFFFF);
-        SCREEN_BASE_ADDRESS = reinterpret_cast<uint32_t>(new_buffer);
+        SCREEN_BASE_ADDRESS = reinterpret_cast<void*>(new_buffer);
         *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b1000; //Switch to 8-bit mode
     }
 
@@ -128,7 +128,7 @@ void nglUninit()
         //Switch to 4-bit mode again
         *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b0100;
         COLOR *new_buffer = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
-        SCREEN_BASE_ADDRESS = 0xA4000100;
+        SCREEN_BASE_ADDRESS = reinterpret_cast<void*>(0xA4000100);
         delete[] new_buffer;
         delete[] screen_inverted;
     }
@@ -355,6 +355,14 @@ COLOR colorRGB(const GLFix r, const GLFix g, const GLFix b)
     const int b1 = (b * GLFix(0b11111)).round();
 
     return ((r1 & 0b11111) << 11) | ((g1 & 0b111111) << 5) | (b1 & 0b11111);
+}
+
+GLFix nglZBufferAt(const unsigned int x, const unsigned int y)
+{
+    if(x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT)
+        return 0;
+
+    return z_buffer[x + y * SCREEN_WIDTH];
 }
 
 //Doesn't interpolate colors even if enabled
@@ -865,6 +873,11 @@ void nglForceColor(const bool force)
 void nglSetNearPlane(const GLFix new_near_plane)
 {
     near_plane = new_near_plane;
+}
+
+GLFix nglGetNearPlane()
+{
+    return near_plane;
 }
 
 void glColor3f(const GLFix r, const GLFix g, const GLFix b)

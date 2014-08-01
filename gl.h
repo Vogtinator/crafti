@@ -1,7 +1,7 @@
 #ifndef GL_H
 #define GL_H
 
-//nGL version 0.6.6
+//nGL version 0.6.7
 #include "fix.h"
 
 #include "glconfig.h"
@@ -62,6 +62,8 @@ void nglUninit();
 //The buffer to render to
 void nglSetBuffer(COLOR *screenBuf);
 void nglSetNearPlane(const GLFix near_plane);
+GLFix nglGetNearPlane();
+GLFix nglZBufferAt(const unsigned int x, const unsigned int y);
 //Display the buffer
 void nglDisplay();
 void nglSetColor(const COLOR c);
