@@ -22,7 +22,8 @@ public:
         SPEED,
         DISTANCE, //Managed by World, but can be changed here as well
         FAST_MODE,
-        NEARPLANE_Z
+        NEARPLANE_Z,
+        TICKS_ENABLED
     };
 
     SettingsTask();

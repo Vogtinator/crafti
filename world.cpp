@@ -4,6 +4,7 @@
 #include "blockrenderer.h"
 #include "world.h"
 #include "chunk.h"
+#include "settingstask.h"
 
 World::World() : perlin_noise(0)
 {
@@ -259,8 +260,11 @@ bool World::saveToFile(FILE *file) const
 
 void World::render()
 {
-    for(Chunk *c : visible_chunks)
-        c->logic();
+    if(settings_task.getValue(SettingsTask::TICKS_ENABLED))
+    {
+        for(Chunk *c : visible_chunks)
+            c->logic();
+    }
 
     for(Chunk *c : visible_chunks)
         c->render();

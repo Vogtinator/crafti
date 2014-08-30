@@ -25,10 +25,6 @@ TEXTURE* resizeTexture(const TEXTURE &src, const unsigned int w, const unsigned 
 //Makes the texture greyscale
 void greyscaleTexture(TEXTURE &tex);
 
-//Show loading text above, will be cleared on the next rendered frame, doesn't really belong here
-//Increases internal counter, if it's >= i it's shown, if i == -1, reset the internal counter
-void drawLoadingtext(const int i);
-
 struct TextureAtlasEntry
 {
     unsigned int left, right; //U

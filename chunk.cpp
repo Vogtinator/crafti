@@ -334,7 +334,7 @@ void Chunk::render()
             v7{abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0},
             v8{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0};
 
-    //Z-Clipping (now, it's a bit cheaper than a full MultMatVectRes)
+    //Z-Culling (now, it's a bit cheaper than a full MultMatVectRes)
     if(behindClip(v1) && behindClip(v2) && behindClip(v3) && behindClip(v4) && behindClip(v5) && behindClip(v6) && behindClip(v7) && behindClip(v8))
         return;
 
@@ -358,7 +358,7 @@ void Chunk::render()
     nglPerspective(&v15);
     nglPerspective(&v16);
 
-    //X and Y-Clipping
+    //X and Y-Culling
 
     if(v9.x < GLFix(0) && v10.x < GLFix(0) && v11.x < GLFix(0) && v12.x < GLFix(0) && v13.x < GLFix(0) && v14.x < GLFix(0) && v15.x < GLFix(0) && v16.x < GLFix(0))
         return;
