@@ -10,7 +10,7 @@ OBJS = $(patsubst %.c, %.o, $(shell find . -name \*.c))
 OBJS += $(patsubst %.cpp, %.o, $(shell find . -name \*.cpp))
 OBJS += $(patsubst %.S, %.o, $(shell find . -name \*.S))
 
-all: $(EXE).tns $(EXE).prg.tns
+all: $(EXE).tns
 
 %.o: %.cpp
 	$(GPP) -std=c++11 $(GCCFLAGS) -c $< -o $@
@@ -25,12 +25,11 @@ $(EXE).elf: $(OBJS)
 	+$(LD) $^ -o $@ $(GCCFLAGS) $(LDFLAGS)
 
 $(EXE).tns: $(EXE).elf
-	$(GENZEHN) --input $^ --output $@ --name "Crafti" --version 11 --author "Fabian Vogt" --notice "3D Minecraft"
-
-$(EXE).prg.tns: $(EXE).tns
-	+make-prg $^ $@
+	+$(GENZEHN) --input $^ --output $@.zehn --name "Crafti" --version 11 --author "Fabian Vogt" --notice "3D Minecraft"
+	+make-prg $@.zehn $@
+	+rm $@.zehn
 
 .PHONY: clean
 clean:
 	rm -f `find . -name \*.o`
-	rm -f $(EXE).tns $(EXE).prg.tns $(EXE).elf
+	rm -f $(EXE).tns $(EXE).elf
