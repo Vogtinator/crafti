@@ -1,7 +1,7 @@
 #ifndef GL_H
 #define GL_H
 
-//nGL version 0.6.7
+//nGL version 0.7
 #include "fix.h"
 
 #include "glconfig.h"
@@ -27,7 +27,7 @@ typedef Fix<8, int_fast32_t> GLFix;
 
 typedef uint16_t COLOR;
 typedef struct VERTEX { GLFix x; GLFix y; GLFix z; GLFix u; GLFix v; COLOR c; } VERTEX;
-typedef struct TEXTURE { unsigned int width; unsigned int height; COLOR *bitmap; } TEXTURE;
+typedef struct TEXTURE { uint16_t width; uint16_t height; bool has_transparency; COLOR transparent_color; COLOR *bitmap; } TEXTURE;
 
 class MATRIX {
 public:

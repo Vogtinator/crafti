@@ -791,5 +791,5 @@ void drawLoadingtext(const int i)
     screen.width = SCREEN_WIDTH;
     screen.height = SCREEN_HEIGHT;
     screen.bitmap = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
-    drawTransparentTexture(loadingtext, 0, 0, screen, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
+    drawTexture(loadingtext, screen, 0, 0, loadingtext.width, loadingtext.height, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
 }

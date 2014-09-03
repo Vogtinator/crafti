@@ -330,12 +330,9 @@ void BlockRenderer::renderBillboard(int local_x, int local_y, int local_z, const
     c.addAlignedVertex(local_x + 1, local_y, local_z, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE);
 }
 
-void BlockRenderer::drawTextureAtlasEntry(TEXTURE &src, const TextureAtlasEntry &tex, bool transparent, TEXTURE &dest, const int dest_x, const int dest_y)
+void BlockRenderer::drawTextureAtlasEntry(TEXTURE &src, const TextureAtlasEntry &tex, TEXTURE &dest, const int dest_x, const int dest_y)
 {
-    if(transparent)
-        drawTransparentTexture(src, tex.left, tex.top, dest, dest_x, dest_y, tex.right - tex.left, tex.bottom - tex.top);
-    else
-        drawTexture(src, tex.left, tex.top, dest, dest_x, dest_y, tex.right - tex.left, tex.bottom - tex.top);
+    drawTexture(src, dest, tex.left, tex.top, tex.right - tex.left, tex.bottom - tex.top, dest_x, dest_y, tex.right - tex.left, tex.bottom - tex.top);
 }
 
 UniversalBlockRenderer::UniversalBlockRenderer()
@@ -559,7 +556,7 @@ void NormalBlockRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, co
 {
     const TextureAtlasEntry tex = block_textures[getBLOCK(block)][BLOCK_FRONT].resized;
 
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, false, dest, dest_x, dest_y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, dest, dest_x, dest_y);
 }
 
 void OrientedBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)

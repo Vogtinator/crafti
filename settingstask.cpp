@@ -39,7 +39,7 @@ SettingsTask::SettingsTask()
     settings.push_back({"Near plane", nullptr, 500, 256, 120, 16});
     settings.push_back({"World", world_static_values, 2, 1, 0, 1});
 
-    background = newTexture(background_width, background_height, 0);
+    background = newTexture(background_width, background_height, 0, false);
 }
 
 SettingsTask::~SettingsTask()
@@ -75,7 +75,7 @@ void SettingsTask::render()
         SettingsEntry &e = settings[i];
 
         if(i == current_selection)
-            drawTransparentTexture(selection, 0, 0, *screen, x + 5, y, selection.width, selection.height);
+            drawTexture(selection, *screen, 0, 0, selection.width, selection.height, x + 5, y, selection.width, selection.height);
 
         drawString(e.name, 0xFFFF, *screen, x + selection.width + 10, y);
 

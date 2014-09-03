@@ -46,4 +46,6 @@ static uint16_t loadingtext_data[] = {
 static TEXTURE loadingtext{
 .width = 144,
 .height = 42,
+.has_transparency = true,
+.transparent_color = 0,
 .bitmap = loadingtext_data };

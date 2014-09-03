@@ -70,7 +70,7 @@ BlockListTask::BlockListTask()
     blocklist_height = SCREEN_HEIGHT - current_inventory.height() - 2*5;
     blocklist_top = (SCREEN_HEIGHT - blocklist_height - current_inventory.height()) / 2;
 
-    blocklist_background = newTexture(blocklist_width, blocklist_height, 0);
+    blocklist_background = newTexture(blocklist_width, blocklist_height, 0, false);
 }
 
 BlockListTask::~BlockListTask()
@@ -112,7 +112,7 @@ void BlockListTask::render()
 
             //Again, use the glass texture as selection indicator
             if(block_nr == current_selection)
-                drawTransparentTexture(*glass_big, 0, 0, *screen, screen_x, screen_y, glass_big->width, glass_big->height);
+                drawTexture(*glass_big, *screen, 0, 0, glass_big->width, glass_big->height, screen_x, screen_y, glass_big->width, glass_big->height);
 
             block_nr++;
             if(block_nr == user_selectable_count)

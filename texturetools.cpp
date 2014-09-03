@@ -6,7 +6,7 @@
 #include "gl.h"
 #include "texturetools.h"
 
-TEXTURE* newTexture(const unsigned int w, const unsigned int h, const COLOR fill)
+TEXTURE* newTexture(const unsigned int w, const unsigned int h, const COLOR fill, const bool transparent, const COLOR transparent_color)
 {
     TEXTURE *ret = new TEXTURE;
 
@@ -19,6 +19,9 @@ TEXTURE* newTexture(const unsigned int w, const unsigned int h, const COLOR fill
         ret->bitmap = new COLOR[w * h];
         std::fill(ret->bitmap, ret->bitmap + w * h, fill);
     }
+
+    ret->has_transparency = transparent;
+    ret->transparent_color = transparent_color;
 
     return ret;
 }
@@ -180,30 +183,102 @@ TextureAtlasEntry textureArea(const unsigned int x, const unsigned int y, const 
     };
 }
 
-void drawTexture(const TEXTURE &src, const unsigned int src_x, const unsigned int src_y, TEXTURE &dest, const unsigned int dest_x, const unsigned int dest_y, unsigned int w, unsigned int h)
+void drawTexture(const TEXTURE &src, TEXTURE &dest,
+				 uint16_t src_x, uint16_t src_y, uint16_t src_w, uint16_t src_h,
+				 uint16_t dest_x, uint16_t dest_y, uint16_t dest_w, uint16_t dest_h)
 {
-    if(dest_x >= dest.width || dest_y >= dest.height)
-        return;
-
-    if(src_x >= src.width || src_y >= src.height)
-        return;
-
-    w = std::min(w, dest.width - dest_x);
-    h = std::min(h, dest.height - dest_y);
-
-    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width;
-    const COLOR *src_ptr = src.bitmap + src_x + src_y * src.width;
-
-    const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
-
-    for(unsigned int i = h; i--;)
-    {
-        for(unsigned int j = w; j--;)
-            *dest_ptr++ = *src_ptr++;
-
-        dest_ptr += nextline_dest;
-        src_ptr += nextline_src;
-    }
+	if(src_x + src_w > src.width || src_y + src_h > src.height || dest_x + dest_w > dest.width || dest_y + dest_h > dest.height)
+		return;
+	
+	uint16_t *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width;
+	const unsigned int dest_nextline = dest.width - dest_w;
+	
+	//Special cases, for better performance
+	if(src_w == dest_w && src_h == dest_h)
+	{
+		dest_w = std::min(src_w, static_cast<uint16_t>(dest.width - dest_x));
+		dest_h = std::min(src_h, static_cast<uint16_t>(dest.height - dest_y));
+		
+		const uint16_t *src_ptr = src.bitmap + src_x + src_y * src.width;
+		const unsigned int src_nextline = src.width - dest_w;
+		
+		if(!src.has_transparency)
+		{
+			for(unsigned int i = dest_h; i--;)
+			{
+				for(unsigned int j = dest_w; j--;)
+					*dest_ptr++ = *src_ptr++;
+				
+				dest_ptr += dest_nextline;
+				src_ptr += src_nextline;
+			}
+		}
+		else
+		{
+			for(unsigned int i = dest_h; i--;)
+			{
+				for(unsigned int j = dest_w; j--;)
+				{
+					uint16_t c = *src_ptr++;
+					if(c != src.transparent_color)
+						*dest_ptr = c;
+					
+					++dest_ptr;
+				}
+				
+				dest_ptr += dest_nextline;
+				src_ptr += src_nextline;
+			}
+		}
+		
+		return;
+	}
+	
+	const GLFix dx_src = GLFix(src_w) / dest_w, dy_src = GLFix(src_h) / dest_h;
+	uint16_t *dest_line_end = std::min(dest_ptr + dest_w, dest.bitmap + dest.width * dest.height);
+	const uint16_t *dest_ptr_end = std::min(dest_ptr + dest.width * dest_h, dest.bitmap + dest.height * dest.width);
+	
+	GLFix src_fx = src_x, src_fy = src_y;
+	
+	if(!src.has_transparency)
+	{
+		while(dest_ptr < dest_ptr_end)
+		{
+			src_fx = src_x;
+			
+			while(dest_ptr < dest_line_end)
+			{	
+				*dest_ptr++ = src.bitmap[(src_fy.floor() * src.width) + src_fx.floor()];
+				
+				src_fx += dx_src;
+			}
+			
+			dest_ptr += dest_nextline;
+			dest_line_end += dest.width;
+			src_fy += dy_src;
+		}
+	}
+	else
+	{
+		while(dest_ptr < dest_ptr_end)
+		{
+			src_fx = src_x;
+			
+			while(dest_ptr < dest_line_end)
+			{
+				uint16_t c = src.bitmap[(src_fy.floor() * src.width) + src_fx.floor()];
+				if(c != src.transparent_color)
+					*dest_ptr = c;
+				
+				src_fx += dx_src;
+				++dest_ptr;
+			}
+			
+			dest_ptr += dest_nextline;
+			dest_line_end += dest.width;
+			src_fy += dy_src;
+		}
+	}
 }
 
 void drawTextureOverlay(const TEXTURE &src, const unsigned int src_x, const unsigned int src_y, TEXTURE &dest, const unsigned int dest_x, const unsigned int dest_y, unsigned int w, unsigned int h)
@@ -243,38 +318,6 @@ void drawTextureOverlay(const TEXTURE &src, const unsigned int src_x, const unsi
             unsigned int b = (b_n + b_o) >> 1;
 
             *dest = (r << 11) | (g << 5) | (b << 0);
-        }
-
-        dest_ptr += nextline_dest;
-        src_ptr += nextline_src;
-    }
-}
-
-void drawTransparentTexture(const TEXTURE &src, const unsigned int src_x, const unsigned int src_y, TEXTURE &dest, const unsigned int dest_x, const unsigned int dest_y, unsigned int w, unsigned int h)
-{
-    if(dest_x >= dest.width || dest_y >= dest.height)
-        return;
-
-    if(src_x >= src.width || src_y >= src.height)
-        return;
-
-    w = std::min(w, dest.width - dest_x);
-    h = std::min(h, dest.height - dest_y);
-
-    COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width;
-    const COLOR *src_ptr = src.bitmap + src_x + src_y * src.width;
-
-    const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
-
-    for(unsigned int i = h; i--;)
-    {
-        for(unsigned int j = w; j--;)
-        {
-            COLOR src = *src_ptr++;
-            COLOR *dest = dest_ptr++;
-
-            if(src != 0x0000)
-                *dest = src;
         }
 
         dest_ptr += nextline_dest;

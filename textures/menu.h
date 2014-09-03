@@ -174,4 +174,6 @@ static uint16_t menu_data[] = {
 static TEXTURE menu{
 .width = 160,
 .height = 170,
+.has_transparency = true,
+.transparent_color = 0,
 .bitmap = menu_data };

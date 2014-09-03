@@ -9,7 +9,7 @@ void RedstoneTorchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x,
 
 void RedstoneTorchRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[3][6].resized, true, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[3][6].resized, dest, x, y);
 }
 
 const char *RedstoneTorchRenderer::getName(const BLOCK_WDATA)

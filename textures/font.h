@@ -260,4 +260,6 @@ static uint16_t font_data[] = {
 static TEXTURE font{
 .width = 256,
 .height = 256,
+.has_transparency = false,
+.transparent_color = 0,
 .bitmap = font_data };

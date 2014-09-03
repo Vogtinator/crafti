@@ -40,4 +40,6 @@ static uint16_t inventory_data[] = {
 static TEXTURE inventory{
 .width = 172,
 .height = 36,
+.has_transparency = false,
+.transparent_color = 0,
 .bitmap = inventory_data };

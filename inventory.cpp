@@ -19,7 +19,7 @@ void Inventory::draw(TEXTURE &tex)
         const BLOCK_WDATA block = entries[i];
         global_block_renderer.drawPreview(block, tex, (SCREEN_WIDTH - inventory.width) / 2 + 10 + i * 34, SCREEN_HEIGHT - inventory.height + (getBLOCK(block) == BLOCK_DOOR ? 2 : 10));
     }
-    drawTransparentTexture(*glass_big, 0, 0, tex, (SCREEN_WIDTH - inventory.width) / 2 + 2 + current_slot * 34, SCREEN_HEIGHT - inventory.height + 2, 32, 32);
+    drawTexture(*glass_big, tex, 0, 0, 32, 32, (SCREEN_WIDTH - inventory.width) / 2 + 2 + current_slot * 34, SCREEN_HEIGHT - inventory.height + 2, 32, 32);
 }
 
 unsigned int Inventory::height()

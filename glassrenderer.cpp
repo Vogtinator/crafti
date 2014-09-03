@@ -11,5 +11,5 @@ void GlassRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int 
 {
     const TextureAtlasEntry &tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].resized;
 
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, true, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, dest, x, y);
 }

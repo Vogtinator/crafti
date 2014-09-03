@@ -72,7 +72,7 @@ void DoorRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x
 {
     TextureAtlasEntry tex = terrain_atlas[1][5].resized;
     tex.bottom += tex.bottom - tex.top; //Double height
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, true, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, dest, x, y);
 }
 
 bool DoorRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)

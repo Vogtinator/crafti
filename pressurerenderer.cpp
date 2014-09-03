@@ -41,7 +41,7 @@ void PressurePlateRenderer::tick(const BLOCK_WDATA block, int local_x, int local
 
 void PressurePlateRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[3][9].resized, false, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[3][9].resized, dest, x, y);
 }
 
 const char *PressurePlateRenderer::getName(const BLOCK_WDATA)

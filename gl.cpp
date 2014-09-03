@@ -81,7 +81,7 @@ void nglInit()
         screen_inverted = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
         std::fill(new_buffer, new_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, 0xFFFF);
         SCREEN_BASE_ADDRESS = reinterpret_cast<void*>(new_buffer);
-        *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b1000; //Switch to 8-bit mode
+        *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b1000; //Switch to 16-bit mode
     }
 
     #ifdef SAFE_MODE
@@ -863,6 +863,11 @@ const TEXTURE *nglGetTexture()
 void glBindTexture(const TEXTURE *tex)
 {
     texture = tex;
+
+#ifdef SAFE_MODE
+    if(tex.has_transparency && tex.transparent_color != 0)
+        printf("Bound texture doesn't have black as transparent color!\n");
+#endif
 }
 
 void nglForceColor(const bool force)

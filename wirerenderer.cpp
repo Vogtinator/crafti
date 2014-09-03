@@ -7,7 +7,7 @@ void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 
 void WireRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, const int x, const int y)
 {
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[5][10].resized, true, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[5][10].resized, dest, x, y);
 }
 
 void WireRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)

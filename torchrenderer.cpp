@@ -32,7 +32,7 @@ AABB TorchRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 void TorchRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
     TextureAtlasEntry &tex = terrain_atlas[0][5].resized;
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, true, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, dest, x, y);
 }
 
 const char *TorchRenderer::getName(const BLOCK_WDATA /*block*/)

@@ -16,7 +16,7 @@ AABB WheatRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 
 void WheatRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[12][5].resized, true, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[12][5].resized, dest, x, y);
 }
 
 void WheatRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)

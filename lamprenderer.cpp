@@ -12,7 +12,7 @@ void LampRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_
 
 void LampRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[4][13].resized, false, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[4][13].resized, dest, x, y);
 }
 
 void LampRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)

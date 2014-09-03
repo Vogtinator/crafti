@@ -27,7 +27,7 @@ void BillboardRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, cons
     auto &bill = map[getBLOCKDATA(block)];
     TextureAtlasEntry &tex = terrain_atlas[std::get<0>(bill)][std::get<1>(bill)].resized;
 
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, true, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, dest, x, y);
 }
 
 const char *BillboardRenderer::getName(const BLOCK_WDATA block)

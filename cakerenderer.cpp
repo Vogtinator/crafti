@@ -50,7 +50,7 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix 
 void CakeRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
     TextureAtlasEntry &tex = terrain_atlas[12][8].resized;
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, true, dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, dest, x, y);
 }
 
 const char *CakeRenderer::getName(const BLOCK_WDATA /*block*/)

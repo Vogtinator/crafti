@@ -23,7 +23,7 @@ void LeavesRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int
 {
     const TextureAtlasEntry &tex = isTransparent() ? terrain_atlas[4][3].resized : block_textures[BLOCK_LEAVES][BLOCK_FRONT].resized;
 
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, isTransparent(), dest, x, y);
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, dest, x, y);
 }
 
 bool LeavesRenderer::isTransparent()

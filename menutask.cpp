@@ -40,9 +40,9 @@ void MenuTask::render()
 
     const int selection_y[MENU_ITEM_MAX] = { 14, 36, 63, 88, 112, 136 };
 
-    drawTransparentTexture(selection, 0, 0, *menu_with_selection, 23, selection_y[menu_selected_item], selection.width, selection.height);
+    drawTexture(selection, *menu_with_selection, 0, 0, selection.width, selection.height, 23, selection_y[menu_selected_item], selection.width, selection.height);
 
-    drawTransparentTexture(*menu_with_selection, 0, 0, *screen, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection->height);
+    drawTexture(*menu_with_selection, *screen, 0, 0, menu_width_visible, menu_with_selection->height, SCREEN_WIDTH - menu_width_visible, 0, menu_width_visible, menu_with_selection->height);
 }
 
 void MenuTask::logic()

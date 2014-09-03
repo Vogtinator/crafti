@@ -117,12 +117,12 @@ void terrainInit(const char *texture_path)
     makeColor(green, *terrain_current, 4 * field_width, 3 * field_height, field_width, field_height);
 
     //Also redstone
-    drawTexture(*terrain_current, 4 * field_width, 10 * field_height, *terrain_current, 4 * field_width, 11 * field_height, field_width, field_height);
+    drawTexture(*terrain_current, *terrain_current, 4 * field_width, 10 * field_height, field_width, field_height, 4 * field_width, 11 * field_height, field_width, field_height);
     const RGB red = { 0.9f, 0.1f, 0.1f };
     makeColor(red, *terrain_current, 4 * field_width, 11 * field_height, field_width, field_height);
 
     //And redstone switches
-    drawTexture(*terrain_current, 0 * field_width, 6 * field_height, *terrain_current, 0 * field_width, 7 * field_height, field_width, field_height);
+    drawTexture(*terrain_current, *terrain_current, 0 * field_width, 6 * field_height, field_width, field_height, 0 * field_width, 7 * field_height, field_width, field_height);
     const RGB red_tint = { 1.0f, 0.8f, 0.8f };
     makeColor(red_tint, *terrain_current, 0 * field_width, 7 * field_height, field_width, field_height);
 
@@ -192,10 +192,10 @@ void terrainInit(const char *texture_path)
         }
 
         //- 1 to reverse the workaround above. Yes, I hate myself for this.
-        drawTexture(*terrain_current, tae->left - 1, tae->top - 1, *terrain_quad, x, 0, field_width, field_height);
-        drawTexture(*terrain_current, tae->left - 1, tae->top - 1, *terrain_quad, x + field_width, 0, field_width, field_height);
-        drawTexture(*terrain_current, tae->left - 1, tae->top - 1, *terrain_quad, x + field_width, field_height, field_width, field_height);
-        drawTexture(*terrain_current, tae->left - 1, tae->top - 1, *terrain_quad, x, field_height, field_width, field_height);
+        drawTexture(*terrain_current, *terrain_quad, tae->left - 1, tae->top - 1, field_width, field_height, x, 0, field_width, field_height);
+        drawTexture(*terrain_current, *terrain_quad, tae->left - 1, tae->top - 1, field_width, field_height, x + field_width, 0, field_width, field_height);
+        drawTexture(*terrain_current, *terrain_quad, tae->left - 1, tae->top - 1, field_width, field_height, x+ field_width, field_height, field_width, field_height);
+        drawTexture(*terrain_current, *terrain_quad, tae->left - 1, tae->top - 1, field_width, field_height, x, field_height, field_width, field_height);
 
         //Get an average color of the block
         RGB sum;
@@ -245,11 +245,9 @@ void terrainInit(const char *texture_path)
     }
 
     //Resize the glass texture to 32x32
-    TEXTURE *glass = newTexture(field_width, field_height);
     const TextureAtlasEntry &glass_tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].current;
-    drawTexture(*terrain_current, glass_tex.left - 1, glass_tex.top - 1, *glass, 0, 0, field_width, field_height);
-    glass_big = resizeTexture(*glass, 32, 32);
-    deleteTexture(glass);
+    glass_big = newTexture(32, 32);
+    drawTexture(*terrain_current, *glass_big, glass_tex.left - 1, glass_tex.top - 1, field_width, field_height, 0, 0, 32, 32);
 }
 
 void terrainUninit()

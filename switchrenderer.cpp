@@ -79,7 +79,7 @@ void SwitchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix 
 
 void SwitchRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
-    return BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[0][6].resized, true, dest, x, y);
+    return BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[0][6].resized, dest, x, y);
 }
 
 bool SwitchRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)

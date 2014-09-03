@@ -244,4 +244,6 @@ static uint16_t loading_data[] = {
 static TEXTURE loading{
 .width = 320,
 .height = 240,
+.has_transparency = false,
+.transparent_color = 0,
 .bitmap = loading_data };

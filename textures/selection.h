@@ -19,4 +19,6 @@ static uint16_t selection_data[] = {
 static TEXTURE selection{
 .width = 15,
 .height = 15,
+.has_transparency = true,
+.transparent_color = 0,
 .bitmap = selection_data };
