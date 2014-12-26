@@ -2,7 +2,7 @@
 #include "font.h"
 
 #include "textures/font_dat.h"
-#include "textures/font.h"
+#include "textures/font_bmp.h"
 
 static inline int drawChar(char c, COLOR color, TEXTURE &tex, unsigned int x, unsigned int y)
 {
@@ -11,7 +11,7 @@ static inline int drawChar(char c, COLOR color, TEXTURE &tex, unsigned int x, un
 
     //font_dat[16] is the char at the top left
     const unsigned int pos = c - font_dat[16];
-    const unsigned int cols = font.width / font_dat[8];
+    const unsigned int cols = font_bmp.width / font_dat[8];
     unsigned int pos_x = pos % cols;
     unsigned int pos_y = pos / cols;
     pos_x *= width;
@@ -23,7 +23,7 @@ static inline int drawChar(char c, COLOR color, TEXTURE &tex, unsigned int x, un
     for(unsigned int x1 = 0; x1 < width; x1++)
         for(unsigned int y1 = 0; y1 < height; y1++)
         {
-            if(font.bitmap[pos_x + x1 + (pos_y + y1) * font.width] == 0xFFFF)
+            if(font_bmp.bitmap[pos_x + x1 + (pos_y + y1) * font_bmp.width] == 0xFFFF)
                 tex.bitmap[x + x1 + (y + y1) * tex.width] = color;
         }
 

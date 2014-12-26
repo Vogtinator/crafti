@@ -6,6 +6,8 @@
 #include "chunk.h"
 #include "settingstask.h"
 
+World world;
+
 World::World() : perlin_noise(0)
 {
     generateSeed();
@@ -219,7 +221,7 @@ bool World::loadFromFile(FILE *file)
         LOAD_FROM_FILE(y)
         LOAD_FROM_FILE(z)
 
-        Chunk *c = new Chunk(x, y, z, this);
+        Chunk *c = new Chunk(x, y, z);
         if(!c->loadFromFile(file))
         {
             delete c;
@@ -296,7 +298,7 @@ Chunk* World::generateChunk(int x, int y, int z)
     if(Chunk *c = findChunk(x, y, z + 1))
         c->setDirty();
 
-    Chunk *c = new Chunk(x, y, z, this);
+    Chunk *c = new Chunk(x, y, z);
     if(c == nullptr)
         return c;
 

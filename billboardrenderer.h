@@ -9,7 +9,7 @@
 class BillboardRenderer : public DumbBlockRenderer
 {
 public:
-    //BillboardRenderer(std::map<uint8_t, std::tuple<unsigned int, unsigned int, const char *> > map); Using this constructor crashes G++
+    BillboardRenderer() : map() {}
 
     void setEntry(uint8_t data, unsigned int tex_x, unsigned int tex_y, const char *name, const GLFix w, const GLFix h, const GLFix l);
 

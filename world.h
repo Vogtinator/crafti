@@ -57,4 +57,6 @@ private:
     std::vector<BLOCK_CHANGE> pending_block_changes;
 };
 
+extern World world;
+
 #endif // WORLD_H

@@ -18,8 +18,8 @@
 
 constexpr const int Chunk::SIZE;
 
-Chunk::Chunk(int x, int y, int z, World *parent)
-    : x(x), y(y), z(z), abs_x(x*SIZE*BLOCK_SIZE), abs_y(y*SIZE*BLOCK_SIZE), abs_z(z*SIZE*BLOCK_SIZE), parent(parent), aabb(abs_x, abs_y, abs_z, abs_x + SIZE*BLOCK_SIZE, abs_y + SIZE*BLOCK_SIZE, abs_z + SIZE*BLOCK_SIZE)
+Chunk::Chunk(int x, int y, int z)
+    : x(x), y(y), z(z), abs_x(x*SIZE*BLOCK_SIZE), abs_y(y*SIZE*BLOCK_SIZE), abs_z(z*SIZE*BLOCK_SIZE), aabb(abs_x, abs_y, abs_z, abs_x + SIZE*BLOCK_SIZE, abs_y + SIZE*BLOCK_SIZE, abs_z + SIZE*BLOCK_SIZE)
 {}
 
 static constexpr bool inBounds(int x, int y, int z)
@@ -457,27 +457,27 @@ void Chunk::setLocalBlock(const int x, const int y, const int z, const BLOCK_WDA
     setDirty();
 
     if(x == 0)
-        if(Chunk *c = parent->findChunk(this->x - 1, this->y, this->z))
+        if(Chunk *c = world.findChunk(this->x - 1, this->y, this->z))
             c->setDirty();
 
     if(x == Chunk::SIZE - 1)
-        if(Chunk *c = parent->findChunk(this->x + 1, this->y, this->z))
+        if(Chunk *c = world.findChunk(this->x + 1, this->y, this->z))
             c->setDirty();
 
     if(y == 0)
-        if(Chunk *c = parent->findChunk(this->x, this->y - 1, this->z))
+        if(Chunk *c = world.findChunk(this->x, this->y - 1, this->z))
             c->setDirty();
 
     if(y == Chunk::SIZE - 1)
-        if(Chunk *c = parent->findChunk(this->x, this->y + 1, this->z))
+        if(Chunk *c = world.findChunk(this->x, this->y + 1, this->z))
             c->setDirty();
 
     if(z == 0)
-        if(Chunk *c = parent->findChunk(this->x, this->y, this->z - 1))
+        if(Chunk *c = world.findChunk(this->x, this->y, this->z - 1))
             c->setDirty();
 
     if(z == Chunk::SIZE - 1)
-        if(Chunk *c = parent->findChunk(this->x, this->y, this->z + 1))
+        if(Chunk *c = world.findChunk(this->x, this->y, this->z + 1))
             c->setDirty();
 }
 
@@ -494,7 +494,7 @@ void Chunk::changeGlobalBlockRelative(const int x, const int y, const int z, con
     if(inBounds(x, y, z))
         return changeLocalBlock(x, y, z, block);
 
-    parent->changeBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, block);
+    world.changeBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, block);
 }
 
 BLOCK_WDATA Chunk::getGlobalBlockRelative(const int x, const int y, const int z) const
@@ -502,7 +502,7 @@ BLOCK_WDATA Chunk::getGlobalBlockRelative(const int x, const int y, const int z)
     if(inBounds(x, y, z))
         return getLocalBlock(x, y, z);
 
-    return parent->getBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE);
+    return world.getBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE);
 }
 
 void Chunk::setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty)
@@ -510,7 +510,7 @@ void Chunk::setGlobalBlockRelative(const int x, const int y, const int z, const 
     if(inBounds(x, y, z))
         return setLocalBlock(x, y, z, block, set_dirty);
 
-    return parent->setBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, block, set_dirty);
+    return world.setBlock(x + this->x*SIZE, y + this->y*SIZE, z + this->z*SIZE, block, set_dirty);
 }
 
 //Ignores any non-obstacle blocks
@@ -624,7 +624,7 @@ void Chunk::generate()
 
     debug("Generating chunk %d:%d:%d...\t", x, y, z);
 
-    const PerlinNoise &noise = parent->noiseGenerator();
+    const PerlinNoise &noise = world.noiseGenerator();
 
     constexpr int max_trees = (Chunk::SIZE * Chunk::SIZE) / 45;
     int trees = 0;
@@ -684,7 +684,7 @@ void Chunk::generate()
                 else
                     blocks[x][y][z] = BLOCK_SAND;
             }
-            if(trees < max_trees && height_left >= 0 && height_left <= Chunk::SIZE && height > 5 && noise.noise(GLFix(x)/Chunk::SIZE + this->x, GLFix(z)/Chunk::SIZE + this->z, 25) < GLFix(0.3f))
+            if(trees < max_trees && height_left >= 0 && height_left <= Chunk::SIZE && noise.noise(GLFix(x)/Chunk::SIZE + this->x, GLFix(z)/Chunk::SIZE + this->z, 25) < GLFix(0.3f))
             {
                 makeTree(x, height_here, z);
                 trees++;

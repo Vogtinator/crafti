@@ -24,7 +24,7 @@ struct IndexedVertex {
 class Chunk
 {
 public:
-    Chunk(int x, int y, int z, World *parent);
+    Chunk(int x, int y, int z);
     void logic();
     void render();
     void setDirty(bool dirty = true) { render_dirty = dirty; }
@@ -85,7 +85,6 @@ private:
 
     //Data
     const GLFix abs_x, abs_y, abs_z;
-    World * const parent;
     AABB aabb;
     BLOCK_WDATA blocks[SIZE][SIZE][SIZE];
 

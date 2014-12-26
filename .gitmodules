@@ -1,0 +1,3 @@
+[submodule "nGL"]
+	path = nGL
+	url = http://github.com/Vogtinator/nGL

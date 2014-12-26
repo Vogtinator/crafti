@@ -52,7 +52,7 @@ void SettingsTask::makeCurrent()
     if(!background_saved)
         saveBackground();
 
-    settings[DISTANCE].current_value = world_task.world.fieldOfView();
+    settings[DISTANCE].current_value = world.fieldOfView();
 
     changed_something = false;
 
@@ -105,8 +105,8 @@ void SettingsTask::logic()
 
         if(changed_something)
         {
-            world_task.world.setDirty();
-            world_task.world.setFieldOfView(settings[DISTANCE].current_value);
+            world.setDirty();
+            world.setFieldOfView(settings[DISTANCE].current_value);
 
             nglSetNearPlane(settings[NEARPLANE_Z].current_value);
         }
@@ -178,7 +178,7 @@ bool SettingsTask::loadFromFile(FILE *file)
             return false;
     }
 
-    world_task.world.setDirty();
+    world.setDirty();
 
     nglSetNearPlane(settings[NEARPLANE_Z].current_value);
 

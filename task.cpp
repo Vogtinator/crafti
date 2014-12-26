@@ -102,7 +102,7 @@ bool Task::load()
 
     LOAD_FROM_FILE(block_list_task.current_selection)
 
-    const bool ret = world_task.world.loadFromFile(file);
+    const bool ret = world.loadFromFile(file);
 
     fclose(file);
 
@@ -130,7 +130,7 @@ bool Task::save()
     SAVE_TO_FILE(current_inventory.current_slot)
     SAVE_TO_FILE(block_list_task.current_selection)
 
-    const bool ret = world_task.world.saveToFile(file);
+    const bool ret = world.saveToFile(file);
 
     fclose(file);
 
