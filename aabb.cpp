@@ -70,6 +70,7 @@ bool AABB::intersects(AABB &other)
 
 AABB::SIDE AABB::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist)
 {
+    //TODO: Div / 0!
     GLFix t_min_x = (low_x - x) / dx;
     GLFix t_max_x = (high_x - x) / dx;
     GLFix t_min_y = (low_y - y) / dy;
