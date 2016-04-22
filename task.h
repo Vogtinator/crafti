@@ -8,7 +8,7 @@
 class Task
 {
 public:
-    virtual ~Task() {};
+    virtual ~Task() {}
 
     virtual void render() = 0;
     virtual void logic() = 0;
