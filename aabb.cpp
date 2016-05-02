@@ -70,13 +70,42 @@ bool AABB::intersects(AABB &other)
 
 AABB::SIDE AABB::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist)
 {
-    //TODO: Div / 0!
-    GLFix t_min_x = (low_x - x) / dx;
-    GLFix t_max_x = (high_x - x) / dx;
-    GLFix t_min_y = (low_y - y) / dy;
-    GLFix t_max_y = (high_y - y) / dy;
-    GLFix t_min_z = (low_z - z) / dz;
-    GLFix t_max_z = (high_z - z) / dz;
+    GLFix t_min_x = 0, t_max_x = GLFix::maxValue(),
+            t_min_y = 0, t_max_y = GLFix::maxValue(),
+            t_min_z = 0, t_max_z = GLFix::maxValue();
+
+    if(dx == GLFix(0))
+    {
+        if(x < low_x || x > high_x)
+            return NONE;
+    }
+    else
+    {
+        t_min_x = (low_x - x) / dx;
+        t_max_x = (high_x - x) / dx;
+    }
+
+    if(dy == GLFix(0))
+    {
+        if(y < low_y || y > high_y)
+            return NONE;
+    }
+    else
+    {
+        t_min_y = (low_y - y) / dy;
+        t_max_y = (high_y - y) / dy;
+    }
+
+    if(dz == GLFix(0))
+    {
+        if(z < low_z || z > high_z)
+            return NONE;
+    }
+    else
+    {
+        t_min_z = (low_z - z) / dz;
+        t_max_z = (high_z - z) / dz;
+    }
 
     GLFix min = std::max(std::max(std::min(t_min_x, t_max_x), std::min(t_min_y, t_max_y)), std::min(t_min_z, t_max_z));
     GLFix max = std::min(std::min(std::max(t_min_x, t_max_x), std::max(t_min_y, t_max_y)), std::max(t_min_z, t_max_z));
