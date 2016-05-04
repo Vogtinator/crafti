@@ -237,7 +237,7 @@ void terrainInit(const char *texture_path)
     //Part 2 of the hack above
     quad_block_textures[BLOCK_GRASS][BLOCK_BOTTOM] = quad_block_textures[BLOCK_DIRT][BLOCK_BOTTOM];
 
-    if(!lcd_isincolor())
+    if(lcd_type() == SCR_320x240_4)
     {
         greyscaleTexture(*terrain_current);
         greyscaleTexture(*terrain_resized);

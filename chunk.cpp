@@ -32,7 +32,7 @@ int Chunk::getPosition(int x, int y, int z)
     if(pos_indices[x][y][z] == -1)
     {
         pos_indices[x][y][z] = positions.size();
-        positions.emplace_back(Position{abs_x + x*BLOCK_SIZE, abs_y + y*BLOCK_SIZE, abs_z + z*BLOCK_SIZE});
+        positions.emplace_back(VECTOR3{abs_x + x*BLOCK_SIZE, abs_y + y*BLOCK_SIZE, abs_z + z*BLOCK_SIZE});
     }
 
     return pos_indices[x][y][z];
@@ -165,9 +165,9 @@ void Chunk::buildGeometry()
 
 #define MAKE_VERTEX(pos, iver) { (pos).x, (pos).y, (pos).z, iver.u, iver.v, iver.c }
 
-VERTEX Chunk::perspective(const IndexedVertex &v, Position &transformed)
+VERTEX Chunk::perspective(const IndexedVertex &v, VECTOR3 &transformed)
 {
-    std::pair<Position, bool> &p = positions_perspective[v.pos];
+    std::pair<VECTOR3, bool> &p = positions_perspective[v.pos];
     if(!p.second)
     {
         VERTEX ver = MAKE_VERTEX(transformed, v);
@@ -183,7 +183,7 @@ VERTEX Chunk::perspective(const IndexedVertex &v, Position &transformed)
 
 bool Chunk::drawTriangle(const IndexedVertex &low, const IndexedVertex &middle, const IndexedVertex &high, bool backface_culling)
 {
-    Position pos_low = positions_transformed[low.pos], pos_middle = positions_transformed[middle.pos], pos_high = positions_transformed[high.pos];
+    VECTOR3 pos_low = positions_transformed[low.pos], pos_middle = positions_transformed[middle.pos], pos_high = positions_transformed[high.pos];
 
 #ifndef Z_CLIPPING
     if(pos_low.z < GLFix(CLIP_PLANE) || pos_middle.z < GLFix(CLIP_PLANE) || pos_high.z < GLFix(CLIP_PLANE))
@@ -201,7 +201,7 @@ bool Chunk::drawTriangle(const IndexedVertex &low, const IndexedVertex &middle, 
 
     VERTEX invisible[3];
     IndexedVertex visible[3];
-    Position *pos_visible[3];
+    VECTOR3 *pos_visible[3];
     int count_invisible = -1, count_visible = -1;
 
     if(pos_low.z < GLFix(CLIP_PLANE))
@@ -374,15 +374,10 @@ void Chunk::render()
             && v13.y >= SCREEN_HEIGHT && v14.y >= SCREEN_HEIGHT && v15.y >= SCREEN_HEIGHT && v16.y >= SCREEN_HEIGHT)
         return;
 
-    std::fill(positions_perspective.begin(), positions_perspective.end(), std::make_pair<Position, bool>({0, 0, 0}, false));
+    std::fill(positions_perspective.begin(), positions_perspective.end(), std::make_pair<VECTOR3, bool>({0, 0, 0}, false));
 
     for(unsigned int i = 0; i < positions.size(); i++)
-    {
-        Position &position = positions[i];
-        VERTEX t1{position.x, position.y, position.z, 0, 0, 0}, t2;
-        nglMultMatVectRes(transformation, &t1, &t2);
-        positions_transformed[i] = {t2.x, t2.y, t2.z};
-    }
+        nglMultMatVectRes(transformation, &positions[i], &positions_transformed[i]);
 
     nglForceColor(true);
     const IndexedVertex *v = vertices_color.data();
@@ -416,9 +411,9 @@ void Chunk::render()
     const VERTEX *ve = vertices_unaligned.data();
     for(unsigned int i = 0; i < vertices_unaligned.size(); i += 4, ve += 4)
     {
-        nglMultMatVectRes(transformation, ve + 0, &v1);
-        nglMultMatVectRes(transformation, ve + 1, &v2);
-        nglMultMatVectRes(transformation, ve + 2, &v3);
+        nglMultMatVectRes(transformation, &ve[0], &v1);
+        nglMultMatVectRes(transformation, &ve[1], &v2);
+        nglMultMatVectRes(transformation, &ve[2], &v3);
 
         //nglMultMatVectRes doesn't copy u,v and c
         v1.u = ve[0].u;
@@ -433,7 +428,7 @@ void Chunk::render()
 
         if(nglDrawTriangle(&v1, &v2, &v3, (v1.c & TEXTURE_DRAW_BACKFACE) == 0))
         {
-            nglMultMatVectRes(transformation, ve + 3, &v4);
+            nglMultMatVectRes(transformation, &ve[3], &v4);
             v4.u = ve[3].u;
             v4.v = ve[3].v;
             v4.c = ve[3].c;
@@ -557,7 +552,7 @@ bool Chunk::intersects(AABB &other)
     return false;
 }
 
-bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side, bool ignore_water)
+bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, VECTOR3 &pos, AABB::SIDE &side, bool ignore_water)
 {
     GLFix shortest_dist;
     if(aabb.intersectsRay(rx, ry, rz, dx, dy, dz, shortest_dist) == AABB::NONE)
@@ -787,9 +782,13 @@ void drawLoadingtext(const int i)
 
     shown = true;
 
-    TEXTURE screen;
-    screen.width = SCREEN_WIDTH;
-    screen.height = SCREEN_HEIGHT;
-    screen.bitmap = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
-    drawTexture(loadingtext, screen, 0, 0, loadingtext.width, loadingtext.height, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
+    if(lcd_type() != SCR_320x240_565 && lcd_type() != SCR_320x240_4)
+        return;
+    #ifdef _TINSPIRE
+        TEXTURE screen;
+        screen.width = SCREEN_WIDTH;
+        screen.height = SCREEN_HEIGHT;
+        screen.bitmap = reinterpret_cast<COLOR*>(REAL_SCREEN_BASE_ADDRESS);
+        drawTexture(loadingtext, screen, 0, 0, loadingtext.width, loadingtext.height, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
+    #endif
 }

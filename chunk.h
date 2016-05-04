@@ -11,10 +11,6 @@
 
 class World;
 
-struct Position {
-    GLFix x, y, z;
-};
-
 struct IndexedVertex {
     int pos;
     GLFix u, v;
@@ -37,7 +33,7 @@ public:
     void setGlobalBlockRelative(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty = true);
     AABB &getAABB() { return aabb; }
     bool intersects(AABB &other);
-    bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, Position &pos, AABB::SIDE &side, bool ignore_water);
+    bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, VECTOR3 &pos, AABB::SIDE &side, bool ignore_water);
     void generate();
     bool saveToFile(FILE *file);
     bool loadFromFile(FILE *file);
@@ -80,7 +76,7 @@ private:
     //Rendering
     void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);
     void buildGeometry();
-    VERTEX perspective(const IndexedVertex &v, Position &transformed);
+    VERTEX perspective(const IndexedVertex &v, VECTOR3 &transformed);
     bool drawTriangle(const IndexedVertex &low, const IndexedVertex &middle, const IndexedVertex &high, bool backface_culling = true);
 
     //Data
@@ -92,8 +88,8 @@ private:
     bool render_dirty = true;
     int pos_indices[SIZE + 1][SIZE + 1][SIZE + 1];
     BLOCK_SIDE_BITFIELD sides_rendered[SIZE][SIZE][SIZE] = {}; //It could be that other chunks already rendered parts of our blocks
-    std::vector<Position> positions, positions_transformed;
-    std::vector<std::pair<Position, bool>> positions_perspective;
+    std::vector<VECTOR3> positions, positions_transformed;
+    std::vector<std::pair<VECTOR3, bool>> positions_perspective;
     std::vector<IndexedVertex> vertices, vertices_quad, vertices_color;
     std::vector<VERTEX> vertices_unaligned; //The optimized drawing with indices doesn't work with unaligned positions
     int tick_counter = 1; //1 to trigger a tick the next frame

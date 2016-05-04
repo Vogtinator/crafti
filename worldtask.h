@@ -40,7 +40,7 @@ private:
     static constexpr unsigned int blockselection_frames = 2;
     unsigned int blockselection_frame = 0, blockselection_frame_fraction = 0;
 
-    Position selection_pos; AABB::SIDE selection_side; Position selection_pos_abs; bool do_test = true; //For intersectsRay
+    VECTOR3 selection_pos; AABB::SIDE selection_side; VECTOR3 selection_pos_abs; bool do_test = true; //For intersectsRay
 
     char message[40]; unsigned int message_timeout = 0;
 };

@@ -31,14 +31,14 @@ void WorldTask::crosshairPixel(int x, int y)
 
 void WorldTask::getForward(GLFix *x, GLFix *z)
 {
-    *x = fast_sin(yr) * speed();
-    *z = fast_cos(yr) * speed();
+    *x = GLFix(fast_sin(yr)) * speed();
+    *z = GLFix(fast_cos(yr)) * speed();
 }
 
 void WorldTask::getRight(GLFix *x, GLFix *z)
 {
-    *x = fast_sin((yr + 90).normaliseAngle()) * speed();
-    *z = fast_cos((yr + 90).normaliseAngle()) * speed();
+    *x = GLFix(fast_sin((yr + 90).normaliseAngle())) * speed();
+    *z = GLFix(fast_cos((yr + 90).normaliseAngle())) * speed();
 }
 
 GLFix WorldTask::speed()
@@ -244,7 +244,7 @@ void WorldTask::logic()
         {
             if(!world.blockAction(selection_pos.x, selection_pos.y, selection_pos.z))
             {
-                Position pos = selection_pos;
+                VECTOR3 pos = selection_pos;
                 switch(selection_side)
                 {
                 case AABB::BACK:

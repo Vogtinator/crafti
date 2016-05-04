@@ -1,0 +1,24 @@
+GCC = gcc
+GPP = g++
+LD = g++
+OPTIMIZE ?= g
+GCCFLAGS = -g -O$(OPTIMIZE) -I nGL -I . -Wall -W -ffast-math -fno-math-errno -fomit-frame-pointer -flto -fno-rtti -fgcse-sm -fgcse-las -funsafe-loop-optimizations -fno-fat-lto-objects -frename-registers -fprefetch-loop-arrays -Wold-style-cast -ffunction-sections -fdata-sections
+LDFLAGS = -lm -lSDL -Wl,--gc-sections
+EXE = crafti
+OBJS = $(patsubst %.c, %.o, $(shell find . -name \*.c))
+OBJS += $(patsubst %.cpp, %.o, $(shell find . -name \*.cpp))
+OBJS += $(patsubst %.S, %.o, $(shell find . -name \*.S))
+
+all: $(EXE).elf
+
+%.o: %.cpp
+	@echo Compiling $<...
+	@$(GPP) -std=c++14 $(GCCFLAGS) -c $< -o $@
+
+$(EXE).elf: $(OBJS)
+	+$(LD) $^ -o $@ $(GCCFLAGS) $(LDFLAGS)
+
+.PHONY: clean
+clean:
+	rm -f `find . -name \*.o`
+	rm -f $(EXE).tns $(EXE).elf

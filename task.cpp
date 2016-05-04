@@ -19,15 +19,19 @@ void Task::makeCurrent()
 
 bool Task::keyPressed(const t_key &key)
 {
-    if(has_touchpad)
-    {
-        if(key.tpad_arrow != TPAD_ARROW_NONE)
-            return touchpad_arrow_pressed(key.tpad_arrow);
+    #ifdef _TINSPIRE
+        if(has_touchpad)
+        {
+            if(key.tpad_arrow != TPAD_ARROW_NONE)
+                return touchpad_arrow_pressed(key.tpad_arrow);
+            else
+                return !(*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col) == keys_inverted;
+        }
         else
-            return !(*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.tpad_row) & key.tpad_col) == keys_inverted;
-    }
-    else
-        return (*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.row) & key.col) == 0;
+            return (*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.row) & key.col) == 0;
+    #else
+        return false;
+    #endif
 }
 
 void Task::initializeGlobals(const char *savefile)

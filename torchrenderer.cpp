@@ -62,7 +62,6 @@ void TorchRenderer::renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFi
 
     switch(side)
     {
-    default:
     case BLOCK_TOP:
         break;
     case BLOCK_BOTTOM:

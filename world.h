@@ -27,7 +27,7 @@ public:
     void setPosition(int x, int y, int z);
     bool blockAction(const int x, const int y, const int z);
     bool intersect(AABB &other) const;
-    bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side, GLFix &dist, bool ignore_water) const;
+    bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, VECTOR3 &result, AABB::SIDE &side, GLFix &dist, bool ignore_water) const;
     const PerlinNoise &noiseGenerator() const;
     void clear();
     void setDirty();

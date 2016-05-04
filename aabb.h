@@ -17,7 +17,7 @@ public:
         NONE
     };
 
-    AABB() : AABB(0, 0, 0, 0, 0, 0) {};
+    AABB() : AABB(0, 0, 0, 0, 0, 0) {}
     AABB(VERTEX *v1, VERTEX *v2);
     AABB(GLFix low_x, GLFix low_y, GLFix low_z, GLFix high_x, GLFix high_y, GLFix high_z);
     AABB(VERTEX *list, unsigned int size);

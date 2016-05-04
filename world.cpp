@@ -148,10 +148,10 @@ bool World::intersect(AABB &other) const
     return false;
 }
 
-bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, Position &result, AABB::SIDE &side, GLFix &dist, bool ignore_water) const
+bool World::intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, VECTOR3 &result, AABB::SIDE &side, GLFix &dist, bool ignore_water) const
 {
     dist = GLFix::maxValue();
-    Position pos;
+    VECTOR3 pos;
     for(Chunk *c : visible_chunks)
     {
         GLFix new_dist;

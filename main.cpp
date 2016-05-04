@@ -1,4 +1,3 @@
-#include <nucleus.h>
 #include <libndls.h>
 #include <unistd.h>
 
@@ -10,23 +9,18 @@
 
 int main(int argc, char *argv[])
 {
-    //Sometimes there's a clock on screen, switch that off
-    __asm__ volatile("mrs r0, cpsr;"
-                    "orr r0, r0, #0x80;"
-                    "msr cpsr_c, r0;" ::: "r0");
+    #ifdef _TINSPIRE
+        //Sometimes there's a clock on screen, switch that off
+        __asm__ volatile("mrs r0, cpsr;"
+                        "orr r0, r0, #0x80;"
+                        "msr cpsr_c, r0;" ::: "r0");
+    #endif
 
-    if(lcd_isincolor())
-    {
-        std::copy(loading.bitmap, loading.bitmap + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
-        nglInit();
-    }
-    else //Monochrome calcs don't like colored stuff in the framebuffer, so let nGL handle that
-    {
-        nglInit();
+    nglInit();
+    if(lcd_type() == SCR_320x240_4)
         greyscaleTexture(loading);
-        nglSetBuffer(loading.bitmap);
-        nglDisplay();
-    }
+    nglSetBuffer(loading.bitmap);
+    nglDisplay();
 
     //Early exit #1
     //(Task::keyPressed can only be used after initializeGlobals)
