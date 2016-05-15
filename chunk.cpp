@@ -27,7 +27,7 @@ static constexpr bool inBounds(int x, int y, int z)
     return x >= 0 && y >= 0 && z >= 0 && x < Chunk::SIZE && y < Chunk::SIZE && z < Chunk::SIZE;
 }
 
-int Chunk::getPosition(int x, int y, int z)
+unsigned int Chunk::getPosition(int x, int y, int z)
 {
     if(pos_indices[x][y][z] == -1)
     {
@@ -155,141 +155,11 @@ void Chunk::buildGeometry()
 
     std::fill(sides_rendered[0][0] + 0, sides_rendered[SIZE - 1][SIZE - 1] + SIZE, 0);
 
-    positions_transformed.resize(positions.size());
-    positions_perspective.resize(positions.size());
+    positions_processed.resize(positions.size());
 
     render_dirty = false;
 
     debug("Done!\n");
-}
-
-#define MAKE_VERTEX(pos, iver) { (pos).x, (pos).y, (pos).z, iver.u, iver.v, iver.c }
-
-VERTEX Chunk::perspective(const IndexedVertex &v, VECTOR3 &transformed)
-{
-    std::pair<VECTOR3, bool> &p = positions_perspective[v.pos];
-    if(!p.second)
-    {
-        VERTEX ver = MAKE_VERTEX(transformed, v);
-        nglPerspective(&ver);
-        p.first = { ver.x, ver.y, ver.z };
-        p.second = true;
-
-        return ver;
-    }
-
-    return MAKE_VERTEX(p.first, v);
-}
-
-bool Chunk::drawTriangle(const IndexedVertex &low, const IndexedVertex &middle, const IndexedVertex &high, bool backface_culling)
-{
-    VECTOR3 pos_low = positions_transformed[low.pos], pos_middle = positions_transformed[middle.pos], pos_high = positions_transformed[high.pos];
-
-#ifndef Z_CLIPPING
-    if(pos_low.z < GLFix(CLIP_PLANE) || pos_middle.z < GLFix(CLIP_PLANE) || pos_high.z < GLFix(CLIP_PLANE))
-        return true;
-
-    VERTEX low_p = perspective(low, pos_low), middle_p = perspective(middle, pos_middle), high_p = perspective(high, pos_high);
-
-    if(backface_culling && nglIsBackface(&low_p, &middle_p, &high_p))
-        return false;
-
-    nglDrawTriangleZClipped(&low_p, &middle_p, &high_p);
-
-    return true;
-#else
-
-    VERTEX invisible[3];
-    IndexedVertex visible[3];
-    VECTOR3 *pos_visible[3];
-    int count_invisible = -1, count_visible = -1;
-
-    if(pos_low.z < GLFix(CLIP_PLANE))
-        invisible[++count_invisible] = MAKE_VERTEX(pos_low, low);
-    else
-    {
-        visible[++count_visible] = low;
-        pos_visible[count_visible] = &pos_low;
-    }
-
-    if(pos_middle.z < GLFix(CLIP_PLANE))
-        invisible[++count_invisible] = MAKE_VERTEX(pos_middle, middle);
-    else
-    {
-        visible[++count_visible] = middle;
-        pos_visible[count_visible] = &pos_middle;
-    }
-
-    if(pos_high.z < GLFix(CLIP_PLANE))
-        invisible[++count_invisible] = MAKE_VERTEX(pos_high, high);
-    else
-    {
-        visible[++count_visible] = high;
-        pos_visible[count_visible] = &pos_high;
-    }
-
-    //Interpolated vertices
-    VERTEX v1, v2;
-
-    //Temporary vertices
-    VERTEX t0, t1;
-
-    switch(count_visible)
-    {
-    case -1:
-        return true;
-
-    case 0:
-        t0 = MAKE_VERTEX(*pos_visible[0], visible[0]);
-
-        nglInterpolateVertexZ(&invisible[0], &t0, &v1);
-        nglInterpolateVertexZ(&invisible[1], &t0, &v2);
-
-        t0 = perspective(visible[0], *pos_visible[0]);
-        nglPerspective(&v1);
-        nglPerspective(&v2);
-
-        if(backface_culling && nglIsBackface(&t0, &v1, &v2))
-            return false;
-
-        nglDrawTriangleZClipped(&t0, &v1, &v2);
-        return true;
-
-    case 1:
-        t0 = MAKE_VERTEX(*pos_visible[0], visible[0]);
-        t1 = MAKE_VERTEX(*pos_visible[1], visible[1]);
-
-        nglInterpolateVertexZ(&t0, &invisible[0], &v1);
-        nglInterpolateVertexZ(&t1, &invisible[0], &v2);
-
-        t0 = perspective(visible[0], *pos_visible[0]);
-        t1 = perspective(visible[1], *pos_visible[1]);
-        nglPerspective(&v1);
-
-        //TODO: Hack: This doesn't work as expected
-        /*if(backface_culling && nglIsBackface(&t0, &t1, &v1))
-            return false;*/
-
-        nglPerspective(&v2);
-        nglDrawTriangleZClipped(&t0, &t1, &v1);
-        nglDrawTriangleZClipped(&t1, &v1, &v2);
-        return true;
-
-    case 2:
-        invisible[0] = perspective(low, pos_low);
-        invisible[1] = perspective(middle, pos_middle);
-        invisible[2] = perspective(high, pos_high);
-
-        if(backface_culling && nglIsBackface(&invisible[0], &invisible[1], &invisible[2]))
-            return false;
-
-        nglDrawTriangleZClipped(&invisible[0], &invisible[1], &invisible[2]);
-        return true;
-
-    default:
-        return true;
-    }
-#endif
 }
 
 static bool behindClip(const VERTEX &v1)
@@ -374,37 +244,14 @@ void Chunk::render()
             && v13.y >= SCREEN_HEIGHT && v14.y >= SCREEN_HEIGHT && v15.y >= SCREEN_HEIGHT && v16.y >= SCREEN_HEIGHT)
         return;
 
-    std::fill(positions_perspective.begin(), positions_perspective.end(), std::make_pair<VECTOR3, bool>({0, 0, 0}, false));
-
-    for(unsigned int i = 0; i < positions.size(); i++)
-        nglMultMatVectRes(transformation, &positions[i], &positions_transformed[i]);
-
     nglForceColor(true);
-    const IndexedVertex *v = vertices_color.data();
-    for(unsigned int i = 0; i < vertices_color.size(); i += 4, v += 4)
-    {
-        if(drawTriangle(v[0], v[1], v[2], true))
-            drawTriangle(v[2], v[3], v[0], false);
-    }
+    nglDrawArray(vertices_color.data(), vertices_color.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, true);
     nglForceColor(false);
 
-    //Same, but with textures
-    v = vertices.data();
-    for(unsigned int i = 0; i < vertices.size(); i += 4, v += 4)
-    {
-        if(drawTriangle(v[0], v[1], v[2], (v[0].c & TEXTURE_DRAW_BACKFACE) == 0))
-            drawTriangle(v[2], v[3], v[0], false);
-    }
+    nglDrawArray(vertices.data(), vertices.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, false);
 
-    //Now do the same again, but with a different texture bound
     glBindTexture(terrain_quad);
-
-    v = vertices_quad.data();
-    for(unsigned int i = 0; i < vertices_quad.size(); i += 4, v += 4)
-    {
-        if(drawTriangle(v[0], v[1], v[2], (v[0].c & TEXTURE_DRAW_BACKFACE) == 0))
-            drawTriangle(v[2], v[3], v[0], false);
-    }
+    nglDrawArray(vertices_quad.data(), vertices_quad.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, false);
 
     glBindTexture(terrain_current);
 

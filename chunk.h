@@ -6,16 +6,11 @@
 #include <tuple>
 
 #include "gl.h"
+#include "gldrawarray.h"
 #include "terrain.h"
 #include "aabb.h"
 
 class World;
-
-struct IndexedVertex {
-    int pos;
-    GLFix u, v;
-    COLOR c;
-};
 
 class Chunk
 {
@@ -71,7 +66,7 @@ private:
     void makeTree(unsigned int x, unsigned int y, unsigned int z);
 
     //Data
-    int getPosition(int x, int y, int z);
+    unsigned int getPosition(int x, int y, int z);
 
     //Rendering
     void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);
@@ -88,8 +83,8 @@ private:
     bool render_dirty = true;
     int pos_indices[SIZE + 1][SIZE + 1][SIZE + 1];
     BLOCK_SIDE_BITFIELD sides_rendered[SIZE][SIZE][SIZE] = {}; //It could be that other chunks already rendered parts of our blocks
-    std::vector<VECTOR3> positions, positions_transformed;
-    std::vector<std::pair<VECTOR3, bool>> positions_perspective;
+    std::vector<VECTOR3> positions;
+    std::vector<ProcessedPosition> positions_processed;
     std::vector<IndexedVertex> vertices, vertices_quad, vertices_color;
     std::vector<VERTEX> vertices_unaligned; //The optimized drawing with indices doesn't work with unaligned positions
     int tick_counter = 1; //1 to trigger a tick the next frame
