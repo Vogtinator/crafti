@@ -6,9 +6,6 @@
 #include "terrain.h"
 #include "chunk.h"
 
-//No backface culling (handled in Chunk::render)
-#define TEXTURE_DRAW_BACKFACE 0x0FFF
-
 class BlockRenderer
 {
 public:
