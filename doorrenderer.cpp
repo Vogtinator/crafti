@@ -1,5 +1,8 @@
 #include "doorrenderer.h"
 
+constexpr GLFix DoorRenderer::door_depth; //As small as possible, a opened door shouldn't be much of an obstacle
+constexpr uint8_t DoorRenderer::DOOR_TOP, DoorRenderer::DOOR_OPEN, DoorRenderer::DOOR_FORCE_OPEN; //FORCE_OPEN: Opened by hand, not redstone
+
 //If the door is open, this array maps the side of the closed door to the side of an open door and vice-versa
 static const BLOCK_SIDE door_side_map[] {
         BLOCK_RIGHT,

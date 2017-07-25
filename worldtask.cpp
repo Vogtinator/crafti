@@ -15,6 +15,8 @@
 
 WorldTask world_task;
 
+constexpr GLFix  WorldTask::player_width,  WorldTask::player_height,  WorldTask::eye_pos;
+
 void WorldTask::makeCurrent()
 {
     Task::background_saved = false;

@@ -2,6 +2,8 @@
 
 #include "worldtask.h"
 
+constexpr GLFix PressurePlateRenderer::height;
+
 void PressurePlateRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
     const TextureAtlasEntry &tex = terrain_atlas[3][getPOWERSTATE(block) ? 9 : 8].current;

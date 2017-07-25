@@ -1,5 +1,7 @@
 #include "cakerenderer.h"
 
+constexpr GLFix CakeRenderer::cake_height, CakeRenderer::cake_width;
+
 void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
