@@ -32,7 +32,7 @@ unsigned int Chunk::getPosition(int x, int y, int z)
     if(pos_indices[x][y][z] == -1)
     {
         pos_indices[x][y][z] = positions.size();
-        positions.emplace_back(VECTOR3{abs_x + x*BLOCK_SIZE, abs_y + y*BLOCK_SIZE, abs_z + z*BLOCK_SIZE});
+        positions.emplace_back(VECTOR3{x*BLOCK_SIZE, y*BLOCK_SIZE, z*BLOCK_SIZE});
     }
 
     return pos_indices[x][y][z];
@@ -126,13 +126,13 @@ void Chunk::buildGeometry()
     }
 
     //Special blocks
-    GLFix pos_x = abs_x;
+    GLFix pos_x = 0;
     for(int x = 0; x < SIZE; x++, pos_x += BLOCK_SIZE)
     {
-        GLFix pos_y = abs_y;
+        GLFix pos_y = 0;
         for(int y = 0; y < SIZE; y++, pos_y += BLOCK_SIZE)
         {
-            GLFix pos_z = abs_z;
+            GLFix pos_z = 0;
             for(int z = 0; z < SIZE; z++, pos_z += BLOCK_SIZE)
             {
                 BLOCK_WDATA block = blocks[x][y][z];
@@ -162,7 +162,7 @@ void Chunk::buildGeometry()
     debug("Done!\n");
 }
 
-static bool behindClip(const VERTEX &v1)
+static bool behindClip(const VECTOR3 &v1)
 {
     return transformation->data[2][0]*v1.x + transformation->data[2][1]*v1.y + transformation->data[2][2]*v1.z + transformation->data[2][3] <= GLFix(CLIP_PLANE);
 }
@@ -195,20 +195,20 @@ void Chunk::render()
         return;
 
     //Basic culling
-    VERTEX v1{abs_x,                            abs_y,                            abs_z, 0, 0, 0},
-            v2{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z, 0, 0, 0},
-            v3{abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z, 0, 0, 0},
-            v4{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z, 0, 0, 0},
-            v5{abs_x,                            abs_y,                            abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0},
-            v6{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0},
-            v7{abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0},
-            v8{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE, 0, 0, 0};
+    VECTOR3 v1{abs_x,                            abs_y,                            abs_z},
+            v2{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z},
+            v3{abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z},
+            v4{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z},
+            v5{abs_x,                            abs_y,                            abs_z + Chunk::SIZE * BLOCK_SIZE},
+            v6{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z + Chunk::SIZE * BLOCK_SIZE},
+            v7{abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE},
+            v8{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE};
 
     //Z-Culling (now, it's a bit cheaper than a full MultMatVectRes)
     if(behindClip(v1) && behindClip(v2) && behindClip(v3) && behindClip(v4) && behindClip(v5) && behindClip(v6) && behindClip(v7) && behindClip(v8))
         return;
 
-    VERTEX v9, v10, v11, v12, v13, v14, v15, v16;
+    VECTOR3 v9, v10, v11, v12, v13, v14, v15, v16;
 
     nglMultMatVectRes(transformation, &v1, &v9);
     nglMultMatVectRes(transformation, &v2, &v10);
@@ -244,6 +244,9 @@ void Chunk::render()
             && v13.y >= SCREEN_HEIGHT && v14.y >= SCREEN_HEIGHT && v15.y >= SCREEN_HEIGHT && v16.y >= SCREEN_HEIGHT)
         return;
 
+    glPushMatrix();
+    glTranslatef(abs_x, abs_y, abs_z);
+
     nglForceColor(true);
     nglDrawArray(vertices_color.data(), vertices_color.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, true);
     nglForceColor(false);
@@ -258,6 +261,8 @@ void Chunk::render()
     const VERTEX *ve = vertices_unaligned.data();
     for(unsigned int i = 0; i < vertices_unaligned.size(); i += 4, ve += 4)
     {
+        VERTEX v1, v2, v3, v4;
+
         nglMultMatVectRes(transformation, &ve[0], &v1);
         nglMultMatVectRes(transformation, &ve[1], &v2);
         nglMultMatVectRes(transformation, &ve[2], &v3);
@@ -283,6 +288,8 @@ void Chunk::render()
             nglDrawTriangle(&v3, &v4, &v1, false);
         }
     }
+
+    return glPopMatrix();
 }
 
 BLOCK_WDATA Chunk::getLocalBlock(const int x, const int y, const int z) const

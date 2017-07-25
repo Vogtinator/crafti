@@ -9,7 +9,7 @@ void BillboardRenderer::setEntry(uint8_t data, unsigned int tex_x, unsigned int 
 void BillboardRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
     auto &bill = map[getBLOCKDATA(block)];
-    renderBillboard((x - c.absX()) / BLOCK_SIZE, (y - c.absY()) / BLOCK_SIZE, (z - c.absZ()) / BLOCK_SIZE, terrain_atlas[std::get<0>(bill)][std::get<1>(bill)].current, c);
+    renderBillboard(x / BLOCK_SIZE, y / BLOCK_SIZE, z / BLOCK_SIZE, terrain_atlas[std::get<0>(bill)][std::get<1>(bill)].current, c);
 }
 
 AABB BillboardRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
