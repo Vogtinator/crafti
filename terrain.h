@@ -5,7 +5,7 @@
 
 #include "texturetools.h"
 
-#define BLOCK_SIZE 120
+#define BLOCK_SIZE 128
 
 typedef uint8_t BLOCK;
 typedef uint16_t BLOCK_WDATA;
