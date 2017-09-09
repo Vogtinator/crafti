@@ -66,7 +66,7 @@ private:
     void makeTree(unsigned int x, unsigned int y, unsigned int z);
 
     //Data
-    unsigned int getPosition(int x, int y, int z);
+    unsigned int getPosition(unsigned int x, unsigned int y, unsigned int z);
 
     //Rendering
     void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);

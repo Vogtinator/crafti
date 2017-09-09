@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdlib>
 #include <algorithm>
 #include <libndls.h>
@@ -10,7 +11,7 @@
 //Texture with "Loading" written on it
 #include "textures/loadingtext.h"
 
-#ifdef DEBUG
+#ifndef NDEBUG
     #define debug(...) printf(__VA_ARGS__)
 #else
     #define debug(...)
@@ -27,8 +28,10 @@ static constexpr bool inBounds(int x, int y, int z)
     return x >= 0 && y >= 0 && z >= 0 && x < Chunk::SIZE && y < Chunk::SIZE && z < Chunk::SIZE;
 }
 
-unsigned int Chunk::getPosition(int x, int y, int z)
+unsigned int Chunk::getPosition(unsigned int x, unsigned int y, unsigned int z)
 {
+    assert (x < Chunk::SIZE && y < Chunk::SIZE && z < Chunk::SIZE);
+
     if(pos_indices[x][y][z] == -1)
     {
         pos_indices[x][y][z] = positions.size();

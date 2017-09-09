@@ -2,7 +2,7 @@
 
 void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
-    renderBillboard((x - c.absX()) / BLOCK_SIZE, (y - c.absY()) / BLOCK_SIZE, (z - c.absZ()) / BLOCK_SIZE, getPOWERSTATE(block) ? terrain_atlas[4][11].current : terrain_atlas[4][10].current, c);
+    renderBillboard(x / BLOCK_SIZE, y / BLOCK_SIZE, z / BLOCK_SIZE, getPOWERSTATE(block) ? terrain_atlas[4][11].current : terrain_atlas[4][10].current, c);
 }
 
 void WireRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, const int x, const int y)
