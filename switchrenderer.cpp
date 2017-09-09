@@ -4,7 +4,7 @@
 
 void SwitchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
-    const TextureAtlasEntry &tex = getPOWERSTATE(block) ? terrain_atlas[0][7].current : terrain_atlas[0][6].current;
+    const TextureAtlasEntry &tex = getPOWERSTATE(block) ? terrain_atlas[10][15].current : terrain_atlas[0][6].current;
 
     glPushMatrix();
     glLoadIdentity();

@@ -122,9 +122,9 @@ void terrainInit(const char *texture_path)
     makeColor(red, *terrain_current, 4 * field_width, 11 * field_height, field_width, field_height);
 
     //And redstone switches
-    drawTexture(*terrain_current, *terrain_current, 0 * field_width, 6 * field_height, field_width, field_height, 0 * field_width, 7 * field_height, field_width, field_height);
+    drawTexture(*terrain_current, *terrain_current, 0 * field_width, 6 * field_height, field_width, field_height, 10 * field_width, 15 * field_height, field_width, field_height);
     const RGB red_tint = { 1.0f, 0.8f, 0.8f };
-    makeColor(red_tint, *terrain_current, 0 * field_width, 7 * field_height, field_width, field_height);
+    makeColor(red_tint, *terrain_current, 10 * field_width, 15 * field_height, field_width, field_height);
 
     if(terrain_current->width == 256 && terrain_current->height == 256)
         terrain_resized = terrain_current;
