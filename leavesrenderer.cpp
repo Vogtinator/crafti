@@ -5,7 +5,7 @@ void LeavesRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int 
     if(isTransparent())
     {
         const TextureAtlasEntry &tex = terrain_atlas[4][3].current;
-        BlockRenderer::renderNormalConnectedBlockSide(BLOCK_LEAVES, local_x, local_y, local_z, side, tex, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE, c);
+        BlockRenderer::renderNormalConnectedBlockSide(BLOCK_LEAVES, local_x, local_y, local_z, side, tex, TEXTURE_TRANSPARENT, c);
     }
     else
     {
