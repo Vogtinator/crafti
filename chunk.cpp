@@ -30,7 +30,7 @@ static constexpr bool inBounds(int x, int y, int z)
 
 unsigned int Chunk::getPosition(unsigned int x, unsigned int y, unsigned int z)
 {
-    assert (x < Chunk::SIZE && y < Chunk::SIZE && z < Chunk::SIZE);
+    assert (x <= Chunk::SIZE && y <= Chunk::SIZE && z <= Chunk::SIZE);
 
     if(pos_indices[x][y][z] == -1)
     {
