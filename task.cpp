@@ -53,6 +53,7 @@ void Task::initializeGlobals(const char *savefile)
 void Task::deinitializeGlobals()
 {
     deleteTexture(screen);
+    deleteTexture(background);
 }
 
 void Task::saveBackground()
