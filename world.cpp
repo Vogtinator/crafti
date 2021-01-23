@@ -202,6 +202,8 @@ bool World::loadFromFile(FILE *file)
 {
     drawLoadingtext(1);
 
+    clear();
+
     LOAD_FROM_FILE(*seed)
     perlin_noise.setSeed(*seed);
 

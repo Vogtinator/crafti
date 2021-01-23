@@ -110,6 +110,8 @@ bool Task::load()
 
     fclose(file);
 
+    world.setPosition(world_task.x, world_task.y, world_task.z);
+
     return ret;
 }
 
