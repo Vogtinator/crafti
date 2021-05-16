@@ -20,7 +20,7 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
     //Height is proportional to its range
     const GLFix ratio = GLFix(getBLOCKDATA(block)) / maxRange(block);
     const GLFix height = GLFix(BLOCK_SIZE) * ratio, tex_top = GLFix(tex.bottom) - ratio * (tex.bottom - tex.top);
-    const int local_x = (x - c.absX()) / BLOCK_SIZE, local_y = (y - c.absY()) / BLOCK_SIZE, local_z = (z - c.absZ()) / BLOCK_SIZE;
+    const int local_x = x / BLOCK_SIZE, local_y = y / BLOCK_SIZE, local_z = z / BLOCK_SIZE;
     BLOCK_WDATA block_left = c.getGlobalBlockRelative(local_x - 1, local_y, local_z),
             block_right = c.getGlobalBlockRelative(local_x + 1, local_y, local_z),
             block_front = c.getGlobalBlockRelative(local_x, local_y, local_z - 1),
@@ -170,7 +170,7 @@ void FluidRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int 
     if(getBLOCK(block_bottom) == BLOCK_AIR || getBLOCK(block_bottom) == getBLOCK(block))
     {
         //Flowing downwards means full range on block below
-        if(getBLOCKDATA(block_bottom) != maxRange(block))
+        if(getBLOCK(block_bottom) == BLOCK_AIR || (getBLOCKDATA(block_bottom) != maxRange(block)))
         {
             next_block = getBLOCKWDATA(getBLOCK(block), maxRange(block));
             c.setGlobalBlockRelative(local_x, local_y - 1, local_z, next_block);
