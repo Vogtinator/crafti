@@ -119,8 +119,11 @@ void terrainInit(const char *texture_path)
 
     //Also redstone
     drawTexture(*terrain_current, *terrain_current, 4 * field_width, 10 * field_height, field_width, field_height, 4 * field_width, 11 * field_height, field_width, field_height);
+    const RGB black = { 0.3f, 0.2f, 0.2f };
+    makeColor(black, *terrain_current, 4 * field_width, 10 * field_height, field_width, field_height);
     const RGB red = { 0.9f, 0.1f, 0.1f };
     makeColor(red, *terrain_current, 4 * field_width, 11 * field_height, field_width, field_height);
+    makeColor(red, *terrain_current, 5 * field_width, 11 * field_height, field_width, field_height);
 
     //And redstone switches
     drawTexture(*terrain_current, *terrain_current, 0 * field_width, 6 * field_height, field_width, field_height, 10 * field_width, 15 * field_height, field_width, field_height);
