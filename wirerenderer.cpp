@@ -1,5 +1,7 @@
 #include "wirerenderer.h"
 
+constexpr GLFix WireRenderer::height;
+
 struct Pos { int x, y, z; };
 struct AdjacentRedstone {
 	int count = 0;
@@ -16,7 +18,6 @@ void getAdjacentRedstone(int local_x, int local_y, int local_z, Chunk &c, Adjace
 		auto y = local_y + pos.y;
 		auto z = local_z + pos.z;
 		auto this_block = c.getGlobalBlockRelative(x, y, z);
-		printf("(%d,%d,%d, %d, %d, %d) ", x, y, z, this_block, c.getGlobalBlockRelative(x, y - 1, z), getBLOCK(c.getGlobalBlockRelative(x, y - 1, z)));
 		if(getBLOCK(this_block) == BLOCK_REDSTONE_WIRE)
 			ar.add(Pos{x, y + 0, z});
 		else if(go_up && global_block_renderer.isObstacle(this_block) && getBLOCK(c.getGlobalBlockRelative(x, y + 1, z)) == BLOCK_REDSTONE_WIRE)
@@ -24,22 +25,85 @@ void getAdjacentRedstone(int local_x, int local_y, int local_z, Chunk &c, Adjace
 		else if(getBLOCK(this_block) == BLOCK_AIR && getBLOCK(c.getGlobalBlockRelative(x, y - 1, z)) == BLOCK_REDSTONE_WIRE)
 			ar.add(Pos{x, y - 1, z});
 	}
-	printf("AR: ");
-	for(int i = 0; i < ar.count; ++i)
-		printf("(%d,%d,%d) ", ar.positions[i].x, ar.positions[i].y, ar.positions[i].z);
-	printf("\n");
 }
 
 void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
-    //renderBillboard(x / BLOCK_SIZE, y / BLOCK_SIZE, z / BLOCK_SIZE, getPOWERSTATE(block) ? terrain_atlas[4][11].current : terrain_atlas[4][10].current, c);
-	const TextureAtlasEntry &tex = terrain_atlas[4][getPOWERSTATE(block) ? 11 : 10].current;
-	const GLFix height = BLOCK_SIZE / 16;
+	TextureAtlasEntry tex = terrain_atlas[4][getPOWERSTATE(block) ? 11 : 10].current;
 
-    c.addUnalignedVertex(x, y + height, z, tex.left, tex.bottom, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
-    c.addUnalignedVertex(x, y + height, z + BLOCK_SIZE, tex.left, tex.top, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
-    c.addUnalignedVertex(x + BLOCK_SIZE, y + height, z + BLOCK_SIZE, tex.right, tex.top, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
-    c.addUnalignedVertex(x + BLOCK_SIZE, y + height, z, tex.right, tex.bottom, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
+	// Whether there is a connection in that direction
+	bool c_left = false, c_right = false, c_back = false, c_front = false,
+	     c_left_up = false, c_right_up = false, c_back_up = false, c_front_up = false;
+
+	AdjacentRedstone ar;
+	int local_x = x / BLOCK_SIZE, local_y = y / BLOCK_SIZE, local_z = z / BLOCK_SIZE;
+	getAdjacentRedstone(local_x, local_y, local_z, c, ar);
+	for(int i = 0; i < ar.count; ++i)
+	{
+		Pos &pos = ar.positions[i];
+		if(pos.x == local_x - 1)
+		{
+			c_left = true;
+			if(pos.y == local_y + 1)
+				c_left_up = true;
+		}
+		else if(pos.x == local_x + 1)
+		{
+			c_right = true;
+			if(pos.y == local_y + 1)
+				c_right_up = true;
+		}
+		else if(pos.z == local_z - 1)
+		{
+			c_back = true;
+			if(pos.y == local_y + 1)
+				c_back_up = true;
+		}
+		else if(pos.z == local_z + 1)
+		{
+			c_front = true;
+			if(pos.y == local_y + 1)
+				c_front_up = true;
+		}
+	}
+
+	// Remove a third of the visible redstone when there's no connection in that direction
+	GLFix xstart = x, xend = x + BLOCK_SIZE,
+	      zstart = z, zend = z + BLOCK_SIZE;
+
+	int thirdTex = (tex.right - tex.left) / 3;
+	GLFix thirdBlock = BLOCK_SIZE / 3;
+
+	if(!c_left)
+	{
+		tex.left += thirdTex;
+		xstart += thirdBlock;
+	}
+	if(!c_right)
+	{
+		tex.right -= thirdTex;
+		xend -= thirdBlock;
+	}
+	if(!c_back)
+	{
+		tex.bottom -= thirdTex;
+		zstart += thirdBlock;
+	}
+	if(!c_front)
+	{
+		tex.top += thirdTex;
+		zend -= thirdBlock;
+	}
+
+	c.addUnalignedVertex(xstart, y + height, zstart, tex.left, tex.bottom, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
+	c.addUnalignedVertex(xstart, y + height, zend, tex.left, tex.top, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
+	c.addUnalignedVertex(xend, y + height, zend, tex.right, tex.top, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
+	c.addUnalignedVertex(xend, y + height, zstart, tex.right, tex.bottom, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
+}
+
+AABB WireRenderer::getAABB(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z)
+{
+	return {x, y, z, x + BLOCK_SIZE, y + height, z + BLOCK_SIZE};
 }
 
 void WireRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, const int x, const int y)
