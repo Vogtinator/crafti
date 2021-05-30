@@ -216,10 +216,12 @@ bool World::loadFromFile(FILE *file)
 
     LOAD_FROM_FILE(field_of_view);
 
-    while(!feof(file))
+    for(;;)
     {
         int x, y, z;
-        LOAD_FROM_FILE(x)
+        if(fread(&x, sizeof(x), 1, file) != 1)
+            return feof(file);
+
         LOAD_FROM_FILE(y)
         LOAD_FROM_FILE(z)
 
@@ -231,8 +233,6 @@ bool World::loadFromFile(FILE *file)
         }
         all_chunks.insert({std::tuple<int,int,int>(x, y, z), c});
     }
-
-    return true;
 }
 
 bool World::saveToFile(FILE *file) const
