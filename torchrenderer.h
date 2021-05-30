@@ -21,7 +21,7 @@ public:
     virtual const char* getName(const BLOCK_WDATA) override;
 
 protected:
-    void renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFix y, const GLFix z, const TextureAtlasEntry &tex, Chunk &c);
+    void renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFix y, const GLFix z, TextureAtlasEntry tex, Chunk &c);
 
     static constexpr GLFix torch_height = BLOCK_SIZE / 16 * 9;
     static constexpr GLFix torch_width = BLOCK_SIZE / 16 * 14;

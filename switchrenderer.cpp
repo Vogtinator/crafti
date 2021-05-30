@@ -4,7 +4,7 @@
 
 void SwitchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
-    const TextureAtlasEntry &tex = getPOWERSTATE(block) ? terrain_atlas[10][15].current : terrain_atlas[0][6].current;
+    TextureAtlasEntry tex = getPOWERSTATE(block) ? terrain_atlas[10][15].current : terrain_atlas[0][6].current;
 
     glPushMatrix();
     glLoadIdentity();
@@ -12,17 +12,23 @@ void SwitchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix 
     glTranslatef(x + BLOCK_SIZE/2, y + BLOCK_SIZE/2, z + BLOCK_SIZE/2);
 
     std::vector<VERTEX> switch_vertices;
-    switch_vertices.reserve(16);
+    switch_vertices.reserve(8);
 
-    switch_vertices.push_back({0, -BLOCK_SIZE/4, BLOCK_SIZE/2, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
-    switch_vertices.push_back({0, BLOCK_SIZE - BLOCK_SIZE/4, BLOCK_SIZE/2, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
-    switch_vertices.push_back({BLOCK_SIZE, BLOCK_SIZE - BLOCK_SIZE/3, BLOCK_SIZE/2, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
-    switch_vertices.push_back({BLOCK_SIZE, -BLOCK_SIZE/4, BLOCK_SIZE/2, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    int blockThird = BLOCK_SIZE / 3;
+    int texThird = (tex.right - tex.left) / 3;
 
-    switch_vertices.push_back({BLOCK_SIZE/2, -BLOCK_SIZE/4, BLOCK_SIZE, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
-    switch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE-BLOCK_SIZE/4, BLOCK_SIZE, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
-    switch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE-BLOCK_SIZE/4, 0, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
-    switch_vertices.push_back({BLOCK_SIZE/2, -BLOCK_SIZE/4, 0, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    tex.left += texThird;
+    tex.right -= texThird;
+
+    switch_vertices.push_back({blockThird, 0, BLOCK_SIZE/2, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({blockThird, BLOCK_SIZE - BLOCK_SIZE/4, BLOCK_SIZE/2, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE-blockThird, BLOCK_SIZE - BLOCK_SIZE/4, BLOCK_SIZE/2, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE-blockThird, 0, BLOCK_SIZE/2, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+
+    switch_vertices.push_back({BLOCK_SIZE/2, 0, BLOCK_SIZE-blockThird, tex.left, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE-BLOCK_SIZE/4, BLOCK_SIZE-blockThird, tex.left, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE/2, BLOCK_SIZE-BLOCK_SIZE/4, blockThird, tex.right, tex.top, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
+    switch_vertices.push_back({BLOCK_SIZE/2, 0, blockThird, tex.right, tex.bottom, TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE});
 
     const BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block));
 
