@@ -14,6 +14,7 @@ void SwitchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix 
     std::vector<VERTEX> switch_vertices;
     switch_vertices.reserve(8);
 
+    // Draw only the center third of the texture to avoid distortion
     int blockThird = BLOCK_SIZE / 3;
     int texThird = (tex.right - tex.left) / 3;
 

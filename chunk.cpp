@@ -167,7 +167,7 @@ void Chunk::buildGeometry()
 
 static bool behindClip(const VECTOR3 &v1)
 {
-    return transformation->data[2][0]*v1.x + transformation->data[2][1]*v1.y + transformation->data[2][2]*v1.z + transformation->data[2][3] <= GLFix(CLIP_PLANE);
+    return (transformation->data[2][0]*v1.x + transformation->data[2][1]*v1.y + transformation->data[2][2]*v1.z + transformation->data[2][3]) <= GLFix(CLIP_PLANE);
 }
 
 void Chunk::logic()
@@ -250,16 +250,14 @@ void Chunk::render()
     glPushMatrix();
     glTranslatef(abs_x, abs_y, abs_z);
 
-    nglForceColor(true);
+    glBindTexture(nullptr);
     nglDrawArray(vertices_color.data(), vertices_color.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, true);
-    nglForceColor(false);
-
-    nglDrawArray(vertices.data(), vertices.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, false);
 
     glBindTexture(terrain_quad);
     nglDrawArray(vertices_quad.data(), vertices_quad.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, false);
 
     glBindTexture(terrain_current);
+    nglDrawArray(vertices.data(), vertices.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, false);
 
     const VERTEX *ve = vertices_unaligned.data();
     for(unsigned int i = 0; i < vertices_unaligned.size(); i += 4, ve += 4)
