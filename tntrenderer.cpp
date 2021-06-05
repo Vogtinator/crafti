@@ -25,7 +25,7 @@ void TNTRenderer::explode(const int local_x, const int local_y, const int local_
                     //Explode other TNT blocks
                     if(getBLOCK(c.getGlobalBlockRelative(local_x + x, local_y + y, local_z + z)) == BLOCK_TNT)
                         explode(local_x + x, local_y + y, local_z + z, c);
-                    else
+                    else if(getBLOCK(c.getGlobalBlockRelative(local_x + x, local_y + y, local_z + z)) != BLOCK_BEDROCK)
                         c.changeGlobalBlockRelative(local_x + x, local_y + y, local_z + z, BLOCK_AIR);
                 }
     }
