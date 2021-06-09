@@ -33,8 +33,7 @@ public:
     bool saveToFile(FILE *file);
     bool loadFromFile(FILE *file);
 
-    bool isBlockPowered(const int x, const int y, const int z);
-    bool isBlockPoweredOrPowering(const int x, const int y, const int z);
+    bool isBlockPowered(const int x, const int y, const int z, bool ignore_redstone_wire = false);
 
     GLFix absX() { return abs_x; }
     GLFix absY() { return abs_y; }

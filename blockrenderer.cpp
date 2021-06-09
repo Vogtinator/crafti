@@ -472,6 +472,11 @@ void UniversalBlockRenderer::removedBlock(const BLOCK_WDATA block, int local_x, 
     return map[getBLOCK(block)]->removedBlock(block, local_x, local_y, local_z, c);
 }
 
+PowerState UniversalBlockRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE side)
+{
+    return map[getBLOCK(block)]->powersSide(block, side);
+}
+
 const char *UniversalBlockRenderer::getName(const BLOCK_WDATA block)
 {
     return map[getBLOCK(block)]->getName(block);

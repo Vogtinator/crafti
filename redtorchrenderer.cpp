@@ -17,6 +17,20 @@ const char *RedstoneTorchRenderer::getName(const BLOCK_WDATA)
     return "Redstone Torch";
 }
 
+PowerState RedstoneTorchRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE side)
+{
+    if(!getPOWERSTATE(block))
+        return PowerState::NotPowered;
+
+    BLOCK_SIDE attached_side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block));
+    if(side == attached_side)
+        return PowerState::StronglyPowered;
+    else if(side == oppositeSide(attached_side))
+        return PowerState::NotPowered;
+
+    return PowerState::Powered;
+}
+
 void RedstoneTorchRenderer::tick(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)
 {
     int control_x = local_x, control_y = local_y, control_z = local_z;
@@ -45,25 +59,11 @@ void RedstoneTorchRenderer::tick(const BLOCK_WDATA block, const int local_x, con
         break;
     }
 
-    bool powered = false;
-
-    //To determine whether the control block is powered, we have to ignore the torch itself
-    if(getPOWERSTATE(c.getGlobalBlockRelative(control_x, control_y + 1, control_z)) && side != BLOCK_TOP)
-            powered = true;
-    else if(getPOWERSTATE(c.getGlobalBlockRelative(control_x, control_y - 1, control_z)) && side != BLOCK_BOTTOM)
-            powered = true;
-    else if(getPOWERSTATE(c.getGlobalBlockRelative(control_x, control_y, control_z + 1)) && side != BLOCK_BACK)
-            powered = true;
-    else if(getPOWERSTATE(c.getGlobalBlockRelative(control_x, control_y, control_z - 1)) && side != BLOCK_FRONT)
-            powered = true;
-    else if(getPOWERSTATE(c.getGlobalBlockRelative(control_x - 1, control_y, control_z)) && side != BLOCK_LEFT)
-            powered = true;
-    else if(getPOWERSTATE(c.getGlobalBlockRelative(control_x + 1, control_y, control_z)) && side != BLOCK_RIGHT)
-            powered = true;
+    bool control_powered = c.isBlockPowered(control_x, control_y, control_z);
 
     //State unchanged
-    if(getPOWERSTATE(block) != powered)
+    if(getPOWERSTATE(block) != control_powered)
         return;
 
-    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(getBLOCK(block), getBLOCKDATA(block), !powered));
+    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(getBLOCK(block), getBLOCKDATA(block), !control_powered));
 }

@@ -88,9 +88,26 @@ constexpr BLOCK_SIDE_BITFIELD BLOCK_RIGHT_BIT = 8;
 constexpr BLOCK_SIDE_BITFIELD BLOCK_TOP_BIT = 16;
 constexpr BLOCK_SIDE_BITFIELD BLOCK_BOTTOM_BIT = 32;
 
+enum class PowerState {
+    NotPowered,
+    Powered,
+    StronglyPowered,
+};
+
 constexpr BLOCK_SIDE_BITFIELD blockSideToBit(const BLOCK_SIDE side)
 {
     return 1 << side;
+}
+
+constexpr BLOCK_SIDE oppositeSide(const BLOCK_SIDE side)
+{
+    return ((BLOCK_SIDE[6]){
+        BLOCK_BACK,
+        BLOCK_FRONT,
+        BLOCK_RIGHT,
+        BLOCK_LEFT,
+        BLOCK_BOTTOM,
+        BLOCK_TOP})[side];
 }
 
 //There may be more than one resolution, so compute TextureAtlasEntries for both

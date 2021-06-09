@@ -42,6 +42,11 @@ void WheatRenderer::addedBlock(const BLOCK_WDATA /*block*/, int local_x, int loc
         return c.setLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
 }
 
+PowerState WheatRenderer::powersSide(const BLOCK_WDATA /*block*/, BLOCK_SIDE /*side*/)
+{
+    return PowerState::NotPowered;
+}
+
 const char *WheatRenderer::getName(const BLOCK_WDATA)
 {
     return "Wheat";

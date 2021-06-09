@@ -13,12 +13,12 @@ public:
 
     virtual void renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c) = 0;
     virtual void geometryNormalBlock(const BLOCK_WDATA block, const int x, const int y, const int z, const BLOCK_SIDE side, Chunk &c) = 0;
-    virtual bool isOpaque(const BLOCK_WDATA block) = 0;
-    virtual bool isObstacle(const BLOCK_WDATA block) = 0;
+    virtual bool isOpaque(const BLOCK_WDATA block) = 0; //If true, adjacent sides aren't rendered
+    virtual bool isObstacle(const BLOCK_WDATA block) = 0; //Whether the player can pass through
     virtual bool isOriented(const BLOCK_WDATA block) = 0; //Whether its data is a BLOCK_SIDE
     virtual bool isFullyOriented(const BLOCK_WDATA block) = 0; //Whether its data can be BLOCK_TOP or BLOCK_BOTTOM
 
-    virtual bool isBlockShaped(const BLOCK_WDATA block) = 0;
+    virtual bool isBlockShaped(const BLOCK_WDATA block) = 0; // Whether the AABB is the full block
     virtual AABB getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z) = 0;
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) = 0;
@@ -36,6 +36,9 @@ public:
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked every now-and-then
     virtual void addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked if this block has been placed
     virtual void removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) = 0; //Invoked if this block has been removed
+
+    /* Redstone */
+    virtual PowerState powersSide(const BLOCK_WDATA block, BLOCK_SIDE side) = 0; //Return the power state to the block adjacent to side.
 
     virtual const char* getName(const BLOCK_WDATA block) = 0;
 };
@@ -64,6 +67,8 @@ public:
     virtual void addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
     virtual void removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
 
+    virtual PowerState powersSide(const BLOCK_WDATA block, BLOCK_SIDE side) override;
+
     virtual const char* getName(const BLOCK_WDATA block) override;
 
 private:
@@ -89,7 +94,7 @@ class DumbBlockRenderer : public BlockRenderer
     virtual void addedBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
     virtual void removedBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
 
-    virtual const char* getName(const BLOCK_WDATA /*block*/) = 0;
+    virtual PowerState powersSide(const BLOCK_WDATA /*block*/, BLOCK_SIDE /*side*/) override { return PowerState::NotPowered; }
 };
 
 class NormalBlockRenderer : public DumbBlockRenderer
