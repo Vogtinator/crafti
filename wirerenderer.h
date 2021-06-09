@@ -20,13 +20,13 @@ public:
 
     virtual void removedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
     virtual void addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
+    virtual PowerState powersSide(const BLOCK_WDATA block, BLOCK_SIDE side) override;
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
 
     virtual const char* getName(const BLOCK_WDATA) override;
 
 protected:
     void setCircuitState(const bool state, const int local_x, const int local_y, const int local_z, Chunk &c);
-    bool isDirectlyPowered(const int local_x, const int local_y, const int local_z, Chunk &c);
     bool isActiveLeft(const int local_x, const int local_y, const int local_z, Chunk &c);
 
     static constexpr uint8_t ACTIVE_BIT = 1 << 6, VISITED_BIT = 1 << 5;

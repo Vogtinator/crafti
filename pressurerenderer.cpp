@@ -41,6 +41,17 @@ void PressurePlateRenderer::tick(const BLOCK_WDATA block, int local_x, int local
     }
 }
 
+PowerState PressurePlateRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE side)
+{
+    if(!getPOWERSTATE(block))
+        return PowerState::NotPowered;
+
+    if(side == BLOCK_BOTTOM)
+        return PowerState::StronglyPowered;
+
+    return PowerState::Powered;
+}
+
 void PressurePlateRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
     BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[3][9].resized, dest, x, y);

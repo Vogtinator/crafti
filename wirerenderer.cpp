@@ -118,48 +118,51 @@ void WireRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_
         return;
 
     //But now there may be different circuits, so check them seperately
-	AdjacentRedstone ar;
+    AdjacentRedstone ar;
 	getAdjacentRedstone(local_x, local_y, local_z, c, ar);
 	for(int i = 0; i < ar.count; ++i)
 	{
 		Pos &pos = ar.positions[i];
-		if(getBLOCK(c.getGlobalBlockRelative(pos.x, pos.y, pos.z)) == BLOCK_REDSTONE_WIRE && !isActiveLeft(pos.y, pos.y, pos.z, c))
-			setCircuitState(false, pos.y, pos.y, pos.z, c);
+        if(!isActiveLeft(pos.x, pos.y, pos.z, c))
+            setCircuitState(false, pos.x, pos.y, pos.z, c);
 	}
 }
 
 void WireRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    //Don't do anything if nothing around is powering
-    if(!c.isBlockPowered(local_x, local_y, local_z))
-        return;
+    tick(block, local_x, local_y, local_z, c);
+}
 
-    //Switch to powering state and become active if directly powered
-    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, isDirectlyPowered(local_x, local_y, local_z, c) ? ACTIVE_BIT : 0, true));
-
-    //Now inform the whole redstone chain to become powering
-    setCircuitState(true, local_x, local_y, local_z, c);
+PowerState WireRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE /*side*/)
+{
+    return getPOWERSTATE(block) ? PowerState::Powered : PowerState::NotPowered;
 }
 
 void WireRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
     if(getPOWERSTATE(block) == false)
     {
-        if(!isDirectlyPowered(local_x, local_y, local_z, c))
-            return;
+        //Directly powered?
+        if(c.isBlockPowered(local_x, local_y, local_z, true))
+        {
+            //Switch to powering state and become active
+            c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, ACTIVE_BIT, true));
 
-        //Switch to powering state and become active
-        c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, ACTIVE_BIT, true));
-
-        //Now inform the whole redstone chain to become powering
-        setCircuitState(true, local_x, local_y, local_z, c);
+            //Now inform the whole redstone chain to become powering
+            setCircuitState(true, local_x, local_y, local_z, c);
+        }
+        else if(isActiveLeft(local_x, local_y, local_z, c))
+        {
+            //Now inform the whole redstone chain to become powering
+            setCircuitState(true, local_x, local_y, local_z, c);
+        }
     }
     else if(getBLOCKDATA(block) == ACTIVE_BIT)
     {
-        if(isDirectlyPowered(local_x, local_y, local_z, c))
+        if(c.isBlockPowered(local_x, local_y, local_z, true))
             return;
 
-        //I'm not active anymore
+        //Still powering, but not active
         c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, 0, true));
 
         //Check, whether there's any active wire left, if not, turn the whole thing off
@@ -168,7 +171,7 @@ void WireRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int l
     }
     else
     {
-        if(!isDirectlyPowered(local_x, local_y, local_z, c))
+        if(!c.isBlockPowered(local_x, local_y, local_z, true))
             return;
 
         //Become active
@@ -186,36 +189,25 @@ const char *WireRenderer::getName(const BLOCK_WDATA /*block*/)
 void WireRenderer::setCircuitState(const bool state, const int local_x, const int local_y, const int local_z, Chunk &c)
 {
     BLOCK_WDATA block = c.getGlobalBlockRelative(local_x, local_y, local_z);
-    c.setGlobalBlockRelative(local_x, local_y, local_z, getBLOCKWDATAPower(block, getBLOCKDATA(block), state));
+    block = getBLOCKWDATAPower(block, getBLOCKDATA(block), state);
+    c.setGlobalBlockRelative(local_x, local_y, local_z, block);
 
 	AdjacentRedstone ar;
 	getAdjacentRedstone(local_x, local_y, local_z, c, ar);
 	for(int i = 0; i < ar.count; ++i)
 	{
 		Pos &pos = ar.positions[i];
-		BLOCK_WDATA block = c.getGlobalBlockRelative(local_x + pos.x, local_y + pos.y, local_z + pos.z);
+        BLOCK_WDATA block = c.getGlobalBlockRelative(pos.x, pos.y, pos.z);
 		if(getPOWERSTATE(block) != state)
-			setCircuitState(state, local_x + pos.x, local_y + pos.y, local_z + pos.z, c);
+            setCircuitState(state, pos.x, pos.y, pos.z, c);
 	}
-}
-
-bool WireRenderer::isDirectlyPowered(const int local_x, const int local_y, const int local_z, Chunk &c)
-{
-	for(auto pos : {Pos{-1, 0, 0}, {1, 0, 0}, {0, 0, -1}, {0, 0, 1}, {0, -1, 0}})
-	{
-		BLOCK_WDATA block = c.getGlobalBlockRelative(local_x + pos.x, local_y + pos.y, local_z + pos.z);
-		if(getPOWERSTATE(block) == true && getBLOCK(block) != BLOCK_REDSTONE_WIRE)
-			return true;
-	}
-
-    return false;
 }
 
 bool WireRenderer::isActiveLeft(const int local_x, const int local_y, const int local_z, Chunk &c)
 {
-    BLOCK_WDATA block;
+    BLOCK_WDATA block = c.getGlobalBlockRelative(local_x, local_y, local_z);
 
-    if(getBLOCKDATA(block = c.getGlobalBlockRelative(local_x, local_y, local_z)) & ACTIVE_BIT)
+    if(getBLOCKDATA(block) & ACTIVE_BIT)
         return true;
 
     if(getBLOCKDATA(block) & VISITED_BIT)
@@ -231,13 +223,12 @@ bool WireRenderer::isActiveLeft(const int local_x, const int local_y, const int 
 	for(int i = 0; i < ar.count; ++i)
 	{
 		Pos &pos = ar.positions[i];
-		if(getBLOCK(c.getGlobalBlockRelative(local_x + pos.x, local_y + pos.y, local_z + pos.z)) == BLOCK_REDSTONE_WIRE
-		   && isActiveLeft(local_x + pos.x, local_y + pos.y, local_z + pos.z, c))
-		{
+        if(isActiveLeft(pos.x, pos.y, pos.z, c))
+        {
             ret = true;
             break;
-		}
-	}
+        }
+    }
     c.setGlobalBlockRelative(local_x, local_y, local_z, block & ~(VISITED_BIT << 8), false);
 
     return ret;

@@ -573,20 +573,41 @@ bool Chunk::loadFromFile(FILE *file)
     }
 }
 
-bool Chunk::isBlockPowered(const int x, const int y, const int z)
+bool Chunk::isBlockPowered(const int x, const int y, const int z, bool ignore_redstone_wire)
 {
-    return getPOWERSTATE(getGlobalBlockRelative(x - 1, y, z))
-            || getPOWERSTATE(getGlobalBlockRelative(x + 1, y, z))
-            || getPOWERSTATE(getGlobalBlockRelative(x, y - 1, z))
-            || getPOWERSTATE(getGlobalBlockRelative(x, y + 1, z))
-            || getPOWERSTATE(getGlobalBlockRelative(x, y, z - 1))
-            || getPOWERSTATE(getGlobalBlockRelative(x, y, z + 1));
-}
+    auto gettingStrongPowerFrom = [this, ignore_redstone_wire](const int x, const int y, const int z, BLOCK_SIDE side) {
+        BLOCK_WDATA block = getGlobalBlockRelative(x, y, z);
+        if(getBLOCK(block) == BLOCK_AIR || (ignore_redstone_wire && getBLOCK(block) == BLOCK_REDSTONE_WIRE))
+            return false;
 
-bool Chunk::isBlockPoweredOrPowering(const int x, const int y, const int z)
-{
-    return getPOWERSTATE(getGlobalBlockRelative(x, y, z))
-            || isBlockPowered(x, y, z);
+        return global_block_renderer.powersSide(block, side) == PowerState::StronglyPowered;
+    };
+
+    auto gettingPowerFrom = [this, ignore_redstone_wire, gettingStrongPowerFrom](const int x, const int y, const int z, BLOCK_SIDE side) {
+        BLOCK_WDATA block = getGlobalBlockRelative(x, y, z);
+        if(getBLOCK(block) == BLOCK_AIR || (ignore_redstone_wire && getBLOCK(block) == BLOCK_REDSTONE_WIRE))
+            return false;
+
+        if(global_block_renderer.powersSide(block, side) != PowerState::NotPowered)
+            return true;
+
+        if(!global_block_renderer.isOpaque(block))
+            return false;
+
+        return gettingStrongPowerFrom(x-1, y, z, BLOCK_RIGHT)
+            || gettingStrongPowerFrom(x+1, y, z, BLOCK_LEFT)
+            || gettingStrongPowerFrom(x, y-1, z, BLOCK_TOP)
+            || gettingStrongPowerFrom(x, y+1, z, BLOCK_BOTTOM)
+            || gettingStrongPowerFrom(x, y, z-1, BLOCK_BACK)
+            || gettingStrongPowerFrom(x, y, z+1, BLOCK_FRONT);
+    };
+
+    return gettingPowerFrom(x-1, y, z, BLOCK_RIGHT)
+        || gettingPowerFrom(x+1, y, z, BLOCK_LEFT)
+        || gettingPowerFrom(x, y-1, z, BLOCK_TOP)
+        || gettingPowerFrom(x, y+1, z, BLOCK_BOTTOM)
+        || gettingPowerFrom(x, y, z-1, BLOCK_BACK)
+        || gettingPowerFrom(x, y, z+1, BLOCK_FRONT);
 }
 
 void Chunk::makeTree(unsigned int x, unsigned int y, unsigned int z)

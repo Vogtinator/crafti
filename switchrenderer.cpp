@@ -96,6 +96,18 @@ bool SwitchRenderer::action(const BLOCK_WDATA block, const int local_x, const in
     return true;
 }
 
+PowerState SwitchRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE side)
+{
+    if(!getPOWERSTATE(block))
+        return PowerState::NotPowered;
+
+    const BLOCK_SIDE attached_side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block));
+    if(side == oppositeSide(attached_side))
+        return PowerState::StronglyPowered;
+
+    return PowerState::Powered;
+}
+
 const char *SwitchRenderer::getName(const BLOCK_WDATA)
 {
     return "Redstone Switch";
