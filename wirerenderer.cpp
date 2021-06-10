@@ -133,9 +133,12 @@ void WireRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y,
     tick(block, local_x, local_y, local_z, c);
 }
 
-PowerState WireRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE /*side*/)
+PowerState WireRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE side)
 {
-    return getPOWERSTATE(block) ? PowerState::Powered : PowerState::NotPowered;
+    if(!getPOWERSTATE(block) || side == BLOCK_TOP)
+        return PowerState::NotPowered;
+
+    return PowerState::StronglyPowered;
 }
 
 void WireRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
