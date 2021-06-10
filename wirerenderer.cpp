@@ -130,7 +130,19 @@ void WireRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_
 
 void WireRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    tick(block, local_x, local_y, local_z, c);
+    if(c.isBlockPowered(local_x, local_y, local_z, true)) //Directly powered?
+    {
+        //Switch to powering state and become active
+        c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, ACTIVE_BIT, true));
+
+        //Now inform the whole redstone chain to become powering
+        setCircuitState(true, local_x, local_y, local_z, c);
+    }
+    else if(isActiveLeft(local_x, local_y, local_z, c)) // Any of the connected redstone active?
+    {
+        //Now inform the whole redstone chain to become powering
+        setCircuitState(true, local_x, local_y, local_z, c);
+    }
 }
 
 PowerState WireRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE side)
@@ -146,19 +158,14 @@ void WireRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int l
     if(getPOWERSTATE(block) == false)
     {
         //Directly powered?
-        if(c.isBlockPowered(local_x, local_y, local_z, true))
-        {
-            //Switch to powering state and become active
-            c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, ACTIVE_BIT, true));
+        if(!c.isBlockPowered(local_x, local_y, local_z, true))
+            return;
 
-            //Now inform the whole redstone chain to become powering
-            setCircuitState(true, local_x, local_y, local_z, c);
-        }
-        else if(isActiveLeft(local_x, local_y, local_z, c))
-        {
-            //Now inform the whole redstone chain to become powering
-            setCircuitState(true, local_x, local_y, local_z, c);
-        }
+        //Switch to powering state and become active
+        c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATAPower(block, ACTIVE_BIT, true));
+
+        //Now inform the whole redstone chain to become powering
+        setCircuitState(true, local_x, local_y, local_z, c);
     }
     else if(getBLOCKDATA(block) == ACTIVE_BIT)
     {
