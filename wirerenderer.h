@@ -10,11 +10,11 @@ public:
     virtual void geometryNormalBlock(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {}
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return false; }
-	virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
-	virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
 
-	virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return false; }
-	virtual AABB getAABB(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/) override;;
+    virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual AABB getAABB(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/) override;
 
     virtual void drawPreview(const BLOCK_WDATA, TEXTURE &dest, const int x, const int y) override;
 
@@ -30,7 +30,7 @@ protected:
     bool isActiveLeft(const int local_x, const int local_y, const int local_z, Chunk &c);
 
     static constexpr uint8_t ACTIVE_BIT = 1 << 6, VISITED_BIT = 1 << 5;
-	constexpr static GLFix height = BLOCK_SIZE / 16;
+    constexpr static GLFix height = BLOCK_SIZE / 16;
 };
 
 #endif // WIRERENDERER_H
