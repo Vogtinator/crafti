@@ -1,6 +1,6 @@
 Author: Fabian Vogt
 License: GPLv3: http://www.gnu.org/licenses/gpl-3.0.en.html (Code only, not the resources)
 
-The terrain.png file has been downloaded from http://bdcraft.net/purebdcraft-minecraft and is licensed under the Creative Commons Attribution 3.0 License.
+The terrain.png and gui.png textures are from the PureBDcraft ResourcePack (http://bdcraft.net/purebdcraft-minecraft) and are licensed under the Creative Commons Attribution 3.0 License.
 The loading screen wallpaper is from http://wall.alphacoders.com/big.php?i=413114 and has been created by "miroha".
 The PerlinNoise class is from https://github.com/sol-prog/Perlin_Noise and licensed under the GPL v3.

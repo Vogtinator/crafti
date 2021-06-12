@@ -123,8 +123,8 @@ struct TerrainQuadEntry {
     COLOR darker; //So you can distinguish adjacent blocks
 };
 
-//The glass texture resized to 32x32
-extern TEXTURE *glass_big;
+//Pointer to textures/inv_selection.h for sharing
+extern TEXTURE *inv_selection_p;
 
 constexpr int DIR_HORIZONTAL = 0;
 constexpr int DIR_VERTICAL = 1;
