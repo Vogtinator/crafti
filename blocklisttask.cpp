@@ -112,7 +112,7 @@ void BlockListTask::render()
 
             //Again, use the glass texture as selection indicator
             if(block_nr == current_selection)
-                drawTexture(*glass_big, *screen, 0, 0, glass_big->width, glass_big->height, screen_x, screen_y, glass_big->width, glass_big->height);
+                drawTexture(*inv_selection_p, *screen, 0, 0, inv_selection_p->width, inv_selection_p->height, screen_x - 3, screen_y - 2, inv_selection_p->width, inv_selection_p->height);
 
             block_nr++;
             if(block_nr == user_selectable_count)

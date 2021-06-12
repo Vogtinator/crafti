@@ -52,8 +52,13 @@ void drawString(const char *str, COLOR color, TEXTURE &tex, unsigned int x, unsi
             x = start_x;
             y += fontHeight();
         }
+        else if(*ptr == '\t')
+        {
+            x += 32;
+            x -= x % 32;
+        }
         else
-        x += drawChar(*ptr, color, tex, x, y);
+            x += drawChar(*ptr, color, tex, x, y);
 
         ++ptr;
     }

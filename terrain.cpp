@@ -3,6 +3,7 @@
 #include <libndls.h>
 
 #include "textures/terrain.h"
+#include "textures/inv_selection.h"
 
 const char *block_names[] =
 {
@@ -81,7 +82,7 @@ TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 TerrainQuadEntry quad_block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1], dual_block_textures[2][BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 TerrainAtlasEntry terrain_atlas[16][16];
 
-TEXTURE *terrain_current, *terrain_resized, *terrain_quad, *glass_big;
+TEXTURE *terrain_current, *terrain_resized, *terrain_quad, *inv_selection_p;
 
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
 static void makeColor(const RGB &color, TEXTURE &texture, const int x, const int y, const int w, const int h)
@@ -244,10 +245,8 @@ void terrainInit(const char *texture_path)
         greyscaleTexture(*terrain_quad);
     }
 
-    //Resize the glass texture to 32x32
-    const TextureAtlasEntry &glass_tex = block_textures[BLOCK_GLASS][BLOCK_FRONT].current;
-    glass_big = newTexture(32, 32);
-    drawTexture(*terrain_current, *glass_big, glass_tex.left - 1, glass_tex.top - 1, field_width, field_height, 0, 0, 32, 32);
+    //Make the texture available to others for sharing
+    inv_selection_p = &inv_selection;
 }
 
 void terrainUninit()
@@ -259,5 +258,4 @@ void terrainUninit()
         deleteTexture(terrain_current);
 
     deleteTexture(terrain_quad);
-    deleteTexture(glass_big);
 }
