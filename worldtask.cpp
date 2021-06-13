@@ -478,6 +478,14 @@ void WorldTask::render()
         drawString(message, 0xFFFF, *screen, 2, 5);
         --message_timeout;
     }
+
+    #ifdef FPS_COUNTER
+        if(message_timeout == 0 && settings_task.getValue(SettingsTask::SHOW_FPS))
+        {
+            snprintf(this->message, sizeof(this->message), "FPS: %u", fps);
+            message_timeout = 20;
+        }
+    #endif
 }
 
 void WorldTask::resetWorld()

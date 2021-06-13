@@ -23,7 +23,8 @@ public:
         DISTANCE, //Managed by World, but can be changed here as well
         FAST_MODE,
         NEARPLANE_Z,
-        TICKS_ENABLED
+        TICKS_ENABLED,
+        SHOW_FPS,
     };
 
     SettingsTask();

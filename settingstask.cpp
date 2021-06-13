@@ -38,6 +38,7 @@ SettingsTask::SettingsTask()
     settings.push_back({"Fast mode", fastmode_values, 2, 0, 0, 1});
     settings.push_back({"Near plane", nullptr, 500, 256, 120, 16});
     settings.push_back({"World", world_static_values, 2, 1, 0, 1});
+    settings.push_back({"Show FPS", fastmode_values, 2, 0, 0, 1});
 
     background = newTexture(background_width, background_height, 0, false);
 }
