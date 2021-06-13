@@ -105,13 +105,17 @@ void MenuTask::logic()
             break;
 
         case LOAD_WORLD:
-            load();
-            world_task.setMessage("World loaded.");
+            if(load())
+                world_task.setMessage("World loaded.");
+            else
+                world_task.setMessage("World failed to load.");
             break;
 
         case SAVE_WORLD:
-            save();
-            world_task.setMessage("World saved.");
+            if(save())
+                world_task.setMessage("World saved.");
+            else
+                world_task.setMessage("Failed to save world.");
             break;
 
         case EXIT:

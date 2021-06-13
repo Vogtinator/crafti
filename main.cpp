@@ -48,9 +48,9 @@ int main(int argc, char *argv[])
     Task::initializeGlobals(argc > 1 ? argv[1] : "/documents/ndless/crafti.map.tns");
 
     if(Task::load())
-        puts("Loaded world.");
+        world_task.setMessage("World loaded.");
     else
-        puts("Failed to load world!");
+        world_task.setMessage("World failed to load.");
 
     //Start with WorldTask as current task
     world_task.makeCurrent();
