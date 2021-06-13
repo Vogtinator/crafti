@@ -103,17 +103,16 @@ extern const char *block_names[];
 extern TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 extern TerrainAtlasEntry terrain_atlas[16][16];
 
-//terrain_resized is always 256x256 pixels
 //The included texture or loaded texture without any modifications
 extern TEXTURE *terrain_current;
-//A resized copy (256x256) for non-scalable stuff, like GUI
+//A resized copy (384x384) for non-scalable stuff, like GUI
 extern TEXTURE *terrain_resized;
 /*Contains four times the texture for skipping some triangles:
 * 8 triangles -> 2 triangles!
 *  ___      ___
 * |\|\|    |\  |
 * |\|\| => |  \|
-*  ‾‾‾‾      ‾‾‾‾
+*  ‾‾‾      ‾‾‾
 * It's quite space consuming, so only selected textures are used*/
 extern TEXTURE *terrain_quad;
 struct TerrainQuadEntry {
@@ -126,8 +125,9 @@ struct TerrainQuadEntry {
 //Pointer to textures/inv_selection.h for sharing
 extern TEXTURE *inv_selection_p;
 
-constexpr int DIR_HORIZONTAL = 0;
-constexpr int DIR_VERTICAL = 1;
+//The door texture resized to 16x32
+extern TEXTURE *door_preview;
+
 extern TerrainQuadEntry quad_block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 
 void terrainInit(const char *texture_path);

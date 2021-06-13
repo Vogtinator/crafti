@@ -82,7 +82,7 @@ TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 TerrainQuadEntry quad_block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1], dual_block_textures[2][BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 TerrainAtlasEntry terrain_atlas[16][16];
 
-TEXTURE *terrain_current, *terrain_resized, *terrain_quad, *inv_selection_p;
+TEXTURE *terrain_current, *terrain_resized, *terrain_quad, *inv_selection_p, *door_preview;
 
 //Some textures have a different color in different biomes. We have to make them green. Grey grass just looks so unhealty
 static void makeColor(const RGB &color, TEXTURE &texture, const int x, const int y, const int w, const int h)
@@ -127,17 +127,17 @@ void terrainInit(const char *texture_path)
     const RGB red_tint = { 1.0f, 0.8f, 0.8f };
     makeColor(red_tint, *terrain_current, 10 * field_width, 15 * field_height, field_width, field_height);
 
-    if(terrain_current->width == 256 && terrain_current->height == 256)
+    if(terrain_current->width == 384 && terrain_current->height == 384)
         terrain_resized = terrain_current;
     else
-        terrain_resized = resizeTexture(*terrain_current, 256, 256);
+        terrain_resized = resizeTexture(*terrain_current, 384, 384);
 
     for(int y = 0; y < fields_y; y++)
         for(int x = 0; x < fields_x; x++)
         {
             //+1 and -2 to work around GLFix inaccuracies resulting in rounding errors
             TerrainAtlasEntry tea = terrain_atlas[x][y] = {textureArea(x * field_width + 1, y * field_height + 1, field_width - 2, field_height - 2),
-                                                            textureArea(x * 16, y * 16, 16, 16) };
+                                                            textureArea(x * 24, y * 24, 24, 24) };
 
             BLOCK_TEXTURE bt = texture_atlas[y][x];
             if(bt.sides == 0)
@@ -247,15 +247,22 @@ void terrainInit(const char *texture_path)
 
     //Make the texture available to others for sharing
     inv_selection_p = &inv_selection;
+
+    door_preview = newTexture(16, 32);
+    TextureAtlasEntry door = terrain_atlas[1][5].current;
+    door.bottom += door.bottom - door.top; //Double height
+    drawTexture(*terrain_current, *door_preview, door.left, door.top, door.right - door.left, door.bottom - door.top, 0, 0, 16, 32);
 }
 
 void terrainUninit()
 {
-    if(terrain_current->width != 256 || terrain_current->height != 256)
+    if(terrain_resized != terrain_current)
         deleteTexture(terrain_resized);
 
     if(terrain_current != &terrain)
         deleteTexture(terrain_current);
 
     deleteTexture(terrain_quad);
+
+    deleteTexture(door_preview);
 }
