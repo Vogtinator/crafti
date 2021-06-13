@@ -1,5 +1,9 @@
 #include "wirerenderer.h"
 
+/* How Redstone in crafti is implemented:
+ *
+ */
+
 constexpr GLFix WireRenderer::height;
 
 struct Pos { int x, y, z; };
@@ -213,6 +217,7 @@ void WireRenderer::setCircuitState(const bool state, const int local_x, const in
     }
 }
 
+// Whether the circut at that position has any wire with ACTIVE_BIT set.
 bool WireRenderer::isActiveLeft(const int local_x, const int local_y, const int local_z, Chunk &c)
 {
     BLOCK_WDATA block = c.getGlobalBlockRelative(local_x, local_y, local_z);
