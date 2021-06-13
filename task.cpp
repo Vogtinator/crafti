@@ -94,6 +94,7 @@ bool Task::load()
     else if(version != 4)
     {
         printf("Wrong save file version %d!\n", version);
+        fclose(file);
         return false;
     }
 
