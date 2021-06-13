@@ -17,8 +17,14 @@ public:
     int current_selection;
 
 private:
-    static const unsigned int blocklist_width = SCREEN_WIDTH - 2*25, blocklist_left = (SCREEN_WIDTH - blocklist_width) / 2;
-    static unsigned int blocklist_height, blocklist_top;
+    static const int field_width = 30, field_height = 30, // Size of each field
+                     pad_x = (field_width - 16) / 2, pad_y = (field_height - 16) / 2,
+                     pad_y_door = (field_height - 32) / 2, // Door > field_height -> Negative!
+                     fields_x = 9, fields_y = 5;
+
+    static const unsigned int blocklist_width = fields_x * field_width + 2*pad_x, blocklist_left = (SCREEN_WIDTH - blocklist_width) / 2;
+    static const unsigned int blocklist_height = fields_y * field_height + 2*pad_y;
+    static unsigned int blocklist_top;
     //Black texture as background
     static TEXTURE *blocklist_background;
 };
