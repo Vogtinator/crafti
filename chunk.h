@@ -71,8 +71,6 @@ private:
     //Rendering
     void geometrySpecialBlock(BLOCK_WDATA block, unsigned int x, unsigned int y, unsigned int z, BLOCK_SIDE side);
     void buildGeometry();
-    VERTEX perspective(const IndexedVertex &v, VECTOR3 &transformed);
-    bool drawTriangle(const IndexedVertex &low, const IndexedVertex &middle, const IndexedVertex &high, bool backface_culling = true);
 
     //Data
     const GLFix abs_x, abs_y, abs_z;
