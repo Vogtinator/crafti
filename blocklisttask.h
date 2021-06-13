@@ -17,8 +17,8 @@ public:
     int current_selection;
 
 private:
-    static const int field_width = 30, field_height = 30, // Size of each field
-                     pad_x = (field_width - 16) / 2, pad_y = (field_height - 16) / 2,
+    static const int field_width = 32, field_height = 32, // Size of each field
+                     pad_x = (field_width - 24) / 2, pad_y = (field_height - 24) / 2,
                      pad_y_door = (field_height - 32) / 2, // Door > field_height -> Negative!
                      fields_x = 9, fields_y = 5;
 

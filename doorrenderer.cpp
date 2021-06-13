@@ -73,9 +73,7 @@ AABB DoorRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 
 void DoorRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
-    TextureAtlasEntry tex = terrain_atlas[1][5].resized;
-    tex.bottom += tex.bottom - tex.top; //Double height
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tex, dest, x, y);
+    drawTexture(*door_preview, dest, 0, 0, 16, 32, x + 4, y, 16, 32);
 }
 
 bool DoorRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)

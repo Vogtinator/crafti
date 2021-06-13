@@ -9,10 +9,10 @@ all: $(OBJS)
 	ConvertImg --format=ngl $^ $@
 
 inventory.png: gui.png
-	convert -scale 420x420 -crop 168x37+0+0 $^ $@
+	convert -scale 512x512 -crop 200x42+0+1 $^ $@
 
 inv_selection.png: gui.png
-	convert -scale 420x420 -crop 38x37+0+37 $^ $@
+	convert -scale 512x512 -crop 46x46+1+44 $^ $@
 
 font_dat.h: font.dat
 	xxd -i $^ > $@

@@ -126,6 +126,9 @@ struct TerrainQuadEntry {
 //Pointer to textures/inv_selection.h for sharing
 extern TEXTURE *inv_selection_p;
 
+//The door texture resized to 16x32
+extern TEXTURE *door_preview;
+
 constexpr int DIR_HORIZONTAL = 0;
 constexpr int DIR_VERTICAL = 1;
 extern TerrainQuadEntry quad_block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
