@@ -1,5 +1,33 @@
 #include "wirerenderer.h"
 
+/* How redstone power is implemented:
+ *
+ * Blocks can be powered by other blocks directly an indirectly.
+ * The powersSide(BLOCK_SIDE side) method returns whether the current block powers
+ * the block to that side and if yes, whether it does so strongly. Blocks which receive
+ * strong power power the blocks around it (indirect power).
+ *
+ * Redstone torches are turned on unless they get powered by the block they're attached
+ * to (the control block) directly or indirectly. When they are on, they power all sides
+ * (except to the control block) normally and the top strongly (upside down torches instead
+ * power the bottom strongly).
+ *
+ * Redstone wire is activated if it's getting powered directly or indirectly by a block
+ * which isn't redstone wire. This is to avoid that a circuit accidentially powers itself,
+ * and actually results in what's called "weak power" in Minecraft. When powered off
+ * redstone wire receives power, it turns on all the wire blocks in the circuit. Finding
+ * out when to power off the circuit is a bit harder, because the entire circuit has to be
+ * traversed to check whether any part still receives power. As an optimization, an
+ * additional bit of information (in addition to the power state) is saved: Wire which
+ * receives power sets ACTIVE_BIT in its block data. This means that only when the saved
+ * ACTIVE_BIT doesn't match whether it's currently receiving power, the entire circuit has
+ * to be checked and updated. Powered redstone wire powers all sides except the top strongly.
+ *
+ * These rules result in the following differences to Minecraft:
+ * - No power levels, which also means there's infinite range
+ * - Redstone is not directional, i.e. corners and straights send power to all sides anyway.
+ */
+
 constexpr GLFix WireRenderer::height;
 
 struct Pos { int x, y, z; };
@@ -213,6 +241,7 @@ void WireRenderer::setCircuitState(const bool state, const int local_x, const in
     }
 }
 
+// Whether the circut at that position has any wire with ACTIVE_BIT set.
 bool WireRenderer::isActiveLeft(const int local_x, const int local_y, const int local_z, Chunk &c)
 {
     BLOCK_WDATA block = c.getGlobalBlockRelative(local_x, local_y, local_z);

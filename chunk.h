@@ -33,7 +33,10 @@ public:
     bool saveToFile(FILE *file);
     bool loadFromFile(FILE *file);
 
+    //Redstone power: See wirerenderer.cpp for details
+    //Whether the block receives power from the specified side.
     bool gettingPowerFrom(const int x, const int y, const int z, BLOCK_SIDE side, bool ignore_redstone_wire = false);
+    //Whether the block receives power directly or indirectly.
     bool isBlockPowered(const int x, const int y, const int z, bool ignore_redstone_wire = false);
 
     GLFix absX() { return abs_x; }
