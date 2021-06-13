@@ -81,7 +81,7 @@ private:
 
     //Rendering
     bool render_dirty = true;
-    int pos_indices[SIZE + 1][SIZE + 1][SIZE + 1];
+    static int pos_indices[SIZE + 1][SIZE + 1][SIZE + 1];
     BLOCK_SIDE_BITFIELD sides_rendered[SIZE][SIZE][SIZE] = {}; //It could be that other chunks already rendered parts of our blocks
     std::vector<VECTOR3> positions;
     std::vector<ProcessedPosition> positions_processed;

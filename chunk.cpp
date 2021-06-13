@@ -18,6 +18,7 @@
 #endif
 
 constexpr const int Chunk::SIZE;
+int Chunk::pos_indices[SIZE + 1][SIZE + 1][SIZE + 1];
 
 Chunk::Chunk(int x, int y, int z)
     : x(x), y(y), z(z), abs_x(x*SIZE*BLOCK_SIZE), abs_y(y*SIZE*BLOCK_SIZE), abs_z(z*SIZE*BLOCK_SIZE), aabb(abs_x, abs_y, abs_z, abs_x + SIZE*BLOCK_SIZE, abs_y + SIZE*BLOCK_SIZE, abs_z + SIZE*BLOCK_SIZE)
