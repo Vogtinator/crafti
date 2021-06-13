@@ -291,7 +291,7 @@ void WorldTask::logic()
 
                         //If the player is stuck now, it's because of the block change, so remove it again
                         if(world.intersect(aabb))
-                            world.changeBlock(pos.x, pos.y, pos.z, BLOCK_AIR);
+                            world.changeBlock(pos.x, pos.y, pos.z, current_block);
                     }
                 }
             }
