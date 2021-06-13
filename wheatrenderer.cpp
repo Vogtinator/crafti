@@ -25,12 +25,12 @@ void WheatRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int 
     if(!isIrrigated(local_x, local_y, local_z, c))
         return c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), 0));
 
-    //Grow only if lucky
-    if(rand() % 30 != 0)
-        return;
-
     const uint8_t growth = getBLOCKDATA(block);
     if(growth == max_growth)
+        return;
+
+    //Grow only if lucky
+    if(rand() % 30 != 0)
         return;
 
     c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), growth + 1));
