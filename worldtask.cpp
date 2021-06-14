@@ -344,7 +344,12 @@ void WorldTask::logic()
             }
         }
         else
+        {
+            draw_inventory = false;
+            render();
+            draw_inventory = true;
             block_list_task.makeCurrent();
+        }
 
         key_held_down = true;
     }
@@ -466,8 +471,8 @@ void WorldTask::render()
     crosshairPixel(0, 1);
     crosshairPixel(0, 2);
 
-    //Don't draw the inventory if the block list will be opened, it will draw the inventory itself
-    if(!keyPressed(KEY_NSPIRE_PERIOD) || key_held_down)
+    //Don't draw the inventory when drawing the background for BlockListTask
+    if(draw_inventory)
     {
         current_inventory.draw(*screen);
         drawStringCenter(global_block_renderer.getName(current_inventory.currentSlot()), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());

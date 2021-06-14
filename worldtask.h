@@ -43,6 +43,8 @@ private:
     VECTOR3 selection_pos; AABB::SIDE selection_side; VECTOR3 selection_pos_abs; bool do_test = true; //For intersectsRay
 
     char message[40]; unsigned int message_timeout = 0;
+
+    bool draw_inventory = true;
 };
 
 extern WorldTask world_task;
