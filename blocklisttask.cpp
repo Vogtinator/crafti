@@ -109,10 +109,6 @@ void BlockListTask::render()
             else
                 global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_y, screen_y + pad_y);
 
-            //Again, use the glass texture as selection indicator
-            if(block_nr == current_selection)
-                drawTexture(*inv_selection_p, *screen, 0, 0, inv_selection_p->width, inv_selection_p->height, screen_x + pad_x - 11, screen_y + pad_y - 10, inv_selection_p->width, inv_selection_p->height);
-
             block_nr++;
             if(block_nr == user_selectable_count)
                 goto end;
@@ -120,6 +116,11 @@ void BlockListTask::render()
     }
 
     end:
+
+    //Draw the selection indicator
+    screen_x = blocklist_left + pad_x + field_width * (current_selection % fields_x);
+    screen_y = blocklist_top + pad_y + field_height * (current_selection / fields_x);
+    drawTexture(*inv_selection_p, *screen, 0, 0, inv_selection_p->width, inv_selection_p->height, screen_x + pad_x - 11, screen_y + pad_y - 10, inv_selection_p->width, inv_selection_p->height);
 
     current_inventory.draw(*screen);
     drawStringCenter(global_block_renderer.getName(user_selectable[current_selection]), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());
