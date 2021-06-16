@@ -191,6 +191,13 @@ void WireRenderer::removedBlock(const BLOCK_WDATA block, int local_x, int local_
 
 void WireRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
+    // If there's no block below, delete itself
+    if(!global_block_renderer.isObstacle(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)))
+    {
+        c.changeLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
+        return;
+    }
+
     if(c.isBlockPowered(local_x, local_y, local_z, true)) //Directly powered?
     {
         //Switch to powering state and become active
@@ -216,6 +223,13 @@ PowerState WireRenderer::powersSide(const BLOCK_WDATA block, BLOCK_SIDE side)
 
 void WireRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
+    // If there's no block below, delete itself
+    if(!global_block_renderer.isObstacle(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)))
+    {
+        c.changeLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
+        return;
+    }
+
     if(getPOWERSTATE(block) == false)
     {
         //Directly powered?
