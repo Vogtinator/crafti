@@ -30,7 +30,7 @@ protected:
     bool isActiveLeft(const int local_x, const int local_y, const int local_z, Chunk &c);
 
     static constexpr uint8_t ACTIVE_BIT = 1 << 6, VISITED_BIT = 1 << 5;
-    constexpr static GLFix height = BLOCK_SIZE / 16;
+    constexpr static GLFix height = BLOCK_SIZE / 12;
 };
 
 #endif // WIRERENDERER_H

@@ -34,6 +34,7 @@ static void getAdjacentRedstone(int local_x, int local_y, int local_z, Chunk &c,
 void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
     TextureAtlasEntry tex = terrain_atlas[4][getPOWERSTATE(block) ? 11 : 10].current;
+    const TextureAtlasEntry &tex_line = terrain_atlas[5][getPOWERSTATE(block) ? 11 : 10].current;
 
     // Whether there is a connection in that direction
     bool c_left = false, c_right = false, c_back = false, c_front = false,
@@ -59,15 +60,15 @@ void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
         }
         else if(pos.z == local_z - 1)
         {
-            c_back = true;
-            if(pos.y == local_y + 1)
-                c_back_up = true;
-        }
-        else if(pos.z == local_z + 1)
-        {
             c_front = true;
             if(pos.y == local_y + 1)
                 c_front_up = true;
+        }
+        else if(pos.z == local_z + 1)
+        {
+            c_back = true;
+            if(pos.y == local_y + 1)
+                c_back_up = true;
         }
     }
 
@@ -88,12 +89,12 @@ void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
         tex.right -= thirdTex;
         xend -= thirdBlock;
     }
-    if(!c_back)
+    if(!c_front)
     {
         tex.bottom -= thirdTex;
         zstart += thirdBlock;
     }
-    if(!c_front)
+    if(!c_back)
     {
         tex.top += thirdTex;
         zend -= thirdBlock;
@@ -103,6 +104,38 @@ void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     c.addUnalignedVertex(xstart, y + height, zend, tex.left, tex.top, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
     c.addUnalignedVertex(xend, y + height, zend, tex.right, tex.top, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
     c.addUnalignedVertex(xend, y + height, zstart, tex.right, tex.bottom, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
+
+    if(c_left_up)
+    {
+        c.addUnalignedVertex(x + height, y, z, tex_line.right, tex_line.bottom, TEXTURE_DRAW_BACKFACE | TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + height, y + BLOCK_SIZE, z, tex_line.left, tex_line.bottom, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + height, y + BLOCK_SIZE, z + BLOCK_SIZE, tex_line.left, tex_line.top, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + height, y, z + BLOCK_SIZE, tex_line.right, tex_line.top, TEXTURE_TRANSPARENT);
+    }
+
+    if(c_right_up)
+    {
+        c.addUnalignedVertex(x + BLOCK_SIZE - height, y, z, tex_line.right, tex_line.bottom, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + BLOCK_SIZE - height, y, z + BLOCK_SIZE, tex_line.right, tex_line.top, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + BLOCK_SIZE - height, y + BLOCK_SIZE, z + BLOCK_SIZE, tex_line.left, tex_line.top, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + BLOCK_SIZE - height, y + BLOCK_SIZE, z, tex_line.left, tex_line.bottom, TEXTURE_TRANSPARENT);
+    }
+
+    if(c_front_up)
+    {
+        c.addUnalignedVertex(x, y, z + height, tex_line.right, tex_line.bottom, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + BLOCK_SIZE, y, z + height, tex_line.right, tex_line.top, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + BLOCK_SIZE, y + BLOCK_SIZE, z + height, tex_line.left, tex_line.top, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x, y + BLOCK_SIZE, z + height, tex_line.left, tex_line.bottom,  TEXTURE_TRANSPARENT);
+    }
+
+    if(c_back_up)
+    {
+        c.addUnalignedVertex(x, y, z + BLOCK_SIZE - height, tex_line.right, tex_line.bottom, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x, y + BLOCK_SIZE, z + BLOCK_SIZE - height, tex_line.left, tex_line.bottom, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE - height, tex_line.left, tex_line.top, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + BLOCK_SIZE, y, z +  BLOCK_SIZE - height, tex_line.right, tex_line.top, TEXTURE_TRANSPARENT);
+    }
 }
 
 AABB WireRenderer::getAABB(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z)
