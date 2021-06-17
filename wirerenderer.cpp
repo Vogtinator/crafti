@@ -139,18 +139,18 @@ void WireRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 
     if(c_right_up)
     {
-        c.addUnalignedVertex(x + BLOCK_SIZE - height, y, z, tex_line.right, tex_line.bottom, TEXTURE_TRANSPARENT);
         c.addUnalignedVertex(x + BLOCK_SIZE - height, y, z + BLOCK_SIZE, tex_line.right, tex_line.top, TEXTURE_TRANSPARENT);
         c.addUnalignedVertex(x + BLOCK_SIZE - height, y + BLOCK_SIZE, z + BLOCK_SIZE, tex_line.left, tex_line.top, TEXTURE_TRANSPARENT);
         c.addUnalignedVertex(x + BLOCK_SIZE - height, y + BLOCK_SIZE, z, tex_line.left, tex_line.bottom, TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x + BLOCK_SIZE - height, y, z, tex_line.right, tex_line.bottom, TEXTURE_TRANSPARENT);
     }
 
     if(c_front_up)
     {
-        c.addUnalignedVertex(x, y, z + height, tex_line.right, tex_line.bottom, TEXTURE_TRANSPARENT);
         c.addUnalignedVertex(x + BLOCK_SIZE, y, z + height, tex_line.right, tex_line.top, TEXTURE_TRANSPARENT);
         c.addUnalignedVertex(x + BLOCK_SIZE, y + BLOCK_SIZE, z + height, tex_line.left, tex_line.top, TEXTURE_TRANSPARENT);
         c.addUnalignedVertex(x, y + BLOCK_SIZE, z + height, tex_line.left, tex_line.bottom,  TEXTURE_TRANSPARENT);
+        c.addUnalignedVertex(x, y, z + height, tex_line.right, tex_line.bottom, TEXTURE_TRANSPARENT);
     }
 
     if(c_back_up)
