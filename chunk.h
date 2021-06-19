@@ -49,6 +49,10 @@ public:
     //Same as addAlignedVertex, but with nglForceColor on
     void addAlignedVertexForceColor(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c);
 
+    // For unaligned vertices: If set, the two triangles in the quad do backface culling independently.
+    // This is necessary when they're not on the same plane.
+    static constexpr COLOR INDEPENDENT_TRIS = 0x0001;
+
     //Doesn't have to be aligned, terrain_current is bound
     void addUnalignedVertex(const GLFix x, const GLFix y, const GLFix z, const GLFix u, const GLFix v, const COLOR c);
     void addUnalignedVertex(const VERTEX &v);

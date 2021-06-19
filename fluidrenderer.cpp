@@ -85,42 +85,42 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
     //A liquid block with >= range as this block is like an opaque block to this block
     if(!global_block_renderer.isOpaque(block_front) && getBLOCK(block_front) != getBLOCK(block))
     {
-        c.addUnalignedVertex({x, y, z, tex.left, tex.bottom, 0});
-        c.addUnalignedVertex({x, y + corner_height[0][0], z, tex.left, corner_tex_top[0][0], 0});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][0], z, tex.right, corner_tex_top[1][0], 0});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y, z, tex.right, tex.bottom, 0});
+        c.addUnalignedVertex({x, y, z, tex.left, tex.bottom, Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x, y + corner_height[0][0], z, tex.left, corner_tex_top[0][0], Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][0], z, tex.right, corner_tex_top[1][0], Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z, tex.right, tex.bottom, Chunk::INDEPENDENT_TRIS});
     }
 
     if(!global_block_renderer.isOpaque(block_back) && getBLOCK(block_back) != getBLOCK(block))
     {
-        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.left, tex.bottom, 0});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][1], z + BLOCK_SIZE, tex.left, corner_tex_top[1][1], 0});
-        c.addUnalignedVertex({x, y + corner_height[0][1], z + BLOCK_SIZE, tex.right, corner_tex_top[0][1], 0});
-        c.addUnalignedVertex({x, y, z + BLOCK_SIZE, tex.right, tex.bottom, 0});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.left, tex.bottom, Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][1], z + BLOCK_SIZE, tex.left, corner_tex_top[1][1], Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x, y + corner_height[0][1], z + BLOCK_SIZE, tex.right, corner_tex_top[0][1], Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x, y, z + BLOCK_SIZE, tex.right, tex.bottom, Chunk::INDEPENDENT_TRIS});
     }
 
     if(!global_block_renderer.isOpaque(block_left) && getBLOCK(block_left) != getBLOCK(block))
     {
-        c.addUnalignedVertex({x, y, z + BLOCK_SIZE, tex.left, tex.bottom, 0});
-        c.addUnalignedVertex({x, y + corner_height[0][1], z + BLOCK_SIZE, tex.left, corner_tex_top[0][1], 0});
-        c.addUnalignedVertex({x, y + corner_height[0][0], z, tex.right, corner_tex_top[0][0], 0});
-        c.addUnalignedVertex({x, y, z, tex.right, tex.bottom, 0});
+        c.addUnalignedVertex({x, y, z + BLOCK_SIZE, tex.left, tex.bottom, Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x, y + corner_height[0][1], z + BLOCK_SIZE, tex.left, corner_tex_top[0][1], Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x, y + corner_height[0][0], z, tex.right, corner_tex_top[0][0], Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x, y, z, tex.right, tex.bottom, Chunk::INDEPENDENT_TRIS});
     }
 
     if(!global_block_renderer.isOpaque(block_right) && getBLOCK(block_right) != getBLOCK(block))
     {
-        c.addUnalignedVertex({x + BLOCK_SIZE, y, z, tex.left, tex.bottom, 0});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][0], z, tex.left, corner_tex_top[1][0], 0});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][1], z + BLOCK_SIZE, tex.right, corner_tex_top[1][1], 0});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.right, tex.bottom, 0});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z, tex.left, tex.bottom, Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][0], z, tex.left, corner_tex_top[1][0], Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][1], z + BLOCK_SIZE, tex.right, corner_tex_top[1][1], Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.right, tex.bottom, Chunk::INDEPENDENT_TRIS});
     }
 
     if(!top_is_fluid)
     {
-        c.addUnalignedVertex({x, y + corner_height[0][0], z, tex.left, tex.bottom, 0});
-        c.addUnalignedVertex({x, y + corner_height[0][1], z + BLOCK_SIZE, tex.left, tex.top, 0});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][1], z + BLOCK_SIZE, tex.right, tex.top, 0});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][0], z, tex.right, tex.bottom, 0});
+        c.addUnalignedVertex({x, y + corner_height[0][0], z, tex.left, tex.bottom, Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x, y + corner_height[0][1], z + BLOCK_SIZE, tex.left, tex.top, Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][1], z + BLOCK_SIZE, tex.right, tex.top, Chunk::INDEPENDENT_TRIS});
+        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][0], z, tex.right, tex.bottom, Chunk::INDEPENDENT_TRIS});
     }
 }
 

@@ -280,14 +280,14 @@ void Chunk::render()
         v3.v = ve[2].v;
         v3.c = ve[2].c;
 
-        if(nglDrawTriangle(&v1, &v2, &v3, (v1.c & TEXTURE_DRAW_BACKFACE) == 0))
+        if(nglDrawTriangle(&v1, &v2, &v3, (v1.c & TEXTURE_DRAW_BACKFACE) == 0) || (v1.c & INDEPENDENT_TRIS))
         {
             nglMultMatVectRes(transformation, &ve[3], &v4);
             v4.u = ve[3].u;
             v4.v = ve[3].v;
             v4.c = ve[3].c;
 
-            nglDrawTriangle(&v3, &v4, &v1, false);
+            nglDrawTriangle(&v3, &v4, &v1, v1.c & INDEPENDENT_TRIS);
         }
     }
 
