@@ -24,7 +24,8 @@ public:
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) = 0;
 
     static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color = 0);
-    static void renderNormalBlockSideQuad(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color = 0);
+    //Renders dx*dy*dz (depending on the side) block sides (max 2x2) at once
+    static void renderNormalBlockSides(int local_x, int local_y, int local_z, int width, int dy, int dz, const BLOCK_SIDE side, TextureAtlasEntry tex, Chunk &c, const COLOR color = 0);
     static void renderNormalBlockSideForceColor(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const COLOR color, Chunk &c);
     static void renderNormalBlockSideQuadForceColor(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const COLOR color, Chunk &c);
     //Doesn't render sides adjacent to other blocks of the same type, used by glass, water, leaves etc.
