@@ -1,31 +1,34 @@
 #include "torchrenderer.h"
+#include "textures/part_fire.h"
+#include "worldtask.h"
+
+constexpr GLFix TorchRenderer::torch_height;
+constexpr GLFix TorchRenderer::torch_width;
 
 void TorchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
     TextureAtlasEntry &tex = terrain_atlas[0][5].current;
 
-    renderTorch(static_cast<BLOCK_SIDE>(getBLOCKDATA(block)), x, y, z, tex, c);
+    renderTorch(static_cast<BLOCK_SIDE>(getBLOCKDATA(block)), x, y, z, tex, c, true);
 }
 
 AABB TorchRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 {
-    constexpr GLFix torch_width = BLOCK_SIZE / 4;
-    constexpr GLFix torch_height = BLOCK_SIZE / 10 * 8;
     constexpr GLFix center = BLOCK_SIZE / 2;
 
     switch(static_cast<BLOCK_SIDE>(getBLOCKDATA(block)))
     {
     default:
     case BLOCK_TOP:
-        return {x + center - torch_width, y, z + center - torch_width, x + center + torch_width, y + torch_height, z + center + torch_width};
+        return {x + center - torch_width/2, y, z + center - torch_width/2, x + center + torch_width/2, y + torch_height, z + center + torch_width/2};
     case BLOCK_BOTTOM:
-        return {x + center - torch_width, y + BLOCK_SIZE - torch_height, z + center - torch_width, x + center + torch_width, y + BLOCK_SIZE, z + center + torch_width};
+        return {x + center - torch_width/2, y + BLOCK_SIZE - torch_height, z + center - torch_width/2, x + center + torch_width/2, y + BLOCK_SIZE, z + center + torch_width/2};
     case BLOCK_BACK:
     case BLOCK_FRONT:
-        return {x + center - torch_width, y, z, x + center + torch_width, y + torch_height, z + BLOCK_SIZE};
+        return {x + center - torch_width/2, y, z, x + center + torch_width/2, y + torch_height, z + BLOCK_SIZE};
     case BLOCK_LEFT:
     case BLOCK_RIGHT:
-        return {x, y, z + center - torch_width, x + BLOCK_SIZE, y + torch_height, z + center + torch_width};
+        return {x, y, z + center - torch_width/2, x + BLOCK_SIZE, y + torch_height, z + center + torch_width/2};
     }
 }
 
@@ -40,7 +43,7 @@ const char *TorchRenderer::getName(const BLOCK_WDATA /*block*/)
     return "Torch";
 }
 
-void TorchRenderer::renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFix y, const GLFix z, TextureAtlasEntry tex, Chunk &c)
+void TorchRenderer::renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFix y, const GLFix z, TextureAtlasEntry tex, Chunk &c, bool flame)
 {
     glPushMatrix();
     glLoadIdentity();
@@ -95,6 +98,50 @@ void TorchRenderer::renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFi
         VERTEX v1;
         nglMultMatVectRes(transformation, &v, &v1);
         c.addUnalignedVertex(v1.x, v1.y, v1.z, v.u, v.v, v.c);
+    }
+
+    if(flame)
+    {
+        VECTOR3 flame_center = {BLOCK_SIZE / 2, torch_height, BLOCK_SIZE / 2};
+        nglMultMatVectRes(transformation, &flame_center, &flame_center);
+
+        Chunk::Animation animation {flame_center.x, flame_center.y, flame_center.z,
+                    [] (GLFix x, GLFix y, GLFix z, Chunk &) {
+            static const GLFix steps[] = {30, 15, 25, 10, 32, 27, 17, 28};
+            const auto step_count = sizeof(steps) / sizeof(steps[0]);
+            const int frames_per_step = 8;
+            auto counter = world_task.frameCount();
+
+            // Show each step for frames_per_step frames, interpolating linearly.
+            // Mix in X/Y/Z to give each torch separate behaviour.
+            auto step = counter / frames_per_step + int(x + y + z) / BLOCK_SIZE;
+            GLFix t = GLFix(counter % frames_per_step) / frames_per_step;
+            const GLFix flame_size = (GLFix(1) - t) * steps[step % step_count]
+                                     + t * steps[(step + 1) % step_count];
+
+            // Avoid glitches due to rounding errors
+            static const TextureAtlasEntry tex = textureArea(1, 1, part_fire.width - 1, part_fire.height - 1);
+
+            glBindTexture(&part_fire);
+
+            // Render always facing the camera and right side up,
+            // based on the coordinates of the bottom center.
+            VECTOR3 center = {x, y, z};
+            nglMultMatVectRes(transformation, &center, &center);
+            VERTEX v1{center.x - flame_size/2, center.y, center.z, tex.left, tex.bottom,
+                      TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
+                   v2{center.x - flame_size/2, center.y + flame_size, center.z, tex.left, tex.top,
+                      TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
+                   v3{center.x + flame_size/2, center.y + flame_size, center.z, tex.right, tex.top,
+                      TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
+                   v4{center.x + flame_size/2, center.y, center.z, tex.right, tex.bottom,
+                      TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE};
+
+            nglDrawTriangle(&v1, &v2, &v3, false);
+            nglDrawTriangle(&v3, &v4, &v1, false);
+        }};
+
+        c.addAnimation(animation);
     }
 
     glPopMatrix();

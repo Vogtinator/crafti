@@ -22,6 +22,8 @@ public:
 
     void setMessage(const char *message);
 
+    unsigned int frameCount() { return frame_counter; }
+
 private:
     void crosshairPixel(int x, int y);
 
@@ -45,6 +47,7 @@ private:
     char message[40]; unsigned int message_timeout = 0;
 
     bool draw_inventory = true;
+    unsigned int frame_counter = 0; // Incremented after each render
 };
 
 extern WorldTask world_task;

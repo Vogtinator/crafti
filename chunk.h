@@ -60,6 +60,13 @@ public:
     void addUnalignedVertex(const GLFix x, const GLFix y, const GLFix z, const GLFix u, const GLFix v, const COLOR c);
     void addUnalignedVertex(const VERTEX &v);
 
+    //The callback is called on every frame
+    struct Animation {
+        GLFix x, y, z;
+        void (*animate)(GLFix x, GLFix y, GLFix z, Chunk &c);
+    };
+    void addAnimation(const Animation &animation);
+
     //Don't render something twice
     void setLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
     bool isLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
@@ -92,6 +99,7 @@ private:
     std::vector<ProcessedPosition> positions_processed;
     std::vector<IndexedVertex> vertices, vertices_quad, vertices_color;
     std::vector<VERTEX> vertices_unaligned; //The optimized drawing with indices doesn't work with unaligned positions
+    std::vector<Animation> animations;
     int tick_counter = 1; //1 to trigger a tick the next frame
 };
 
