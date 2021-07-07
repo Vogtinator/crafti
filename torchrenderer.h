@@ -21,10 +21,12 @@ public:
     virtual const char* getName(const BLOCK_WDATA) override;
 
 protected:
-    void renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFix y, const GLFix z, TextureAtlasEntry tex, Chunk &c);
+    // Render a torch attached to a block at the given side using given texture.
+    // If flame is true, a flame animation is added as well.
+    void renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFix y, const GLFix z, TextureAtlasEntry tex, Chunk &c, bool flame = false);
 
-    static constexpr GLFix torch_height = BLOCK_SIZE / 16 * 9;
-    static constexpr GLFix torch_width = BLOCK_SIZE / 16 * 14;
+    static constexpr GLFix torch_height = BLOCK_SIZE / 16 * 10;
+    static constexpr GLFix torch_width = BLOCK_SIZE / 16 * 5;
 };
 
 #endif // TORCHRENDERER_H
