@@ -491,6 +491,8 @@ void WorldTask::render()
             message_timeout = 20;
         }
     #endif
+
+    frame_counter++;
 }
 
 void WorldTask::resetWorld()

@@ -57,6 +57,11 @@ void Chunk::addUnalignedVertex(const VERTEX &v)
     vertices_unaligned.push_back(v);
 }
 
+void Chunk::addAnimation(const Chunk::Animation &animation)
+{
+    animations.push_back(animation);
+}
+
 void Chunk::addAlignedVertexQuad(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c)
 {
     vertices_quad.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
@@ -88,6 +93,7 @@ void Chunk::buildGeometry()
     vertices_quad.clear();
     vertices_color.clear();
     vertices_unaligned.clear();
+    animations.clear();
 
     debug("Updating chunk %d:%d:%d...\n", x, y, z);
 
@@ -195,7 +201,7 @@ void Chunk::render()
         buildGeometry();
 
     //If there's nothing to render, skip it completely
-    if(positions.size() == 0 && vertices_unaligned.size() == 0)
+    if(positions.size() == 0 && vertices_unaligned.size() == 0 && animations.size() == 0)
         return;
 
     //Basic culling
@@ -290,6 +296,9 @@ void Chunk::render()
             nglDrawTriangle(&v3, &v4, &v1, v1.c & INDEPENDENT_TRIS);
         }
     }
+
+    for(auto &animation : animations)
+        animation.animate(animation.x, animation.y, animation.z, *this);
 
     return glPopMatrix();
 }
