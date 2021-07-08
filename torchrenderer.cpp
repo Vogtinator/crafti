@@ -78,15 +78,19 @@ void TorchRenderer::renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFi
         nglRotateX(180);
         break;
     case BLOCK_BACK:
+        glTranslatef(0, 0, -BLOCK_SIZE/6);
         nglRotateX(45);
         break;
     case BLOCK_FRONT:
+        glTranslatef(0, 0, BLOCK_SIZE/6);
         nglRotateX(315);
         break;
     case BLOCK_LEFT:
+        glTranslatef(BLOCK_SIZE/6, 0, 0);
         nglRotateZ(45);
         break;
     case BLOCK_RIGHT:
+        glTranslatef(-BLOCK_SIZE/6, 0, 0);
         nglRotateZ(315);
         break;
     }
