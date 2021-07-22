@@ -62,6 +62,19 @@ void Chunk::addAnimation(const Chunk::Animation &animation)
     animations.push_back(animation);
 }
 
+void Chunk::addParticle(const Particle &particle)
+{
+    particles.push_back(particle);
+}
+
+void Chunk::removeParticle(const Particle &particle)
+{
+    auto pos = std::find_if(begin(particles), end(particles),
+                            [&](const Particle &other) { return &particle == &other; });
+    if(pos != end(particles))
+        particles.erase(pos);
+}
+
 void Chunk::addAlignedVertexQuad(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c)
 {
     vertices_quad.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
@@ -193,6 +206,9 @@ void Chunk::logic()
                         global_block_renderer.tick(block, x, y, z, *this);
                 }
     }
+
+    for(int i = particles.size() - 1; i >= 0; --i)
+        particles[i].logic(*this);
 }
 
 void Chunk::render()
@@ -201,7 +217,8 @@ void Chunk::render()
         buildGeometry();
 
     //If there's nothing to render, skip it completely
-    if(positions.size() == 0 && vertices_unaligned.size() == 0 && animations.size() == 0)
+    if(positions.size() == 0 && vertices_unaligned.size() == 0
+            && animations.size() == 0 && particles.size() == 0)
         return;
 
     //Basic culling
@@ -299,6 +316,10 @@ void Chunk::render()
 
     for(auto &animation : animations)
         animation.animate(animation.x, animation.y, animation.z, *this);
+
+    for(int i = particles.size() - 1; i >= 0; --i)
+    for(auto &particle : particles)
+        particle.render();
 
     return glPopMatrix();
 }
@@ -678,4 +699,37 @@ void drawLoadingtext(const int i)
         screen.bitmap = reinterpret_cast<COLOR*>(REAL_SCREEN_BASE_ADDRESS);
         drawTexture(loadingtext, screen, 0, 0, loadingtext.width, loadingtext.height, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
     #endif
+}
+
+void Chunk::Particle::logic(Chunk &c)
+{
+    size -= 0.1f;
+    pos.x += vel.x; pos.y += vel.y; pos.z += vel.z;
+    vel.x *= 0.98f;
+    vel.y -= 0.2f;
+    vel.z *= 0.98f;
+
+    if(size <= GLFix(2))
+        c.removeParticle(*this);
+}
+
+void Chunk::Particle::render()
+{
+    glBindTexture(terrain_current);
+
+    // Render always facing the camera and right side up,
+    // based on the center coordinates.
+    VECTOR3 center = pos;
+    nglMultMatVectRes(transformation, &center, &center);
+    VERTEX v1{center.x - size/2, center.y - size/2, center.z, tae.left, tae.bottom,
+              TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
+           v2{center.x - size/2, center.y + size/2, center.z, tae.left, tae.top,
+              TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
+           v3{center.x + size/2, center.y + size/2, center.z, tae.right, tae.top,
+              TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
+           v4{center.x + size/2, center.y - size/2, center.z, tae.right, tae.bottom,
+              TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE};
+
+    nglDrawTriangle(&v1, &v2, &v3, false);
+    nglDrawTriangle(&v3, &v4, &v1, false);
 }
