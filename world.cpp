@@ -283,6 +283,45 @@ Chunk* World::findChunk(int x, int y, int z) const
         return c->second;
 }
 
+void World::spawnDestructionParticles(int x, int y, int z)
+{
+    auto *c = findChunk(getChunk(x), getChunk(y), getChunk(z));
+    int cx = getLocal(x), cy = getLocal(y), cz = getLocal(z);
+    auto block = c->getLocalBlock(cx, cy, cz);
+    Particle p;
+    p.size = 14;
+    p.tae = global_block_renderer.materialTexture(block).current;
+
+    // Use the center quarter of the texture
+    const int tex_width = p.tae.right - p.tae.left,
+              tex_height = p.tae.bottom - p.tae.top;
+    p.tae.left += tex_width / 4;
+    p.tae.right -= tex_width / 4;
+    p.tae.top += tex_height / 4;
+    p.tae.bottom -= tex_height / 4;
+
+    // Random value between 0 and max (not including max)
+    const auto randMax = [](GLFix max) { return max * (rand() & 0xFF) / 0xFF; };
+
+    // Get the center of the block contents (chunk relative coordinates)
+    const auto aabb = global_block_renderer.getAABB(block, x * BLOCK_SIZE, y * BLOCK_SIZE, z * BLOCK_SIZE);
+    auto center = VECTOR3{(aabb.low_x + aabb.high_x) / 2, (aabb.low_y + aabb.high_y) / 2, (aabb.low_z + aabb.high_z) / 2};
+    center.x -= c->absX();
+    center.y -= c->absY();
+    center.z -= c->absZ();
+
+    // Spawn four particles at the center with random velocity and offset
+    for(int i = 0; i < 4; ++i)
+    {
+        p.vel = {randMax(10) - 5, randMax(5), randMax(10) - 5};
+        p.pos = center;
+        p.pos.x += randMax(100) - 50;
+        p.pos.y += randMax(100) - 50;
+        p.pos.z += randMax(100) - 50;
+        c->addParticle(p);
+    }
+}
+
 Chunk* World::generateChunk(int x, int y, int z)
 {
     drawLoadingtext(2);

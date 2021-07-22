@@ -5,7 +5,7 @@
 #include "textures/terrain.h"
 #include "textures/inv_selection.h"
 
-const char *block_names[] =
+const char *block_names[BLOCK_NORMAL_LAST + 1] =
 {
     "Air",
     "Stone",
@@ -58,7 +58,7 @@ struct BLOCK_TEXTURE {
 #define AWF(block) {block, BLOCK_TOP_BIT | BLOCK_BOTTOM_BIT | BLOCK_LEFT_BIT | BLOCK_RIGHT_BIT | BLOCK_BACK_BIT}
 
 //Maps location in texture atlas to block ID
-BLOCK_TEXTURE texture_atlas[][16] =
+static const BLOCK_TEXTURE texture_atlas[][16] =
 {
     { TOP(BLOCK_GRASS), ALL(BLOCK_STONE), ALL(BLOCK_DIRT), SID(BLOCK_GRASS), ALL(BLOCK_PLANKS_NORMAL), NON, NON, ALL(BLOCK_WALL), ALL(BLOCK_TNT), TOP(BLOCK_TNT), BOT(BLOCK_TNT), NON, NON, NON, NON, NON },
     { NON, ALL(BLOCK_BEDROCK), ALL(BLOCK_SAND), ALL(BLOCK_COBBLESTONE), SID(BLOCK_WOOD), TAB(BLOCK_WOOD), ALL(BLOCK_IRON), ALL(BLOCK_GOLD), ALL(BLOCK_DIAMOND), NON, NON, NON, NON, NON, NON, NON },
@@ -78,9 +78,29 @@ BLOCK_TEXTURE texture_atlas[][16] =
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON }
 };
 
+static const struct { int x, y; } special_block_texture_idx[BLOCK_SPECIAL_LAST - BLOCK_SPECIAL_START + 1] =
+{
+    {4, 0}, // Torch -> Planks
+    {4, 3}, // Flower -> Leaves
+    {11, 0}, // Spiderweb -> Spiderweb
+    {9, 7}, // Cake -> Cake
+    {14, 8}, // Mushroom -> Mushroom block
+    {1, 6}, // Door -> Door bottom
+    {13, 12}, // Water -> Water
+    {13, 14}, // Lava -> Lava
+    {15, 5}, // Wheat -> Wheat
+    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, // Gap...
+    {3, 13}, // Redstone Lamp -> Lamp (off)
+    {1, 0}, // Redstone Switch -> Stone
+    {4, 10}, // Redstone Wire -> Redstone Wire
+    {4, 0}, // Redstone Torch -> Planks
+    {1, 0}, // Pressure Plate -> Stone
+};
+
 TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 TerrainQuadEntry quad_block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1], dual_block_textures[2][BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 TerrainAtlasEntry terrain_atlas[16][16];
+TerrainAtlasEntry special_block_textures[BLOCK_SPECIAL_LAST - BLOCK_SPECIAL_START + 1];
 
 TEXTURE *terrain_current, *terrain_resized, *terrain_quad, *inv_selection_p, *door_preview;
 
@@ -164,6 +184,13 @@ void terrainInit(const char *texture_path)
 
     //Slight hack, you can't assign a texture to multiple blocks
     block_textures[BLOCK_GRASS][BLOCK_BOTTOM] = block_textures[BLOCK_DIRT][BLOCK_BOTTOM];
+
+    // Assign special_block_textures based on special_block_texture_idx
+    for(unsigned int i = 0; i < sizeof(special_block_texture_idx)/sizeof(*special_block_texture_idx); i++)
+    {
+        auto &idx = special_block_texture_idx[i];
+        special_block_textures[i] = terrain_atlas[idx.x][idx.y];
+    }
 
     //Prerender four times the same texture to speed up drawing, see terrain.h
     const BLOCK_TEXTURE quad_textures[] = { ALL(BLOCK_DIRT), SID(BLOCK_GRASS), TOP(BLOCK_GRASS), ALL(BLOCK_STONE), ALL(BLOCK_SAND), SID(BLOCK_WOOD), ALL(BLOCK_PLANKS_NORMAL), ALL(BLOCK_LEAVES) };

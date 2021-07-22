@@ -62,6 +62,11 @@ void Chunk::addAnimation(const Chunk::Animation &animation)
     animations.push_back(animation);
 }
 
+void Chunk::addParticle(const Particle &particle)
+{
+    particles.push_back(particle);
+}
+
 void Chunk::addAlignedVertexQuad(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c)
 {
     vertices_quad.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
@@ -193,6 +198,14 @@ void Chunk::logic()
                         global_block_renderer.tick(block, x, y, z, *this);
                 }
     }
+
+    for(int i = particles.size() - 1; i >= 0; --i)
+    {
+        bool remove = false;
+        particles[i].logic(&remove);
+        if(remove)
+            particles.erase(particles.begin() + i);
+    }
 }
 
 void Chunk::render()
@@ -201,7 +214,8 @@ void Chunk::render()
         buildGeometry();
 
     //If there's nothing to render, skip it completely
-    if(positions.size() == 0 && vertices_unaligned.size() == 0 && animations.size() == 0)
+    if(positions.size() == 0 && vertices_unaligned.size() == 0
+            && animations.size() == 0 && particles.size() == 0)
         return;
 
     //Basic culling
@@ -299,6 +313,9 @@ void Chunk::render()
 
     for(auto &animation : animations)
         animation.animate(animation.x, animation.y, animation.z, *this);
+
+    for(auto &particle : particles)
+        particle.render();
 
     return glPopMatrix();
 }

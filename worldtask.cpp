@@ -302,7 +302,10 @@ void WorldTask::logic()
     else if(keyPressed(KEY_NSPIRE_9)) //Remove block
     {
         if(selection_side != AABB::NONE && world.getBlock(selection_pos.x, selection_pos.y, selection_pos.z) != BLOCK_BEDROCK)
+        {
+            world.spawnDestructionParticles(selection_pos.x, selection_pos.y, selection_pos.z);
             world.changeBlock(selection_pos.x, selection_pos.y, selection_pos.z, BLOCK_AIR);
+        }
 
         key_held_down = true;
     }
