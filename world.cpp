@@ -283,6 +283,40 @@ Chunk* World::findChunk(int x, int y, int z) const
         return c->second;
 }
 
+void World::spawnDestructionParticles(int x, int y, int z)
+{
+    auto *c = findChunk(getChunk(x), getChunk(y), getChunk(z));
+    int cx = getLocal(x), cy = getLocal(y), cz = getLocal(z);
+    auto block = c->getLocalBlock(cx, cy, cz);
+    Chunk::Particle p;
+    p.size = 14;
+    p.pos = {cx * BLOCK_SIZE + BLOCK_SIZE/2, cy * BLOCK_SIZE + BLOCK_SIZE/2, cz * BLOCK_SIZE + BLOCK_SIZE/2};
+    if(getBLOCK(block) <= BLOCK_NORMAL_LAST)
+        p.tae = block_textures[getBLOCK(block)][BLOCK_FRONT].current;
+    else
+    {
+        // TODO
+        p.tae = block_textures[BLOCK_PLANKS_NORMAL][BLOCK_FRONT].current;
+    }
+
+    int tex_width = p.tae.right - p.tae.left,
+        tex_height = p.tae.bottom - p.tae.top;
+    p.tae.left += tex_width / 2 - 5;
+    p.tae.right -= tex_width / 2 - 5;
+    p.tae.top += tex_height / 2 - 5;
+    p.tae.bottom -= tex_height / 2 - 5;
+
+    for(int i = 0; i < 4; ++i)
+    {
+        auto randMax = [](GLFix max) { return max * (rand() & 0xFF) / 256; };
+        p.vel = {randMax(6) - 3, randMax(3), randMax(6) - 3};
+        p.pos.x += randMax(20) - 10;
+        p.pos.y += randMax(20) - 10;
+        p.pos.z += randMax(20) - 10;
+        c->addParticle(p);
+    }
+}
+
 Chunk* World::generateChunk(int x, int y, int z)
 {
     drawLoadingtext(2);

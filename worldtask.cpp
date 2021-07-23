@@ -301,27 +301,10 @@ void WorldTask::logic()
     }
     else if(keyPressed(KEY_NSPIRE_9)) //Remove block
     {
-        BLOCK_WDATA old_block;
-        if(selection_side != AABB::NONE && (old_block = world.getBlock(selection_pos.x, selection_pos.y, selection_pos.z)) != BLOCK_BEDROCK)
+        if(selection_side != AABB::NONE && world.getBlock(selection_pos.x, selection_pos.y, selection_pos.z) != BLOCK_BEDROCK)
         {
+            world.spawnDestructionParticles(selection_pos.x, selection_pos.y, selection_pos.z);
             world.changeBlock(selection_pos.x, selection_pos.y, selection_pos.z, BLOCK_AIR);
-
-            auto *c = world.findChunk(selection_pos.x / Chunk::SIZE, selection_pos.y / Chunk::SIZE, selection_pos.z / Chunk::SIZE);
-            Chunk::Particle p;
-            p.size = 14;
-            int x = int(selection_pos.x) & 0b111, y = int(selection_pos.y) & 0b111, z = int(selection_pos.z) & 0b111;
-            p.pos = {x * BLOCK_SIZE + BLOCK_SIZE/2, y * BLOCK_SIZE + BLOCK_SIZE/2, z * BLOCK_SIZE + BLOCK_SIZE/2};
-            p.tae = block_textures[getBLOCK(old_block)]->current;
-            for(int i = 0; i < 4; ++i)
-            {
-                auto randMax = [](GLFix max) { return max * (rand() & 0xFF) / 256; };
-                p.vel = {randMax(6) - 3, randMax(3), randMax(6) - 3};
-                c->addParticle(p);
-            }
-
-            printf("Particle %d %d %d\n", x, y, z);
-            p.pos.print();
-            p.vel.print();
         }
 
         key_held_down = true;

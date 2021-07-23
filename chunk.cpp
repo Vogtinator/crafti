@@ -67,14 +67,6 @@ void Chunk::addParticle(const Particle &particle)
     particles.push_back(particle);
 }
 
-void Chunk::removeParticle(const Particle &particle)
-{
-    auto pos = std::find_if(begin(particles), end(particles),
-                            [&](const Particle &other) { return &particle == &other; });
-    if(pos != end(particles))
-        particles.erase(pos);
-}
-
 void Chunk::addAlignedVertexQuad(const int x, const int y, const int z, GLFix u, GLFix v, const COLOR c)
 {
     vertices_quad.emplace_back(IndexedVertex{getPosition(x, y, z), u, v, c});
@@ -208,7 +200,12 @@ void Chunk::logic()
     }
 
     for(int i = particles.size() - 1; i >= 0; --i)
-        particles[i].logic(*this);
+    {
+        bool remove = false;
+        particles[i].logic(&remove);
+        if(remove)
+            particles.erase(particles.begin() + i);
+    }
 }
 
 void Chunk::render()
@@ -701,7 +698,7 @@ void drawLoadingtext(const int i)
     #endif
 }
 
-void Chunk::Particle::logic(Chunk &c)
+void Chunk::Particle::logic(bool *remove)
 {
     size -= 0.1f;
     pos.x += vel.x; pos.y += vel.y; pos.z += vel.z;
@@ -710,7 +707,7 @@ void Chunk::Particle::logic(Chunk &c)
     vel.z *= 0.98f;
 
     if(size <= GLFix(2))
-        c.removeParticle(*this);
+        *remove = true;
 }
 
 void Chunk::Particle::render()

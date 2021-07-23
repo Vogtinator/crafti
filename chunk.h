@@ -71,11 +71,10 @@ public:
         VECTOR3 pos, vel;
         GLFix size;
         TextureAtlasEntry tae;
-        void logic(Chunk &c);
+        void logic(bool *remove);
         void render();
     };
     void addParticle(const Particle &particle);
-    void removeParticle(const Particle &particle);
 
     //Don't render something twice
     void setLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
