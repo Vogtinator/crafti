@@ -557,6 +557,11 @@ void NormalBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int
     BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, block_textures[getBLOCK(block)][side].current, c);
 }
 
+AABB NormalBlockRenderer::getAABB(const BLOCK_WDATA, GLFix x, GLFix y, GLFix z)
+{
+    return {x, y, z, x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
+}
+
 void NormalBlockRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int dest_x, const int dest_y)
 {
     const TextureAtlasEntry tex = block_textures[getBLOCK(block)][BLOCK_FRONT].resized;
