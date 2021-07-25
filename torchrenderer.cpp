@@ -1,6 +1,7 @@
 #include "torchrenderer.h"
 #include "textures/part_fire.h"
 #include "worldtask.h"
+#include "particle.h"
 
 constexpr GLFix TorchRenderer::torch_height;
 constexpr GLFix TorchRenderer::torch_width;
@@ -130,19 +131,7 @@ void TorchRenderer::renderTorch(const BLOCK_SIDE side, const GLFix x, const GLFi
 
             // Render always facing the camera and right side up,
             // based on the coordinates of the bottom center.
-            VECTOR3 center = {x, y, z};
-            nglMultMatVectRes(transformation, &center, &center);
-            VERTEX v1{center.x - flame_size/2, center.y, center.z, tex.left, tex.bottom,
-                      TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
-                   v2{center.x - flame_size/2, center.y + flame_size, center.z, tex.left, tex.top,
-                      TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
-                   v3{center.x + flame_size/2, center.y + flame_size, center.z, tex.right, tex.top,
-                      TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
-                   v4{center.x + flame_size/2, center.y, center.z, tex.right, tex.bottom,
-                      TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE};
-
-            nglDrawTriangle(&v1, &v2, &v3, false);
-            nglDrawTriangle(&v3, &v4, &v1, false);
+            Particle::render({x, y + flame_size/2, z}, flame_size, tex);
         }};
 
         c.addAnimation(animation);

@@ -697,36 +697,3 @@ void drawLoadingtext(const int i)
         drawTexture(loadingtext, screen, 0, 0, loadingtext.width, loadingtext.height, (SCREEN_WIDTH - loadingtext.width) / 2, 0, loadingtext.width, loadingtext.height);
     #endif
 }
-
-void Chunk::Particle::logic(bool *remove)
-{
-    size -= 0.1f;
-    pos.x += vel.x; pos.y += vel.y; pos.z += vel.z;
-    vel.x *= 0.98f;
-    vel.y -= 0.2f;
-    vel.z *= 0.98f;
-
-    if(size <= GLFix(2))
-        *remove = true;
-}
-
-void Chunk::Particle::render()
-{
-    glBindTexture(terrain_current);
-
-    // Render always facing the camera and right side up,
-    // based on the center coordinates.
-    VECTOR3 center = pos;
-    nglMultMatVectRes(transformation, &center, &center);
-    VERTEX v1{center.x - size/2, center.y - size/2, center.z, tae.left, tae.bottom,
-              TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
-           v2{center.x - size/2, center.y + size/2, center.z, tae.left, tae.top,
-              TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
-           v3{center.x + size/2, center.y + size/2, center.z, tae.right, tae.top,
-              TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE},
-           v4{center.x + size/2, center.y - size/2, center.z, tae.right, tae.bottom,
-              TEXTURE_TRANSPARENT | TEXTURE_DRAW_BACKFACE};
-
-    nglDrawTriangle(&v1, &v2, &v3, false);
-    nglDrawTriangle(&v3, &v4, &v1, false);
-}

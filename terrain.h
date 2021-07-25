@@ -116,9 +116,10 @@ struct TerrainAtlasEntry {
     TextureAtlasEntry resized; //For GUI and other elements which shouldn't scale to the texture
 };
 
-extern const char *block_names[];
+extern const char *block_names[BLOCK_NORMAL_LAST + 1];
 extern TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
 extern TerrainAtlasEntry terrain_atlas[16][16];
+extern TerrainAtlasEntry special_block_textures[BLOCK_SPECIAL_LAST - BLOCK_SPECIAL_START + 1];
 
 //The included texture or loaded texture without any modifications
 extern TEXTURE *terrain_current;

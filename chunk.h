@@ -9,6 +9,7 @@
 #include "gldrawarray.h"
 #include "terrain.h"
 #include "aabb.h"
+#include "particle.h"
 
 class World;
 
@@ -67,13 +68,6 @@ public:
     };
     void addAnimation(const Animation &animation);
 
-    struct Particle {
-        VECTOR3 pos, vel;
-        GLFix size;
-        TextureAtlasEntry tae;
-        void logic(bool *remove);
-        void render();
-    };
     void addParticle(const Particle &particle);
 
     //Don't render something twice
