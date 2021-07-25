@@ -108,7 +108,7 @@ public:
     virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
 
     virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return true; }
-    virtual AABB getAABB(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/) override { return {}; } //Handled by isBlockShaped
+    virtual AABB getAABB(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z) override;
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int dest_x, const int dest_y) override;
 
