@@ -331,7 +331,7 @@ void WorldTask::logic()
             unsigned int i;
             for(i = 0; i <= 999; ++i)
             {
-                sprintf(buf, "/documents/ndless/screenshot_%d.ppm.tns", i);
+                snprintf(buf, sizeof(buf), "/documents/ndless/screenshot_%d.ppm.tns", i);
 
                 struct stat stat_buf;
                 if(stat(buf, &stat_buf) != 0)
@@ -342,7 +342,7 @@ void WorldTask::logic()
                 setMessage("Screenshot failed!");
             else
             {
-                sprintf(message, "Screenshot taken (%d)!", i);
+                snprintf(message, sizeof(message), "Screenshot taken (%d)!", i);
                 message_timeout = 20;
             }
         }

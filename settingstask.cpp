@@ -84,8 +84,7 @@ void SettingsTask::render()
         if(e.values == nullptr)
         {
             char number[10];
-            //Somehow sniprintf isn't available...
-            sprintf(number, "%d", e.current_value);
+            snprintf(number, sizeof(number), "%d", e.current_value);
             drawString(number, 0xFFFF, *screen, x + 100, y);
         }
         else
