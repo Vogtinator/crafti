@@ -95,8 +95,9 @@ void World::setChunkVisible(int x, int y, int z)
 
 void World::setPosition(int x, int y, int z)
 {
-    //In C and C++, integer division rounds towards zero, so with negative coords this will be one block off
-    int chunk_x = getChunk((GLFix(x) / BLOCK_SIZE).floor()), chunk_y = getChunk((GLFix(y) / BLOCK_SIZE).floor()), chunk_z = getChunk((GLFix(z) / BLOCK_SIZE).floor());
+    int chunk_x = getChunk(positionToBlock(x)),
+        chunk_y = getChunk(positionToBlock(y)),
+        chunk_z = getChunk(positionToBlock(z));
 
     chunk_y = std::max(0, std::min(chunk_y, World::HEIGHT - 1));
 
@@ -104,20 +105,26 @@ void World::setPosition(int x, int y, int z)
     {
         visible_chunks.clear();
 
-        setChunkVisible(chunk_x, chunk_y, chunk_z);
+        int dist = field_of_view;
+        int distsq = dist*dist;
 
-        for(int dist = 1; dist <= field_of_view; ++dist)
-        {
-            for(int x = -dist; x <= dist; ++x)
-                for(int y = -dist; y <= dist; ++y)
-                    for(int z = -dist; z <= dist; ++z)
-                    {
-                        if(chunk_y + y < 0 || chunk_y + y >= World::HEIGHT || round(sqrt(x*x + y*y + z*z)) != dist)
-                            continue;
+        // Turn the + shape into a cube to load the directly adjacent corners.
+        // This avoids worse graphics and bad possibly collision issues.
+        if(distsq == 1)
+            distsq = 3;
 
-                        setChunkVisible(chunk_x + x, chunk_y + y, chunk_z + z);
-                    }
-        }
+        for(int x = -dist; x <= dist; ++x)
+            for(int y = -dist; y <= dist; ++y)
+                for(int z = -dist; z <= dist; ++z)
+                {
+                    if(chunk_y + y < 0 || chunk_y + y >= World::HEIGHT)
+                        continue;
+
+                    if(x*x + y*y + z*z > distsq)
+                        continue;
+
+                    setChunkVisible(chunk_x + x, chunk_y + y, chunk_z + z);
+                }
 
         cen_x = chunk_x;
         cen_y = chunk_y;

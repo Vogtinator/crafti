@@ -110,6 +110,15 @@ constexpr BLOCK_SIDE oppositeSide(const BLOCK_SIDE side)
         BLOCK_TOP})[side];
 }
 
+// Convert a X/Y/Z coordinate to a block number
+constexpr int positionToBlock(int pos)
+{
+    // Integer division rounds towards zero and would be off by one for negative
+    // coords, e.g. -10 / BLOCK_SIZE == 0. Use a shift instead.
+    static_assert(BLOCK_SIZE == 128, "Update the shift accordingly!");
+    return pos >> 7;
+}
+
 //There may be more than one resolution, so compute TextureAtlasEntries for both
 struct TerrainAtlasEntry {
     TextureAtlasEntry current; //For blocks
