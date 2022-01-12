@@ -17,7 +17,7 @@ class Chunk
 {
 public:
     Chunk(int x, int y, int z);
-    void logic();
+    void logic(bool ticks_enabled);
     void render();
     void setDirty(bool dirty = true) { render_dirty = dirty; }
     bool isDirty() { return render_dirty; }

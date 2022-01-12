@@ -182,21 +182,24 @@ static bool behindClip(const VECTOR3 &v1)
     return (transformation->data[2][0]*v1.x + transformation->data[2][1]*v1.y + transformation->data[2][2]*v1.z + transformation->data[2][3]) <= GLFix(CLIP_PLANE);
 }
 
-void Chunk::logic()
+void Chunk::logic(bool ticks_enabled)
 {
-    tick_counter -= 1;
-    if(tick_counter == 0)
+    if(ticks_enabled)
     {
-        tick_counter = 10; //Do a tick every 10th frame
+        tick_counter -= 1;
+        if(tick_counter == 0)
+        {
+            tick_counter = 10; //Do a tick every 10th frame
 
-        for(int x = 0; x < SIZE; x++)
-            for(int y = 0; y < SIZE; y++)
-                for(int z = 0; z < SIZE; z++)
-                {
-                    BLOCK_WDATA block = blocks[x][y][z];
-                    if(block != BLOCK_AIR)
-                        global_block_renderer.tick(block, x, y, z, *this);
-                }
+            for(int x = 0; x < SIZE; x++)
+                for(int y = 0; y < SIZE; y++)
+                    for(int z = 0; z < SIZE; z++)
+                    {
+                        BLOCK_WDATA block = blocks[x][y][z];
+                        if(block != BLOCK_AIR)
+                            global_block_renderer.tick(block, x, y, z, *this);
+                    }
+        }
     }
 
     for(int i = particles.size() - 1; i >= 0; --i)

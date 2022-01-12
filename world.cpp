@@ -271,11 +271,9 @@ bool World::saveToFile(FILE *file) const
 
 void World::render()
 {
-    if(settings_task.getValue(SettingsTask::TICKS_ENABLED))
-    {
-        for(Chunk *c : visible_chunks)
-            c->logic();
-    }
+    bool ticks_enabled = settings_task.getValue(SettingsTask::TICKS_ENABLED);
+    for(Chunk *c : visible_chunks)
+        c->logic(ticks_enabled);
 
     for(Chunk *c : visible_chunks)
         c->render();
