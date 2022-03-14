@@ -82,7 +82,7 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
             corner_tex_top[dx][dz] = GLFix(tex.bottom) - ratio * (tex.bottom - tex.top);
         }
 
-    //A liquid block with >= range as this block is like an opaque block to this block
+    // Render sides if adjacent to a non-opaque block which isn't the same fluid
     if(!global_block_renderer.isOpaque(block_front) && getBLOCK(block_front) != getBLOCK(block))
     {
         c.addUnalignedVertex({x, y, z, tex.left, tex.bottom, Chunk::INDEPENDENT_TRIS});
@@ -131,11 +131,11 @@ void FluidRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local
     if(range != maxRange(block) && side != BLOCK_BOTTOM)
         return;
 
-    //Don't render sides adjacent to other water blocks with full range
+    //Don't render sides adjacent to other fluid blocks of the same type
     switch(side)
     {
     case BLOCK_TOP:
-        if(c.getGlobalBlockRelative(local_x, local_y + 1, local_z) == block)
+        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y + 1, local_z)) == getBLOCK(block))
             return;
         break;
     case BLOCK_BOTTOM:
@@ -143,19 +143,19 @@ void FluidRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local
             return;
         break;
     case BLOCK_LEFT:
-        if(c.getGlobalBlockRelative(local_x - 1, local_y, local_z) == block)
+        if(getBLOCK(c.getGlobalBlockRelative(local_x - 1, local_y, local_z)) == getBLOCK(block))
             return;
         break;
     case BLOCK_RIGHT:
-        if(c.getGlobalBlockRelative(local_x + 1, local_y, local_z) == block)
+        if(getBLOCK(c.getGlobalBlockRelative(local_x + 1, local_y, local_z)) == getBLOCK(block))
             return;
         break;
     case BLOCK_BACK:
-        if(c.getGlobalBlockRelative(local_x, local_y, local_z + 1) == block)
+        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y, local_z + 1)) == getBLOCK(block))
             return;
         break;
     case BLOCK_FRONT:
-        if(c.getGlobalBlockRelative(local_x, local_y, local_z - 1) == block)
+        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y, local_z - 1)) == getBLOCK(block))
             return;
         break;
     }
@@ -185,7 +185,7 @@ void FluidRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int 
     if(range == maxRange(block))
         goto survive;
 
-    //If there is any water above, survival doesn't depend on its range
+    //If there is any fluid above, survival doesn't depend on its range
     if(getBLOCK(block_top) == getBLOCK(block))
         goto survive;
 
