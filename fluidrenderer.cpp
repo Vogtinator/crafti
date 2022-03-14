@@ -163,18 +163,6 @@ void FluidRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local
     BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[tex_x][tex_y].current, c);
 }
 
-bool FluidRenderer::isBlockShaped(const BLOCK_WDATA block)
-{
-    uint8_t range = getBLOCKDATA(block);
-    //A fluid block is like a normal block if it has full range
-    return range == maxRange(block);
-}
-
-AABB FluidRenderer::getAABB(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z)
-{
-    return {x, y, z, x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
-}
-
 void FluidRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, const int x, const int y)
 {
     BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[tex_x][tex_y].resized, dest, x, y);
