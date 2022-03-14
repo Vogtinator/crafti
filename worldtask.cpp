@@ -253,6 +253,18 @@ void WorldTask::logic()
         if(world.blockAction(selection_pos.x, selection_pos.y, selection_pos.z))
             return;
 
+        BLOCK_WDATA current_block = world.getBlock(selection_pos.x, selection_pos.y, selection_pos.z),
+                    block_to_place = current_inventory.currentSlot();
+
+        // When placing fluid onto a non-full fluid block of the same type, "fill" it
+        if(current_block != block_to_place
+           && ((getBLOCK(current_block) == BLOCK_WATER && getBLOCK(block_to_place) == BLOCK_WATER)
+               || (getBLOCK(current_block) == BLOCK_LAVA && getBLOCK(block_to_place) == BLOCK_LAVA)))
+        {
+            world.changeBlock(selection_pos.x, selection_pos.y, selection_pos.z, block_to_place);
+            return;
+        }
+
         VECTOR3 pos = selection_pos;
         switch(selection_side)
         {
@@ -279,8 +291,7 @@ void WorldTask::logic()
             break;
         }
 
-        const BLOCK_WDATA current_block = world.getBlock(pos.x, pos.y, pos.z),
-                          block_to_place = current_inventory.currentSlot();
+        current_block = world.getBlock(pos.x, pos.y, pos.z);
 
         //Only set the block if there's air
         if(current_block == BLOCK_AIR || (in_water && getBLOCK(current_block) == BLOCK_WATER))
