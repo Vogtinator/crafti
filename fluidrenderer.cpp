@@ -22,14 +22,14 @@ constexpr uint8_t maxRange(const BLOCK_WDATA block)
 
 void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
+    const int local_x = x / BLOCK_SIZE, local_y = y / BLOCK_SIZE, local_z = z / BLOCK_SIZE;
     uint8_t range = getBLOCKDATA(block);
-    //A fluid block is like a normal block if it has full range
-    if(range == maxRange(block))
+    BLOCK_WDATA block_top = c.getGlobalBlockRelative(local_x, local_y + 1, local_z);
+    // Full blocks are handled by renderNormalBlock instead
+    if(range == maxRange(block) || getBLOCK(block_top) == getBLOCK(block))
         return;
 
     const TextureAtlasEntry &tex = terrain_atlas[tex_x][tex_y].current;
-
-    const int local_x = x / BLOCK_SIZE, local_y = y / BLOCK_SIZE, local_z = z / BLOCK_SIZE;
 
     int adjRanges[3][3] = {};
     for(int dx : {-1, 0, +1})
@@ -68,16 +68,13 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
     BLOCK_WDATA block_left = c.getGlobalBlockRelative(local_x - 1, local_y, local_z),
             block_right = c.getGlobalBlockRelative(local_x + 1, local_y, local_z),
             block_front = c.getGlobalBlockRelative(local_x, local_y, local_z - 1),
-            block_back = c.getGlobalBlockRelative(local_x, local_y, local_z + 1),
-            block_top = c.getGlobalBlockRelative(local_x, local_y + 1, local_z);
-
-    bool top_is_fluid = getBLOCK(block_top) == getBLOCK(block);
+            block_back = c.getGlobalBlockRelative(local_x, local_y, local_z + 1);
 
     GLFix corner_height[2][2], corner_tex_top[2][2];
     for(int dx : {0, 1})
         for(int dz : {0, 1})
         {
-            GLFix ratio = top_is_fluid ? GLFix(1) : heightAtCorner(dx, dz);
+            GLFix ratio = heightAtCorner(dx, dz);
             corner_height[dx][dz] = ratio * BLOCK_SIZE;
             corner_tex_top[dx][dz] = GLFix(tex.bottom) - ratio * (tex.bottom - tex.top);
         }
@@ -115,27 +112,26 @@ void FluidRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y
         c.addUnalignedVertex({x + BLOCK_SIZE, y, z + BLOCK_SIZE, tex.right, tex.bottom, Chunk::INDEPENDENT_TRIS});
     }
 
-    if(!top_is_fluid)
-    {
-        c.addUnalignedVertex({x, y + corner_height[0][0], z, tex.left, tex.bottom, Chunk::INDEPENDENT_TRIS});
-        c.addUnalignedVertex({x, y + corner_height[0][1], z + BLOCK_SIZE, tex.left, tex.top, Chunk::INDEPENDENT_TRIS});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][1], z + BLOCK_SIZE, tex.right, tex.top, Chunk::INDEPENDENT_TRIS});
-        c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][0], z, tex.right, tex.bottom, Chunk::INDEPENDENT_TRIS});
-    }
+    c.addUnalignedVertex({x, y + corner_height[0][0], z, tex.left, tex.bottom, Chunk::INDEPENDENT_TRIS});
+    c.addUnalignedVertex({x, y + corner_height[0][1], z + BLOCK_SIZE, tex.left, tex.top, Chunk::INDEPENDENT_TRIS});
+    c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][1], z + BLOCK_SIZE, tex.right, tex.top, Chunk::INDEPENDENT_TRIS});
+    c.addUnalignedVertex({x + BLOCK_SIZE, y + corner_height[1][0], z, tex.right, tex.bottom, Chunk::INDEPENDENT_TRIS});
 }
 
 void FluidRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
     uint8_t range = getBLOCKDATA(block);
-    //A fluid block is like a normal block if it has full range
-    if(range != maxRange(block) && side != BLOCK_BOTTOM)
+    BLOCK_WDATA block_top = c.getGlobalBlockRelative(local_x, local_y + 1, local_z);
+    // A fluid block is like a normal block if it has full range
+    bool render_as_full_block = (range == maxRange(block)) || (getBLOCK(block_top) == getBLOCK(block));
+    if(!render_as_full_block && side != BLOCK_BOTTOM)
         return;
 
     //Don't render sides adjacent to other fluid blocks of the same type
     switch(side)
     {
     case BLOCK_TOP:
-        if(getBLOCK(c.getGlobalBlockRelative(local_x, local_y + 1, local_z)) == getBLOCK(block))
+        if(getBLOCK(block_top) == getBLOCK(block))
             return;
         break;
     case BLOCK_BOTTOM:
