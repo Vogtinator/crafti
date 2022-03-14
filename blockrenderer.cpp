@@ -493,6 +493,11 @@ const char *UniversalBlockRenderer::getName(const BLOCK_WDATA block)
     return map[getBLOCK(block)]->getName(block);
 }
 
+AABB DumbBlockRenderer::getAABB(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z)
+{
+    return {x, y, z, x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
+}
+
 bool NormalBlockRenderer::shouldRenderFaceAndItsTheSameAs(const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c, const BLOCK_WDATA block)
 {
     /* Multiple conditions have to be met:
@@ -566,11 +571,6 @@ void NormalBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int
     }
 
     BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, block_textures[getBLOCK(block)][side].current, c);
-}
-
-AABB NormalBlockRenderer::getAABB(const BLOCK_WDATA, GLFix x, GLFix y, GLFix z)
-{
-    return {x, y, z, x + BLOCK_SIZE, y + BLOCK_SIZE, z + BLOCK_SIZE};
 }
 
 void NormalBlockRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int dest_x, const int dest_y)
