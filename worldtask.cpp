@@ -242,62 +242,65 @@ void WorldTask::logic()
     }
     else if(keyPressed(KEY_NSPIRE_7)) //Put block down
     {
-        if(selection_side != AABB::NONE)
+        key_held_down = true;
+
+        if(selection_side == AABB::NONE)
+            return;
+
+        if(world.intersect(aabb))
+            return;
+
+        if(world.blockAction(selection_pos.x, selection_pos.y, selection_pos.z))
+            return;
+
+        VECTOR3 pos = selection_pos;
+        switch(selection_side)
         {
-            if(!world.blockAction(selection_pos.x, selection_pos.y, selection_pos.z))
-            {
-                VECTOR3 pos = selection_pos;
-                switch(selection_side)
-                {
-                case AABB::BACK:
-                    ++pos.z;
-                    break;
-                case AABB::FRONT:
-                    --pos.z;
-                    break;
-                case AABB::LEFT:
-                    --pos.x;
-                    break;
-                case AABB::RIGHT:
-                    ++pos.x;
-                    break;
-                case AABB::BOTTOM:
-                    --pos.y;
-                    break;
-                case AABB::TOP:
-                    ++pos.y;
-                    break;
-                default:
-                    puts("This can't normally happen #1");
-                    break;
-                }
-                if(!world.intersect(aabb))
-                {
-                    //Only set the block if there's air
-                    const BLOCK_WDATA current_block = world.getBlock(pos.x, pos.y, pos.z);
-                    if(current_block == BLOCK_AIR || (in_water && getBLOCK(current_block) == BLOCK_WATER))
-                    {
-                        if(!global_block_renderer.isOriented(current_inventory.currentSlot()))
-                            world.changeBlock(pos.x, pos.y, pos.z, current_inventory.currentSlot());
-                        else
-                        {
-                            AABB::SIDE side = selection_side;
-                            //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
-                            if(!global_block_renderer.isFullyOriented(current_inventory.currentSlot()) && (side == AABB::TOP || side == AABB::BOTTOM))
-                                side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
-
-                            world.changeBlock(pos.x, pos.y, pos.z, getBLOCKWDATA(current_inventory.currentSlot(), side)); //AABB::SIDE is compatible to BLOCK_SIDE
-                        }
-
-                        //If the player is stuck now, it's because of the block change, so remove it again
-                        if(world.intersect(aabb))
-                            world.changeBlock(pos.x, pos.y, pos.z, current_block);
-                    }
-                }
-            }
+        case AABB::BACK:
+            ++pos.z;
+            break;
+        case AABB::FRONT:
+            --pos.z;
+            break;
+        case AABB::LEFT:
+            --pos.x;
+            break;
+        case AABB::RIGHT:
+            ++pos.x;
+            break;
+        case AABB::BOTTOM:
+            --pos.y;
+            break;
+        case AABB::TOP:
+            ++pos.y;
+            break;
+        default:
+            puts("This can't normally happen #1");
+            break;
         }
 
-        key_held_down = true;
+        const BLOCK_WDATA current_block = world.getBlock(pos.x, pos.y, pos.z),
+                          block_to_place = current_inventory.currentSlot();
+
+        //Only set the block if there's air
+        if(current_block == BLOCK_AIR || (in_water && getBLOCK(current_block) == BLOCK_WATER))
+        {
+            if(!global_block_renderer.isOriented(block_to_place))
+                world.changeBlock(pos.x, pos.y, pos.z, block_to_place);
+            else
+            {
+                AABB::SIDE side = selection_side;
+                //If the block is not fully oriented and has been placed on top or bottom of another block, determine the orientation by yr
+                if(!global_block_renderer.isFullyOriented(block_to_place) && (side == AABB::TOP || side == AABB::BOTTOM))
+                    side = yr < GLFix(45) ? AABB::FRONT : yr < GLFix(135) ? AABB::LEFT : yr < GLFix(225) ? AABB::BACK : yr < GLFix(315) ? AABB::RIGHT : AABB::FRONT;
+
+                world.changeBlock(pos.x, pos.y, pos.z, getBLOCKWDATA(block_to_place, side)); //AABB::SIDE is compatible to BLOCK_SIDE
+            }
+
+            //If the player is stuck now, it's because of the block change, so remove it again
+            if(world.intersect(aabb))
+                world.changeBlock(pos.x, pos.y, pos.z, current_block);
+        }
     }
     else if(keyPressed(KEY_NSPIRE_9)) //Remove block
     {
