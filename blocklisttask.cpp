@@ -55,7 +55,8 @@ static const BLOCK_WDATA user_selectable[] = {
     BLOCK_REDSTONE_SWITCH,
     BLOCK_PRESSURE_PLATE,
     BLOCK_REDSTONE_WIRE,
-    BLOCK_REDSTONE_TORCH
+    BLOCK_REDSTONE_TORCH,
+    BLOCK_STAIRS
 };
 
 //The values have to stay somewhere

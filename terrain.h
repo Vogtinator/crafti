@@ -58,7 +58,8 @@ constexpr BLOCK BLOCK_REDSTONE_SWITCH = 147; //Data: BLOCK_SIDE
 constexpr BLOCK BLOCK_REDSTONE_WIRE = 148; //Data: (active: 1<<6, visited: 1<<5)
 constexpr BLOCK BLOCK_REDSTONE_TORCH = 149; //Data: See BLOCK_TORCH
 constexpr BLOCK BLOCK_PRESSURE_PLATE = 150; //Data: How many ticks kept active
-constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_PRESSURE_PLATE;
+constexpr BLOCK BLOCK_STAIRS = 151; //Data: Direction (BLOCK_SIDE)
+constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_STAIRS;
 
 constexpr uint8_t RANGE_WATER = 5;
 constexpr uint8_t RANGE_LAVA = 3;
