@@ -55,7 +55,36 @@ static const BLOCK_WDATA user_selectable[] = {
     BLOCK_REDSTONE_SWITCH,
     BLOCK_PRESSURE_PLATE,
     BLOCK_REDSTONE_WIRE,
-    BLOCK_REDSTONE_TORCH
+    BLOCK_REDSTONE_TORCH,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN,
+    BLOCK_PUMPKIN
 };
 
 //The values have to stay somewhere
@@ -70,7 +99,7 @@ BlockListTask::BlockListTask()
     blocklist_top = (SCREEN_HEIGHT - blocklist_height - current_inventory.height()) / 2;
 
     static_assert(field_width * fields_x <= SCREEN_WIDTH, "fields_x too high");
-    static_assert(fields_x * fields_y >= sizeof(user_selectable)/sizeof(*user_selectable), "Not enough fields");
+    //static_assert(fields_x * fields_y >= sizeof(user_selectable)/sizeof(*user_selectable), "Not enough fields");
     if(blocklist_height + current_inventory.height() > SCREEN_WIDTH)
         printf("fields_y too high\n");
 
@@ -98,9 +127,11 @@ void BlockListTask::render()
 
     int block_nr = 0;
     int screen_x, screen_y = blocklist_top + pad_y;
+    // For each row
     for(int y = 0; y < fields_y; y++, screen_y += field_height)
     {
         screen_x = blocklist_left + pad_x;
+        // For each cell
         for(int x = 0; x < fields_x; x++, screen_x += field_width)
         {
             //BLOCK_DOOR is twice as high, so center it manually
@@ -108,7 +139,8 @@ void BlockListTask::render()
                 global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_x, screen_y + pad_y_door);
             else
                 global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_y, screen_y + pad_y);
-
+            
+            // Increment cell count and exit loop once entire block list is renderec
             block_nr++;
             if(block_nr == user_selectable_count)
                 goto end;
@@ -138,6 +170,7 @@ void BlockListTask::logic()
     }
     else if(keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN))
     {
+        // Increment current cell by row size and overflow
         current_selection += fields_x;
         if(current_selection >= user_selectable_count)
             current_selection %= fields_x;
@@ -146,10 +179,12 @@ void BlockListTask::logic()
     }
     else if(keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_UP))
     {
+        // Decrement current cell  by row size and underflow
         if(current_selection >= fields_x)
             current_selection -= fields_x;
         else
         {
+            // Floor off extra cells in last row and add current x (??)
             current_selection = ((user_selectable_count - 1) / fields_x) * fields_x + (current_selection % fields_x);
             if(current_selection >= user_selectable_count)
                 current_selection -= fields_x;
@@ -159,12 +194,15 @@ void BlockListTask::logic()
     }
     else if(keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_LEFT))
     {
+        // If cell x is at 0, then send cursor to other side
         if(current_selection % fields_x == 0)
         {
             current_selection += fields_x - 1;
+            // And if there is less than the usual row size in the last row, then move back the cursor
             if(current_selection >= user_selectable_count)
                 current_selection = user_selectable_count - 1;
         }
+        // Otherwise, just decrement the selection
         else
             current_selection--;
 
@@ -172,8 +210,10 @@ void BlockListTask::logic()
     }
     else if(keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_RIGHT))
     {
+        // If cell x is NOT at the end of the row, increment the cell
         if(current_selection % fields_x != fields_x-1 && current_selection < user_selectable_count - 1)
             current_selection++;
+        // Otherwise, move the cell back to the beginning of the row
         else
             current_selection -= current_selection % fields_x;
 
