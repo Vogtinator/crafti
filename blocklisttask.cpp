@@ -81,9 +81,6 @@ static const BLOCK_WDATA user_selectable[] = {
     BLOCK_PUMPKIN,
     BLOCK_PUMPKIN,
     BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
     BLOCK_PUMPKIN
 };
 
@@ -140,7 +137,7 @@ void BlockListTask::render()
             else
                 global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_y, screen_y + pad_y);
             
-            // Increment cell count and exit loop once entire block list is renderec
+            // Increment cell count and exit loop once entire block list is rendered
             block_nr++;
             if(block_nr == user_selectable_count)
                 goto end;
@@ -179,6 +176,7 @@ void BlockListTask::logic()
     }
     else if(keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_UP))
     {
+        // (Here, there is a fast path, and a slow path for if the inventory size is not full)
         // Decrement current cell  by row size and underflow
         if(current_selection >= fields_x)
             current_selection -= fields_x;
@@ -210,12 +208,12 @@ void BlockListTask::logic()
     }
     else if(keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_RIGHT))
     {
-        // If cell x is NOT at the end of the row, increment the cell
-        if(current_selection % fields_x != fields_x-1 && current_selection < user_selectable_count - 1)
-            current_selection++;
-        // Otherwise, move the cell back to the beginning of the row
-        else
+        // If cell x is at the end of the row, move the cell back to the beginning of the row
+        if(current_selection % fields_x == fields_x - 1 || current_selection < user_selectable_count - 1)
             current_selection -= current_selection % fields_x;
+        // Otherwise, increment the cell
+        else
+            current_selection++;
 
         key_held_down = true;
     }
