@@ -89,10 +89,13 @@ unsigned int BlockListTask::blocklist_top;
 //Black texture as background
 TEXTURE *BlockListTask::blocklist_background;
 
+unsigned int BlockListTask::screen_offset_y;
+
 constexpr int user_selectable_count = sizeof(user_selectable)/sizeof(*user_selectable);
 
 BlockListTask::BlockListTask()
 {
+    screen_offset_y = 0;
     blocklist_top = (SCREEN_HEIGHT - blocklist_height - current_inventory.height()) / 2;
 
     static_assert(field_width * fields_x <= SCREEN_WIDTH, "fields_x too high");
@@ -122,10 +125,10 @@ void BlockListTask::render()
 
     drawTextureOverlay(*blocklist_background, 0, 0, *screen, blocklist_left, blocklist_top, blocklist_background->width, blocklist_background->height);
 
-    int block_nr = 0;
+    int block_nr = screen_offset_y * fields_x;
     int screen_x, screen_y = blocklist_top + pad_y;
     // For each row
-    for(int y = 0; y < fields_y; y++, screen_y += field_height)
+    for(int y = screen_offset_y; y < fields_y + screen_offset_y; y++, screen_y += field_height)
     {
         screen_x = blocklist_left + pad_x;
         // For each cell
@@ -171,6 +174,9 @@ void BlockListTask::logic()
         current_selection += fields_x;
         if(current_selection >= user_selectable_count)
             current_selection %= fields_x;
+        
+        //if (current_selection >= fields_x * (fields_y - screen_offset_y))
+            screen_offset_y = std::max((current_selection / fields_x) - fields_y + 1, 0);
 
         key_held_down = true;
     }
@@ -187,6 +193,9 @@ void BlockListTask::logic()
             if(current_selection >= user_selectable_count)
                 current_selection -= fields_x;
         }
+
+        //if (current_selection >= fields_x * (fields_y - screen_offset_y))
+            screen_offset_y = std::max((current_selection / fields_x) - fields_y + 1, 0);
 
         key_held_down = true;
     }
@@ -209,7 +218,7 @@ void BlockListTask::logic()
     else if(keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_RIGHT))
     {
         // If cell x is at the end of the row, move the cell back to the beginning of the row
-        if(current_selection % fields_x == fields_x - 1 || current_selection < user_selectable_count - 1)
+        if(current_selection % fields_x == fields_x - 1 || current_selection >= user_selectable_count - 1)
             current_selection -= current_selection % fields_x;
         // Otherwise, increment the cell
         else

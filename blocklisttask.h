@@ -27,6 +27,8 @@ private:
     static unsigned int blocklist_top;
     //Black texture as background
     static TEXTURE *blocklist_background;
+    // Moar blockzzz!
+    static unsigned int screen_offset_y;
 };
 
 extern BlockListTask block_list_task;
