@@ -3,7 +3,7 @@ GPP = nspire-g++
 LD = nspire-ld
 GENZEHN = genzehn
 OPTIMIZE ?= fast
-GCCFLAGS = -O$(OPTIMIZE) -I nGL -I . -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fomit-frame-pointer -flto -fno-rtti -fgcse-sm -fgcse-las -funsafe-loop-optimizations -fno-fat-lto-objects -frename-registers -fprefetch-loop-arrays -Wold-style-cast -mno-thumb-interwork -ffunction-sections -fdata-sections -fno-exceptions -D NDEBUG $(if $(filter true,${DEBUG}),-DDEBUG)
+GCCFLAGS = -O$(OPTIMIZE) -I nGL -I . -Wall -W -marm -ffast-math -mcpu=arm926ej-s -fno-math-errno -fomit-frame-pointer -flto -fno-rtti -fgcse-sm -fgcse-las -funsafe-loop-optimizations -fno-fat-lto-objects -frename-registers -fprefetch-loop-arrays -Wold-style-cast -mno-thumb-interwork -ffunction-sections -fdata-sections -fno-exceptions -D NDEBUG $(if $(filter true,${DEBUG}),-DDEBUG -g)
 LDFLAGS = -lm -Wl,--gc-sections
 ZEHNFLAGS = --name "Crafti" --version 12 --author "Fabian Vogt" --notice "3D Minecraft" --compress
 
