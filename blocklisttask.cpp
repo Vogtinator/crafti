@@ -88,7 +88,7 @@ unsigned int BlockListTask::blocklist_top;
 //Black texture as background
 TEXTURE *BlockListTask::blocklist_background;
 
-unsigned int BlockListTask::screen_offset_y;
+int BlockListTask::screen_offset_y;
 
 constexpr int user_selectable_count = sizeof(user_selectable) / sizeof(*user_selectable);
 
@@ -137,7 +137,7 @@ void BlockListTask::render()
             if (getBLOCK(user_selectable[block_nr]) == BLOCK_DOOR)
                 global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_x, screen_y + pad_y_door);
             else
-                global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_y, screen_y + pad_y);
+                global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_x, screen_y + pad_y);
 
             // Increment cell count and exit loop once entire block list is rendered
             block_nr++;
