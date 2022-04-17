@@ -9,6 +9,8 @@
 #include "texturetools.h"
 #include "worldtask.h"
 
+#include "textures/scrollbar.h"
+
 BlockListTask block_list_task;
 
 static const BLOCK_WDATA user_selectable[] = {
@@ -80,7 +82,6 @@ static const BLOCK_WDATA user_selectable[] = {
     BLOCK_PUMPKIN,
     BLOCK_PUMPKIN,
     BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
     BLOCK_PUMPKIN};
 
 //The values have to stay somewhere
@@ -94,6 +95,7 @@ constexpr int user_selectable_count = sizeof(user_selectable) / sizeof(*user_sel
 
 BlockListTask::BlockListTask()
 {
+    current_selection = 0;
     screen_offset_y = 0;
     blocklist_top = (SCREEN_HEIGHT - blocklist_height - current_inventory.height()) / 2;
 
@@ -116,6 +118,11 @@ void BlockListTask::makeCurrent()
         saveBackground();
 
     Task::makeCurrent();
+}
+
+inline int divrnd(int num, int den)
+{
+    return (num + (den - 1)) / den;
 }
 
 void BlockListTask::render()
@@ -153,6 +160,24 @@ end:
     screen_y = blocklist_top + pad_y + field_height * (current_selection / fields_x - screen_offset_y);
     drawTexture(*inv_selection_p, *screen, 0, 0, inv_selection_p->width, inv_selection_p->height, screen_x + pad_x - 11, screen_y + pad_y - 10, inv_selection_p->width, inv_selection_p->height);
 
+    //Draw the scrollbar on the right
+    screen_x = blocklist_left + blocklist_width;
+    screen_y = blocklist_top;
+    drawTexture(scrollbar, *screen, 0, 11 * 2, scrollbar.width, 11, screen_x, screen_y, 11, 11); // Up arrow
+
+    screen_y += blocklist_height - 11;
+    drawTexture(scrollbar, *screen, 0, 11 * 3, scrollbar.width, 11, screen_x, screen_y, 11, 11); // Down arrow
+    
+    screen_y = blocklist_top + 11;
+    drawTexture(scrollbar, *screen, 0, 11 * 1, scrollbar.width, 11, screen_x, screen_y, 11, blocklist_height - 22); // Scrollbar background
+    
+    int rows = divrnd(user_selectable_count, fields_x);
+    int scrollbar_height = ((blocklist_height - 22) * fields_y) / rows;
+    int scrollbar_pos = ((blocklist_height - 22) * screen_offset_y) / rows;
+
+    screen_y += scrollbar_pos;
+    drawTexture(scrollbar, *screen, 0, 11 * 0, scrollbar.width, 11, screen_x, screen_y, 11, scrollbar_height); // Scrollbar foreground
+    
     current_inventory.draw(*screen);
     drawStringCenter(global_block_renderer.getName(user_selectable[current_selection]), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());
 }
