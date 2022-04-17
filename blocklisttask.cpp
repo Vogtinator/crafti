@@ -157,6 +157,16 @@ end:
     drawStringCenter(global_block_renderer.getName(user_selectable[current_selection]), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());
 }
 
+void BlockListTask::moveScreenOffset()
+{
+    // Clamp how much grater current row is from max onscreen fields
+    if (current_selection >= fields_x * (fields_y + screen_offset_y))
+        screen_offset_y = std::max((current_selection / fields_x) - fields_y + 1, 0);
+    // Clamp screen_offset_y to current row
+    else if (current_selection <= fields_x * (screen_offset_y))
+        screen_offset_y = std::min((current_selection / fields_x), screen_offset_y);
+}
+
 void BlockListTask::logic()
 {
     if (key_held_down)
@@ -173,9 +183,8 @@ void BlockListTask::logic()
         current_selection += fields_x;
         if (current_selection >= user_selectable_count)
             current_selection %= fields_x;
-
-        //if (current_selection >= fields_x * (fields_y - screen_offset_y))
-        screen_offset_y = std::max((current_selection / fields_x) - fields_y + 1, 0);
+        
+        moveScreenOffset();
 
         key_held_down = true;
     }
@@ -193,8 +202,7 @@ void BlockListTask::logic()
                 current_selection -= fields_x;
         }
 
-        //if (current_selection >= fields_x * (fields_y - screen_offset_y))
-        screen_offset_y = std::max((current_selection / fields_x) - fields_y + 1, 0);
+        moveScreenOffset();
 
         key_held_down = true;
     }
