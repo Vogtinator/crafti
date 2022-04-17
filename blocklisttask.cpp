@@ -150,7 +150,7 @@ end:
 
     //Draw the selection indicator
     screen_x = blocklist_left + pad_x + field_width * (current_selection % fields_x);
-    screen_y = blocklist_top + pad_y + field_height * (current_selection / fields_x);
+    screen_y = blocklist_top + pad_y + field_height * (current_selection / fields_x - screen_offset_y);
     drawTexture(*inv_selection_p, *screen, 0, 0, inv_selection_p->width, inv_selection_p->height, screen_x + pad_x - 11, screen_y + pad_y - 10, inv_selection_p->width, inv_selection_p->height);
 
     current_inventory.draw(*screen);
