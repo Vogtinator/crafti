@@ -95,9 +95,10 @@ constexpr int user_selectable_count = sizeof(user_selectable) / sizeof(*user_sel
 
 BlockListTask::BlockListTask()
 {
-    current_selection = 0;
     screen_offset_y = 0;
     blocklist_top = (SCREEN_HEIGHT - blocklist_height - current_inventory.height()) / 2;
+
+    moveScreenOffset();
 
     static_assert(field_width * fields_x <= SCREEN_WIDTH, "fields_x too high");
     //static_assert(fields_x * fields_y >= sizeof(user_selectable)/sizeof(*user_selectable), "Not enough fields");
@@ -178,6 +179,10 @@ end:
     screen_y += scrollbar_pos;
     drawTexture(scrollbar, *screen, 0, 11 * 0, scrollbar.width, 11, screen_x, screen_y, 11, scrollbar_height); // Scrollbar foreground
     
+    char ch[155];
+    sprintf(ch, "%d", current_selection);
+    drawString(ch, 0, *screen, 0, 0);
+
     current_inventory.draw(*screen);
     drawStringCenter(global_block_renderer.getName(user_selectable[current_selection]), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());
 }
