@@ -57,32 +57,8 @@ static const BLOCK_WDATA user_selectable[] = {
     BLOCK_REDSTONE_SWITCH,
     BLOCK_PRESSURE_PLATE,
     BLOCK_REDSTONE_WIRE,
-    BLOCK_REDSTONE_TORCH,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN,
-    BLOCK_PUMPKIN};
+    BLOCK_REDSTONE_TORCH
+};
 
 //The values have to stay somewhere
 unsigned int BlockListTask::blocklist_top;
@@ -97,8 +73,6 @@ BlockListTask::BlockListTask()
 {
     screen_offset_y = 0;
     blocklist_top = (SCREEN_HEIGHT - blocklist_height - current_inventory.height()) / 2;
-
-    moveScreenOffset();
 
     static_assert(field_width * fields_x <= SCREEN_WIDTH, "fields_x too high");
     //static_assert(fields_x * fields_y >= sizeof(user_selectable)/sizeof(*user_selectable), "Not enough fields");
@@ -119,6 +93,8 @@ void BlockListTask::makeCurrent()
         saveBackground();
 
     Task::makeCurrent();
+
+    moveScreenOffset();
 }
 
 inline int divrnd(int num, int den)
@@ -178,10 +154,6 @@ end:
 
     screen_y += scrollbar_pos;
     drawTexture(scrollbar, *screen, 0, 11 * 0, scrollbar.width, 11, screen_x, screen_y, 11, scrollbar_height); // Scrollbar foreground
-    
-    char ch[155];
-    sprintf(ch, "%d", current_selection);
-    drawString(ch, 0, *screen, 0, 0);
 
     current_inventory.draw(*screen);
     drawStringCenter(global_block_renderer.getName(user_selectable[current_selection]), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());
