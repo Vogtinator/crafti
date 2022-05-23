@@ -30,7 +30,7 @@ void HelpTask::render()
     const unsigned int x = (SCREEN_WIDTH - background->width) / 2;
     const unsigned int y = (SCREEN_HEIGHT - background->height) / 2;
     drawTextureOverlay(*background, 0, 0, *screen, x, y, background->width, background->height);
-    drawString("Help for Crafti v1.2", 0xFFFF, *screen, x, y - fontHeight());
+    drawString("Help for Crafti v1.3", 0xFFFF, *screen, x, y - fontHeight());
 
     drawString("8-4-6-2: Walk around\t5: Jump\n"
                "7: Put block down   \t9: Destroy block\n"
