@@ -28,7 +28,7 @@ ESC/HOME is a shortcut for "Save & Exit"
 
 
 ## Crafti now supports keyboard and mouse input with an OTG cable:
-Note: This is experimental and may not work
+Note: This is experimental and may not work as expected
 
 Move around using WASD like standard minecraft
 Jump using space
@@ -48,3 +48,11 @@ Limitations
 -----------
 
 crafti doesn't use floats, so there will be some graphical inaccuracies.
+
+
+TODO for next version
+-----------
+- [x] Add wool
+- [x] Add experimental keyboard support
+- [ ] Add stairs
+- [ ] Add villager house generation to make world more lively
