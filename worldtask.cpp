@@ -203,8 +203,8 @@ void WorldTask::logic()
         }
         else if(tp_had_contact && touchpad.contact)
         {
-            yr += (touchpad.x - tp_last_x) / 50;
-            xr -= (touchpad.y - tp_last_y) / 50;
+            yr += ((touchpad.x - tp_last_x) / 50) * (speed() / 3);
+            xr -= ((touchpad.y - tp_last_y) / 50) * (speed() / 3);
         }
 
         tp_had_contact = touchpad.contact;
