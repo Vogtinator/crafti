@@ -9,6 +9,8 @@
 #include "texturetools.h"
 #include "worldtask.h"
 
+#include "textures/scrollbar.h"
+
 BlockListTask block_list_task;
 
 static const BLOCK_WDATA user_selectable[] = {
@@ -63,15 +65,18 @@ unsigned int BlockListTask::blocklist_top;
 //Black texture as background
 TEXTURE *BlockListTask::blocklist_background;
 
-constexpr int user_selectable_count = sizeof(user_selectable)/sizeof(*user_selectable);
+int BlockListTask::screen_offset_y;
+
+constexpr int user_selectable_count = sizeof(user_selectable) / sizeof(*user_selectable);
 
 BlockListTask::BlockListTask()
 {
+    screen_offset_y = 0;
     blocklist_top = (SCREEN_HEIGHT - blocklist_height - current_inventory.height()) / 2;
 
     static_assert(field_width * fields_x <= SCREEN_WIDTH, "fields_x too high");
-    static_assert(fields_x * fields_y >= sizeof(user_selectable)/sizeof(*user_selectable), "Not enough fields");
-    if(blocklist_height + current_inventory.height() > SCREEN_WIDTH)
+    //static_assert(fields_x * fields_y >= sizeof(user_selectable)/sizeof(*user_selectable), "Not enough fields");
+    if (blocklist_height + current_inventory.height() > SCREEN_WIDTH)
         printf("fields_y too high\n");
 
     blocklist_background = newTexture(blocklist_width, blocklist_height, 0, false);
@@ -84,10 +89,17 @@ BlockListTask::~BlockListTask()
 
 void BlockListTask::makeCurrent()
 {
-    if(!background_saved)
+    if (!background_saved)
         saveBackground();
 
     Task::makeCurrent();
+
+    moveScreenOffset();
+}
+
+inline int divrnd(int num, int den)
+{
+    return (num + (den - 1)) / den;
 }
 
 void BlockListTask::render()
@@ -96,102 +108,146 @@ void BlockListTask::render()
 
     drawTextureOverlay(*blocklist_background, 0, 0, *screen, blocklist_left, blocklist_top, blocklist_background->width, blocklist_background->height);
 
-    int block_nr = 0;
+    int block_nr = screen_offset_y * fields_x;
     int screen_x, screen_y = blocklist_top + pad_y;
-    for(int y = 0; y < fields_y; y++, screen_y += field_height)
+    // For each row
+    for (int y = screen_offset_y; y < fields_y + screen_offset_y; y++, screen_y += field_height)
     {
         screen_x = blocklist_left + pad_x;
-        for(int x = 0; x < fields_x; x++, screen_x += field_width)
+        // For each cell
+        for (int x = 0; x < fields_x; x++, screen_x += field_width)
         {
             //BLOCK_DOOR is twice as high, so center it manually
-            if(getBLOCK(user_selectable[block_nr]) == BLOCK_DOOR)
+            if (getBLOCK(user_selectable[block_nr]) == BLOCK_DOOR)
                 global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_x, screen_y + pad_y_door);
             else
-                global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_y, screen_y + pad_y);
+                global_block_renderer.drawPreview(user_selectable[block_nr], *screen, screen_x + pad_x, screen_y + pad_y);
 
+            // Increment cell count and exit loop once entire block list is rendered
             block_nr++;
-            if(block_nr == user_selectable_count)
+            if (block_nr == user_selectable_count)
                 goto end;
         }
     }
 
-    end:
+end:
 
     //Draw the selection indicator
     screen_x = blocklist_left + pad_x + field_width * (current_selection % fields_x);
-    screen_y = blocklist_top + pad_y + field_height * (current_selection / fields_x);
+    screen_y = blocklist_top + pad_y + field_height * (current_selection / fields_x - screen_offset_y);
     drawTexture(*inv_selection_p, *screen, 0, 0, inv_selection_p->width, inv_selection_p->height, screen_x + pad_x - 11, screen_y + pad_y - 10, inv_selection_p->width, inv_selection_p->height);
+
+    //Draw the scrollbar on the right
+    screen_x = blocklist_left + blocklist_width;
+    screen_y = blocklist_top;
+    drawTexture(scrollbar, *screen, 0, 11 * 2, scrollbar.width, 11, screen_x, screen_y, 11, 11); // Up arrow
+
+    screen_y += blocklist_height - 11;
+    drawTexture(scrollbar, *screen, 0, 11 * 3, scrollbar.width, 11, screen_x, screen_y, 11, 11); // Down arrow
+    
+    screen_y = blocklist_top + 11;
+    drawTexture(scrollbar, *screen, 0, 11 * 1, scrollbar.width, 11, screen_x, screen_y, 11, blocklist_height - 22); // Scrollbar background
+    
+    int rows = divrnd(user_selectable_count, fields_x);
+    int scrollbar_height = ((blocklist_height - 22) * fields_y) / rows;
+    int scrollbar_pos = ((blocklist_height - 22) * screen_offset_y) / rows;
+
+    screen_y += scrollbar_pos;
+    drawTexture(scrollbar, *screen, 0, 11 * 0, scrollbar.width, 11, screen_x, screen_y, 11, scrollbar_height); // Scrollbar foreground
 
     current_inventory.draw(*screen);
     drawStringCenter(global_block_renderer.getName(user_selectable[current_selection]), 0xFFFF, *screen, SCREEN_WIDTH / 2, SCREEN_HEIGHT - current_inventory.height() - fontHeight());
 }
 
+void BlockListTask::moveScreenOffset()
+{
+    // Clamp how much grater current row is from max onscreen fields
+    if (current_selection >= fields_x * (fields_y + screen_offset_y))
+        screen_offset_y = std::max((current_selection / fields_x) - fields_y + 1, 0);
+    // Clamp screen_offset_y to current row
+    else if (current_selection <= fields_x * (screen_offset_y))
+        screen_offset_y = std::min((current_selection / fields_x), screen_offset_y);
+}
+
 void BlockListTask::logic()
 {
-    if(key_held_down)
-        key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_LEFT) || keyPressed(KEY_NSPIRE_RIGHT)  || keyPressed(KEY_NSPIRE_CLICK);
-    else if(keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD))
+    if (key_held_down)
+        key_held_down = keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_1) || keyPressed(KEY_NSPIRE_3) || keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_LEFT) || keyPressed(KEY_NSPIRE_RIGHT) || keyPressed(KEY_NSPIRE_CLICK);
+    else if (keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_PERIOD))
     {
         world_task.makeCurrent();
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN))
+    else if (keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN))
     {
+        // Increment current cell by row size and overflow
         current_selection += fields_x;
-        if(current_selection >= user_selectable_count)
+        if (current_selection >= user_selectable_count)
             current_selection %= fields_x;
+        
+        moveScreenOffset();
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_UP))
+    else if (keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_UP))
     {
-        if(current_selection >= fields_x)
+        // (Here, there is a fast path, and a slow path for if the inventory size is not full)
+        // Decrement current cell  by row size and underflow
+        if (current_selection >= fields_x)
             current_selection -= fields_x;
         else
         {
+            // Floor off extra cells in last row and add current x (??)
             current_selection = ((user_selectable_count - 1) / fields_x) * fields_x + (current_selection % fields_x);
-            if(current_selection >= user_selectable_count)
+            if (current_selection >= user_selectable_count)
                 current_selection -= fields_x;
         }
 
+        moveScreenOffset();
+
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_LEFT))
+    else if (keyPressed(KEY_NSPIRE_4) || keyPressed(KEY_NSPIRE_LEFT))
     {
-        if(current_selection % fields_x == 0)
+        // If cell x is at 0, then send cursor to other side
+        if (current_selection % fields_x == 0)
         {
             current_selection += fields_x - 1;
-            if(current_selection >= user_selectable_count)
+            // And if there is less than the usual row size in the last row, then move back the cursor
+            if (current_selection >= user_selectable_count)
                 current_selection = user_selectable_count - 1;
         }
+        // Otherwise, just decrement the selection
         else
             current_selection--;
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_RIGHT))
+    else if (keyPressed(KEY_NSPIRE_6) || keyPressed(KEY_NSPIRE_RIGHT))
     {
-        if(current_selection % fields_x != fields_x-1 && current_selection < user_selectable_count - 1)
-            current_selection++;
-        else
+        // If cell x is at the end of the row, move the cell back to the beginning of the row
+        if (current_selection % fields_x == fields_x - 1 || current_selection >= user_selectable_count - 1)
             current_selection -= current_selection % fields_x;
+        // Otherwise, increment the cell
+        else
+            current_selection++;
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_1)) //Switch inventory slot
+    else if (keyPressed(KEY_NSPIRE_1)) //Switch inventory slot
     {
         current_inventory.previousSlot();
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_3))
+    else if (keyPressed(KEY_NSPIRE_3))
     {
         current_inventory.nextSlot();
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_CLICK))
+    else if (keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_CLICK))
     {
         current_inventory.currentSlot() = user_selectable[current_selection];
 

@@ -16,6 +16,9 @@ public:
 
     int current_selection;
 
+protected:
+    void moveScreenOffset();
+
 private:
     static const int field_width = 32, field_height = 32, // Size of each field
                      pad_x = (field_width - 24) / 2, pad_y = (field_height - 24) / 2,
@@ -27,6 +30,8 @@ private:
     static unsigned int blocklist_top;
     //Black texture as background
     static TEXTURE *blocklist_background;
+    // Moar blockzzz!
+    static int screen_offset_y;
 };
 
 extern BlockListTask block_list_task;
