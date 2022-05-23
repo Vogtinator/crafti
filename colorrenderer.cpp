@@ -7,52 +7,59 @@ void ColorBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int 
 {
     if(settings_task.getValue(SettingsTask::FAST_MODE) && quad_block_textures[getBLOCK(block)][side].has_quad)
     {
-        //Whether to use the dark or light block color
-        bool color = (local_x + local_y + local_z) % 2;
+        //Which shade of the color to use
+        int colorIdx = (local_x ^ local_y ^ local_z ^ c.x ^ c.y ^ c.z) % (sizeof(TerrainQuadEntry::colors)/sizeof(TerrainQuadEntry::colors[0]));
+        COLOR color = quad_block_textures[getBLOCK(block)][side].colors[colorIdx];
 
         switch(side)
         {
         case BLOCK_BACK:
         case BLOCK_FRONT:
-            if(shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y + 1, local_z, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z, side, c, block))
-            {
-                color ^= local_x & 2;
-                color ^= local_y & 2;
-                return BlockRenderer::renderNormalBlockSideQuadForceColor(local_x, local_y, local_z, side, color ? quad_block_textures[getBLOCK(block)][side].color : quad_block_textures[getBLOCK(block)][side].darker, c);
-            }
+        {
+            bool can_width = shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z, side, c, block),
+                 can_height = shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z, side, c, block);
+            if(can_width && can_height && shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y + 1, local_z, side, c, block))
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 2, 2, 1, side, color, c);
+            else if(can_width)
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 2, 1, 1, side, color, c);
+            else if(can_height)
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 1, 2, 1, side, color, c);
 
             break;
+        }
         case BLOCK_LEFT:
         case BLOCK_RIGHT:
-            if(shouldRenderFaceAndItsTheSameAs(local_x, local_y, local_z + 1, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z + 1, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z, side, c, block))
-            {
-                color ^= local_y & 2;
-                color ^= local_z & 2;
-                return BlockRenderer::renderNormalBlockSideQuadForceColor(local_x, local_y, local_z, side, color ? quad_block_textures[getBLOCK(block)][side].color : quad_block_textures[getBLOCK(block)][side].darker, c);
-            }
+        {
+            bool can_width = shouldRenderFaceAndItsTheSameAs(local_x, local_y, local_z + 1, side, c, block),
+                 can_height = shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z, side, c, block);
+            if(can_width && can_height && shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z + 1, side, c, block))
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 1, 2, 2, side, color, c);
+            else if(can_width)
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 1, 1, 2, side, color, c);
+            else if(can_height)
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 1, 2, 1, side, color, c);
 
             break;
+        }
         case BLOCK_BOTTOM:
         case BLOCK_TOP:
-            if(shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z + 1, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x, local_y, local_z + 1, side, c, block))
-            {
-                color ^= local_z & 2;
-                color ^= local_x & 2;
-                return BlockRenderer::renderNormalBlockSideQuadForceColor(local_x, local_y, local_z, side, color ? quad_block_textures[getBLOCK(block)][side].color : quad_block_textures[getBLOCK(block)][side].darker, c);
-            }
+        {
+            bool can_width = shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z, side, c, block),
+                 can_height = shouldRenderFaceAndItsTheSameAs(local_x, local_y, local_z + 1, side, c, block);
+            if(can_width && can_height && shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z + 1, side, c, block))
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 2, 1, 2, side, color, c);
+            else if(can_width)
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 2, 1, 1, side, color, c);
+            else if(can_height)
+                return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 1, 1, 2, side, color, c);
 
             break;
+        }
         default:
             break;
         }
 
-        return BlockRenderer::renderNormalBlockSideForceColor(local_x, local_y, local_z, side, color ? quad_block_textures[getBLOCK(block)][side].color : quad_block_textures[getBLOCK(block)][side].darker, c);
+        return BlockRenderer::renderNormalBlockSidesForceColor(local_x, local_y, local_z, 1, 1, 1, side, color, c);
     }
 
     NormalBlockRenderer::geometryNormalBlock(block, local_x, local_y, local_z, side, c);

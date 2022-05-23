@@ -246,10 +246,20 @@ void terrainInit(const char *texture_path)
         sum.g /= pixels;
         sum.b /= pixels;
 
-        const COLOR darker = colorRGB(sum.r / GLFix(1.5f), sum.g / GLFix(1.5f), sum.b / GLFix(1.5f));
+        auto colorWithBrightness = [](const RGB &c, const GLFix brightness) {
+            return colorRGB(c.r * brightness, c.g * brightness, c.b * brightness);
+        };
 
         //And add the workaround here again..
-        TerrainQuadEntry tqe = { true, textureArea(x + 1, 1, field_width * 2 - 2, field_height * 2 - 2), colorRGB(sum), darker };
+        TerrainQuadEntry tqe = {
+            true,
+            textureArea(x + 1, 1, field_width * 2 - 2, field_height * 2 - 2),
+            { colorRGB(sum),
+              colorWithBrightness(sum, 0.90f),
+              colorWithBrightness(sum, 0.80f),
+              colorWithBrightness(sum, 0.85f),
+              colorWithBrightness(sum, 0.95f), }
+        };
 
         if(bt.sides & BLOCK_BOTTOM_BIT)
             quad_block_textures[bt.block][BLOCK_BOTTOM] = tqe;

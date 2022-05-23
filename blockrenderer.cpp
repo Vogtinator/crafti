@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "blockrenderer.h"
 
 #include "billboardrenderer.h"
@@ -75,211 +77,131 @@ void BlockRenderer::renderNormalBlockSide(int local_x, int local_y, int local_z,
     }
 }
 
-void BlockRenderer::renderNormalBlockSideQuad(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color)
+void BlockRenderer::renderNormalBlockSides(int local_x, int local_y, int local_z, int dx, int dy, int dz, const BLOCK_SIDE side, TextureAtlasEntry tex, Chunk &c, const COLOR color)
 {
+    assert(dx == 1 || dx == 2);
+    assert(dy == 1 || dy == 2);
+    assert(dz == 1 || dz == 2);
+
+    // tex points to a quad, so anything other then 2x2 needs adjustment
+    if(side == BLOCK_BACK || side == BLOCK_FRONT)
+    {
+        if(dx == 1)
+            tex.right -= (tex.right - tex.left) / 2;
+        if(dy == 1)
+            tex.bottom -= (tex.bottom - tex.top) / 2;
+    }
+    else if(side == BLOCK_LEFT || side == BLOCK_RIGHT)
+    {
+        if(dz == 1)
+            tex.right -= (tex.right - tex.left) / 2;
+        if(dy == 1)
+            tex.bottom -= (tex.bottom - tex.top) / 2;
+    }
+    if(side == BLOCK_BOTTOM || side == BLOCK_TOP)
+    {
+        if(dx == 1)
+            tex.right -= (tex.right - tex.left) / 2;
+        if(dz == 1)
+            tex.bottom -= (tex.bottom - tex.top) / 2;
+    }
+
     switch(side)
     {
     case BLOCK_FRONT:
         c.addAlignedVertexQuad(local_x, local_y, local_z, tex.left, tex.bottom, color);
-        c.addAlignedVertexQuad(local_x, local_y + 2, local_z, tex.left, tex.top, color);
-        c.addAlignedVertexQuad(local_x + 2, local_y + 2, local_z, tex.right, tex.top, color);
-        c.addAlignedVertexQuad(local_x + 2, local_y, local_z, tex.right, tex.bottom, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_FRONT_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_FRONT_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y + 1, local_z, BLOCK_FRONT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_FRONT_BIT);
-        return;
+        c.addAlignedVertexQuad(local_x, local_y + dy, local_z, tex.left, tex.top, color);
+        c.addAlignedVertexQuad(local_x + dx, local_y + dy, local_z, tex.right, tex.top, color);
+        c.addAlignedVertexQuad(local_x + dx, local_y, local_z, tex.right, tex.bottom, color);
+        break;
     case BLOCK_BACK:
-        c.addAlignedVertexQuad(local_x + 2, local_y, local_z + 1, tex.left, tex.bottom, color);
-        c.addAlignedVertexQuad(local_x + 2, local_y + 2, local_z + 1, tex.left, tex.top, color);
-        c.addAlignedVertexQuad(local_x, local_y + 2, local_z + 1, tex.right, tex.top, color);
+        c.addAlignedVertexQuad(local_x + dx, local_y, local_z + 1, tex.left, tex.bottom, color);
+        c.addAlignedVertexQuad(local_x + dx, local_y + dy, local_z + 1, tex.left, tex.top, color);
+        c.addAlignedVertexQuad(local_x, local_y + dy, local_z + 1, tex.right, tex.top, color);
         c.addAlignedVertexQuad(local_x, local_y, local_z + 1, tex.right, tex.bottom, color);
-
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_BACK_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y + 1, local_z, BLOCK_BACK_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_BACK_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BACK_BIT);
-        return;
+        break;
     case BLOCK_RIGHT:
         c.addAlignedVertexQuad(local_x + 1, local_y, local_z, tex.right, tex.bottom, color);
-        c.addAlignedVertexQuad(local_x + 1, local_y + 2, local_z, tex.right, tex.top, color);
-        c.addAlignedVertexQuad(local_x + 1, local_y + 2, local_z + 2, tex.left, tex.top, color);
-        c.addAlignedVertexQuad(local_x + 1, local_y, local_z + 2, tex.left, tex.bottom, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_RIGHT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_RIGHT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z + 1, BLOCK_RIGHT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_RIGHT_BIT);
-        return;
+        c.addAlignedVertexQuad(local_x + 1, local_y + dy, local_z, tex.right, tex.top, color);
+        c.addAlignedVertexQuad(local_x + 1, local_y + dy, local_z + dz, tex.left, tex.top, color);
+        c.addAlignedVertexQuad(local_x + 1, local_y, local_z + dz, tex.left, tex.bottom, color);
+        break;
     case BLOCK_LEFT:
-        c.addAlignedVertexQuad(local_x, local_y, local_z + 2, tex.left, tex.bottom, color);
-        c.addAlignedVertexQuad(local_x, local_y + 2, local_z + 2, tex.left, tex.top, color);
-        c.addAlignedVertexQuad(local_x, local_y + 2, local_z, tex.right, tex.top, color);
+        c.addAlignedVertexQuad(local_x, local_y, local_z + dz, tex.left, tex.bottom, color);
+        c.addAlignedVertexQuad(local_x, local_y + dy, local_z + dz, tex.left, tex.top, color);
+        c.addAlignedVertexQuad(local_x, local_y + dy, local_z, tex.right, tex.top, color);
         c.addAlignedVertexQuad(local_x, local_y, local_z, tex.right, tex.bottom, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_LEFT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_LEFT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z + 1, BLOCK_LEFT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_LEFT_BIT);
-        return;
+        break;
     case BLOCK_TOP:
         c.addAlignedVertexQuad(local_x, local_y + 1, local_z, tex.left, tex.bottom, color);
-        c.addAlignedVertexQuad(local_x, local_y + 1, local_z + 2, tex.left, tex.top, color);
-        c.addAlignedVertexQuad(local_x + 2, local_y + 1, local_z + 2, tex.right, tex.top, color);
-        c.addAlignedVertexQuad(local_x + 2, local_y + 1, local_z, tex.right, tex.bottom, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_TOP_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_TOP_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z + 1, BLOCK_TOP_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_TOP_BIT);
-        return;
+        c.addAlignedVertexQuad(local_x, local_y + 1, local_z + dz, tex.left, tex.top, color);
+        c.addAlignedVertexQuad(local_x + dx, local_y + 1, local_z + dz, tex.right, tex.top, color);
+        c.addAlignedVertexQuad(local_x + dx, local_y + 1, local_z, tex.right, tex.bottom, color);
+        break;
     case BLOCK_BOTTOM:
-        c.addAlignedVertexQuad(local_x + 2, local_y, local_z, tex.left, tex.bottom, color);
-        c.addAlignedVertexQuad(local_x + 2, local_y, local_z + 2, tex.left, tex.top, color);
-        c.addAlignedVertexQuad(local_x, local_y, local_z + 2, tex.right, tex.top, color);
+        c.addAlignedVertexQuad(local_x + dx, local_y, local_z, tex.left, tex.bottom, color);
+        c.addAlignedVertexQuad(local_x + dx, local_y, local_z + dz, tex.left, tex.top, color);
+        c.addAlignedVertexQuad(local_x, local_y, local_z + dz, tex.right, tex.top, color);
         c.addAlignedVertexQuad(local_x, local_y, local_z, tex.right, tex.bottom, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BOTTOM_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_BOTTOM_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
-        return;
+        break;
     default:
         return; //WTF
     }
+
+    for(int x = local_x; x < local_x + dx; x++)
+        for(int y = local_y; y < local_y + dy; y++)
+            for(int z = local_z; z < local_z + dz; z++)
+                c.setLocalBlockSideRendered(x, y, z, blockSideToBit(side));
 }
 
-void BlockRenderer::renderNormalBlockSideForceColor(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const COLOR color, Chunk &c)
+void BlockRenderer::renderNormalBlockSidesForceColor(int local_x, int local_y, int local_z, int dx, int dy, int dz, const BLOCK_SIDE side, const COLOR color, Chunk &c)
 {
     switch(side)
     {
     case BLOCK_FRONT:
         c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_FRONT_BIT);
-        return;
+        c.addAlignedVertexForceColor(local_x, local_y + dy, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + dx, local_y + dy, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + dx, local_y, local_z, 0, 0, color);
+        break;
     case BLOCK_BACK:
-        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + dx, local_y, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + dx, local_y + dy, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + dy, local_z + 1, 0, 0, color);
         c.addAlignedVertexForceColor(local_x, local_y, local_z + 1, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BACK_BIT);
-        return;
+        break;
     case BLOCK_RIGHT:
         c.addAlignedVertexForceColor(local_x + 1, local_y, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + 1, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_RIGHT_BIT);
-        return;
+        c.addAlignedVertexForceColor(local_x + 1, local_y + dy, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y + dy, local_z + dz, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + dz, 0, 0, color);
+        break;
     case BLOCK_LEFT:
-        c.addAlignedVertexForceColor(local_x, local_y, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z + dz, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + dy, local_z + dz, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y + dy, local_z, 0, 0, color);
         c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_LEFT_BIT);
-        return;
+        break;
     case BLOCK_TOP:
         c.addAlignedVertexForceColor(local_x, local_y + 1, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y + 1, local_z, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_TOP_BIT);
-        return;
+        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + dz, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + dx, local_y + 1, local_z + dz, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + dx, local_y + 1, local_z, 0, 0, color);
+        break;
     case BLOCK_BOTTOM:
-        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y, local_z + 1, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + dx, local_y, local_z, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x + dx, local_y, local_z + dz, 0, 0, color);
+        c.addAlignedVertexForceColor(local_x, local_y, local_z + dz, 0, 0, color);
         c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BOTTOM_BIT);
-        return;
+        break;
     default:
         return; //WTF
     }
-}
 
-void BlockRenderer::renderNormalBlockSideQuadForceColor(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const COLOR color, Chunk &c)
-{
-    switch(side)
-    {
-    case BLOCK_FRONT:
-        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 2, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 2, local_y + 2, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 2, local_y, local_z, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_FRONT_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_FRONT_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y + 1, local_z, BLOCK_FRONT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_FRONT_BIT);
-        return;
-    case BLOCK_BACK:
-        c.addAlignedVertexForceColor(local_x + 2, local_y, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 2, local_y + 2, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 2, local_z + 1, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y, local_z + 1, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_BACK_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y + 1, local_z, BLOCK_BACK_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_BACK_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BACK_BIT);
-        return;
-    case BLOCK_RIGHT:
-        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y + 2, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y + 2, local_z + 2, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 1, local_y, local_z + 2, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_RIGHT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_RIGHT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z + 1, BLOCK_RIGHT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_RIGHT_BIT);
-        return;
-    case BLOCK_LEFT:
-        c.addAlignedVertexForceColor(local_x, local_y, local_z + 2, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 2, local_z + 2, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 2, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_LEFT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z, BLOCK_LEFT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y + 1, local_z + 1, BLOCK_LEFT_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_LEFT_BIT);
-        return;
-    case BLOCK_TOP:
-        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y + 1, local_z + 2, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 2, local_y + 1, local_z + 2, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 2, local_y + 1, local_z, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_TOP_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_TOP_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z + 1, BLOCK_TOP_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_TOP_BIT);
-        return;
-    case BLOCK_BOTTOM:
-        c.addAlignedVertexForceColor(local_x + 2, local_y, local_z, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x + 2, local_y, local_z + 2, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y, local_z + 2, 0, 0, color);
-        c.addAlignedVertexForceColor(local_x, local_y, local_z, 0, 0, color);
-
-        c.setLocalBlockSideRendered(local_x, local_y, local_z, BLOCK_BOTTOM_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z, BLOCK_BOTTOM_BIT);
-        c.setLocalBlockSideRendered(local_x + 1, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
-        c.setLocalBlockSideRendered(local_x, local_y, local_z + 1, BLOCK_BOTTOM_BIT);
-        return;
-    default:
-        return; //WTF
-    }
+    for(int x = local_x; x < local_x + dx; x++)
+        for(int y = local_y; y < local_y + dy; y++)
+            for(int z = local_z; z < local_z + dz; z++)
+                c.setLocalBlockSideRendered(x, y, z, blockSideToBit(side));
 }
 
 void BlockRenderer::renderNormalConnectedBlockSide(const BLOCK_WDATA block, int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, const COLOR col, Chunk &c)
@@ -537,37 +459,55 @@ bool NormalBlockRenderer::shouldRenderFaceAndItsTheSameAs(const int local_x, con
 void NormalBlockRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
     //If there isn't a prerendered quad texture for this block, skip it
-    if(quad_block_textures[getBLOCK(block)][side].has_quad)
+    if(!quad_block_textures[getBLOCK(block)][side].has_quad)
+        return BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, block_textures[getBLOCK(block)][side].current, c);
+
+    switch(side)
     {
-        switch(side)
-        {
-        case BLOCK_BACK:
-        case BLOCK_FRONT:
-            if(shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y + 1, local_z, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z, side, c, block))
-                    return BlockRenderer::renderNormalBlockSideQuad(local_x, local_y, local_z, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+    case BLOCK_BACK:
+    case BLOCK_FRONT:
+    {
+        bool can_width = shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z, side, c, block),
+             can_height = shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z, side, c, block);
+        if(can_width && can_height && shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y + 1, local_z, side, c, block))
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 2, 2, 1, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+        else if(can_width)
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 2, 1, 1, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+        else if(can_height)
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 1, 2, 1, side, quad_block_textures[getBLOCK(block)][side].tae, c);
 
-            break;
-        case BLOCK_LEFT:
-        case BLOCK_RIGHT:
-            if(shouldRenderFaceAndItsTheSameAs(local_x, local_y, local_z + 1, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z + 1, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z, side, c, block))
-                    return BlockRenderer::renderNormalBlockSideQuad(local_x, local_y, local_z, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+        break;
+    }
+    case BLOCK_LEFT:
+    case BLOCK_RIGHT:
+    {
+        bool can_width = shouldRenderFaceAndItsTheSameAs(local_x, local_y, local_z + 1, side, c, block),
+             can_height = shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z, side, c, block);
+        if(can_width && can_height && shouldRenderFaceAndItsTheSameAs(local_x, local_y + 1, local_z + 1, side, c, block))
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 1, 2, 2, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+        else if(can_width)
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 1, 1, 2, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+        else if(can_height)
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 1, 2, 1, side, quad_block_textures[getBLOCK(block)][side].tae, c);
 
-            break;
-        case BLOCK_BOTTOM:
-        case BLOCK_TOP:
-            if(shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z + 1, side, c, block)
-                && shouldRenderFaceAndItsTheSameAs(local_x, local_y, local_z + 1, side, c, block))
-                    return BlockRenderer::renderNormalBlockSideQuad(local_x, local_y, local_z, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+        break;
+    }
+    case BLOCK_BOTTOM:
+    case BLOCK_TOP:
+    {
+        bool can_width = shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z, side, c, block),
+             can_height = shouldRenderFaceAndItsTheSameAs(local_x, local_y, local_z + 1, side, c, block);
+        if(can_width && can_height && shouldRenderFaceAndItsTheSameAs(local_x + 1, local_y, local_z + 1, side, c, block))
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 2, 1, 2, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+        else if(can_width)
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 2, 1, 1, side, quad_block_textures[getBLOCK(block)][side].tae, c);
+        else if(can_height)
+            return BlockRenderer::renderNormalBlockSides(local_x, local_y, local_z, 1, 1, 2, side, quad_block_textures[getBLOCK(block)][side].tae, c);
 
-            break;
-        default:
-            break;
-        }
+        break;
+    }
+    default:
+        break;
     }
 
     BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, block_textures[getBLOCK(block)][side].current, c);

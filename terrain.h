@@ -145,8 +145,8 @@ extern TEXTURE *terrain_quad;
 struct TerrainQuadEntry {
     bool has_quad;
     TextureAtlasEntry tae;
-    COLOR color; //Has nothing to do with quads, but applies to the same textures
-    COLOR darker; //So you can distinguish adjacent blocks
+    // The average color of the texture for this block side in different shades
+    COLOR colors[5];
 };
 
 //Pointer to textures/inv_selection.h for sharing
