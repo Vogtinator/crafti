@@ -6,3 +6,6 @@
 *.files
 *.includes
 *.config
+
+# VSCode
+.vscode
