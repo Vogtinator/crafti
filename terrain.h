@@ -40,7 +40,23 @@ constexpr BLOCK BLOCK_IRON = 26;
 constexpr BLOCK BLOCK_GOLD = 27;
 constexpr BLOCK BLOCK_DIAMOND = 28;
 constexpr BLOCK BLOCK_NETHERRACK = 29;
-constexpr BLOCK BLOCK_NORMAL_LAST = BLOCK_NETHERRACK;
+
+// Wool (Would have created special block with data for colour but couldn't be bothered)
+constexpr BLOCK BLOCK_RED_WOOL = 30;
+constexpr BLOCK BLOCK_PINK_WOOL = 31;
+constexpr BLOCK BLOCK_DARK_GREEN_WOOL = 32;
+constexpr BLOCK BLOCK_GREEN_WOOL = 33;
+constexpr BLOCK BLOCK_BROWN_WOOL = 34;
+constexpr BLOCK BLOCK_YELLOW_WOOL = 35;
+constexpr BLOCK BLOCK_DARK_BLUE_WOOL = 36;
+constexpr BLOCK BLOCK_BLUE_WOOL = 37;
+constexpr BLOCK BLOCK_DARK_PURPLE_WOOL = 38;
+constexpr BLOCK BLOCK_PURPLE_WOOL = 39;
+constexpr BLOCK BLOCK_CYAN_WOOL = 40;
+constexpr BLOCK BLOCK_ORANGE_WOOL = 41;
+
+// Regular blocks end here
+constexpr BLOCK BLOCK_NORMAL_LAST = BLOCK_ORANGE_WOOL;
 
 //Special blocks begin here
 constexpr int BLOCK_SPECIAL_START = 127;
