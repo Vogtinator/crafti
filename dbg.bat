@@ -1,0 +1,1 @@
+bash ./dbg.sh
