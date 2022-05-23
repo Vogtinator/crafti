@@ -11,7 +11,7 @@
 
 //If some geometry inaccuracies annoy you, enable this.
 //It's a bit slower though.
-//#define BETTER_PERSPECTIVE
+#define BETTER_PERSPECTIVE
 
 #define FPS_COUNTER
 
