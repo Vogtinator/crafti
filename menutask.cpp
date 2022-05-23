@@ -79,8 +79,8 @@ void MenuTask::logic()
     }
 
     if(key_held_down)
-        key_held_down = keyPressed(KEY_NSPIRE_CLICK) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_MENU) || keyPressed(KEY_NSPIRE_ESC);
-    else if(keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_UP))
+        key_held_down = keyPressed(KEY_NSPIRE_CLICK) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_MENU) || keyPressed(KEY_NSPIRE_ESC) || keyPressed(KEY_NSPIRE_W) || keyPressed(KEY_NSPIRE_S) || keyPressed(KEY_NSPIRE_ENTER);
+    else if(keyPressed(KEY_NSPIRE_8) || keyPressed(KEY_NSPIRE_UP) || keyPressed(KEY_NSPIRE_W))
     {
         --menu_selected_item;
         if(menu_selected_item < 0)
@@ -88,7 +88,7 @@ void MenuTask::logic()
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN))
+    else if(keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_S))
     {
         ++menu_selected_item;
         if(menu_selected_item == MENU_ITEM_MAX)
@@ -96,7 +96,7 @@ void MenuTask::logic()
 
         key_held_down = true;
     }
-    else if(keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_CLICK))
+    else if(keyPressed(KEY_NSPIRE_5) || keyPressed(KEY_NSPIRE_CLICK) || keyPressed(KEY_NSPIRE_ENTER))
     {
         switch(menu_selected_item)
         {
