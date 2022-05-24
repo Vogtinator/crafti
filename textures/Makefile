@@ -1,4 +1,5 @@
-OBJS := font_bmp.h font_dat.h inventory.h inv_selection.h loading.h loadingtext.h menu.h selection.h terrain.h blockselection.h part_fire.h
+OBJS := font_bmp.h font_dat.h inventory.h inv_selection.h loading.h loadingtext.h menu.h selection.h terrain.h blockselection.h part_fire.h scrollbar.h
+ConvertImgPath = 
 
 all: $(OBJS)
 
