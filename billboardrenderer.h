@@ -20,7 +20,7 @@ public:
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
 
-    virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return true; }
     virtual AABB getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z) override;
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, const int y) override;
