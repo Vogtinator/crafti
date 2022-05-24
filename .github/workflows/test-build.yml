@@ -16,9 +16,9 @@ jobs:
           
           echo "$HOME"
           
-          sed -i 's/nspire-gcc/$HOME\/work\/crafti\/crafti\/.github\/workflows\/ndless-sdk-bin\/nspire-gcc/g' Makefile
-          sed -i 's/nspire-ld/$HOME\/work\/crafti\/crafti\/.github\/workflows\/ndless-sdk-bin\/nspire-ld/g' Makefile
-          sed -i 's/nspire-g++/$HOME\/work\/crafti\/crafti\/.github\/workflows\/ndless-sdk-bin\/nspire-g++/g' Makefile
-          sed -i 's/genzehn/$HOME\/work\/crafti\/crafti\/.github\/workflows\/ndless-sdk-bin\/genzehn/g' Makefile
+          sed -i 's/nspire-gcc/\/home\/runner\/work\/crafti\/crafti\/.github\/workflows\/ndless-sdk-bin\/nspire-gcc/g' Makefile
+          sed -i 's/nspire-ld/\/home\/runner\/work\/crafti\/crafti\/.github\/workflows\/ndless-sdk-bin\/nspire-ld/g' Makefile
+          sed -i 's/nspire-g++/\/home\/runner\/work\/crafti\/crafti\/.github\/workflows\/ndless-sdk-bin\/nspire-g++/g' Makefile
+          sed -i 's/genzehn/\/home\/runner\/work\/crafti\/crafti\/.github\/workflows\/ndless-sdk-bin\/genzehn/g' Makefile
           
           cat Makefile
