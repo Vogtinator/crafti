@@ -5,17 +5,12 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
+  install-dependancies:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
     
-    - name: Install Dependancies
     - run: git clone --recursive https://github.com/ndless-nspire/Ndless.git
     - run: cd ndless-sdk/toolchain/
     - run: ./build_toolchain.sh
-      
-    - name: Build
-      run: make all
