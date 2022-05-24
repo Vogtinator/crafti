@@ -4,7 +4,7 @@
 
 void WoolRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
-    TerrainAtlasEntry &tae = terrain_atlas[0][4];
+    TerrainAtlasEntry tae = terrain_atlas[0][4];
 
     switch (static_cast<COLOUR>(getBLOCKDATA(block))) {
         case WHITE_WOOL:
@@ -68,7 +68,7 @@ void WoolRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int l
 
 void WoolRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, int y)
 {
-    TerrainAtlasEntry &tae = terrain_atlas[0][4];
+    TerrainAtlasEntry tae = terrain_atlas[0][4];
 
     switch (static_cast<COLOUR>(getBLOCKDATA(block))) {
         case WHITE_WOOL:
