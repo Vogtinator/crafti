@@ -196,17 +196,20 @@ void BlockListTask::logic()
 
         key_held_down = true;
     }
-    else if (keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_S))
+    else if(keyPressed(KEY_NSPIRE_2) || keyPressed(KEY_NSPIRE_DOWN) || keyPressed(KEY_NSPIRE_S))
     {
+        const int rows = ((user_selectable_count + fields_x - 1) / fields_x);
         // Increment current cell by row size and overflow
         current_selection += fields_x;
 
-        if (current_selection >= user_selectable_count && !(current_selection - fields_x > user_selectable_count - fields_x))
-            current_selection = user_selectable_count - 1;
-        
         if (current_selection >= user_selectable_count)
-            current_selection %= fields_x;
-        
+        {
+            if (current_selection > rows * fields_x)
+                current_selection %= fields_x;
+            else
+                current_selection = user_selectable_count - 1;
+        }
+
         moveScreenOffset();
 
         key_held_down = true;
@@ -215,7 +218,7 @@ void BlockListTask::logic()
     {
         // (Here, there is a fast path, and a slow path for if the inventory size is not full)
         // Decrement current cell  by row size and underflow
-        
+
         if (current_selection >= fields_x)
             current_selection -= fields_x;
         else
@@ -223,7 +226,7 @@ void BlockListTask::logic()
             // Floor off extra cells in last row and add current x (??)
             current_selection = ((user_selectable_count - 1) / fields_x) * fields_x + (current_selection % fields_x);
             if (current_selection >= user_selectable_count)
-                current_selection -= fields_x;
+                current_selection = user_selectable_count - 1;
         }
 
         moveScreenOffset();
