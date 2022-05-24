@@ -170,4 +170,6 @@ const char *WoolRenderer::getName(const BLOCK_WDATA block)
             return "Black Wool";
             break;
     }
+
+    return "Wool";
 }
