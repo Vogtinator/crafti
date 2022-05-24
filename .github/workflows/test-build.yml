@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 env:
-  GITHUB_PATH: .github/workflows/ndless-sdk-bin/
+  GITHUB_PATH: $HOME/.github/workflows/ndless-sdk-bin/
 
 jobs:
   install-dependancies:
@@ -17,4 +17,5 @@ jobs:
           sudo apt install git gcc binutils libgmp-dev libmpfr-dev libmpc-dev zlib1g zlib1g-dev wget libboost-program-options-dev -y
           pwd
           ls -a
+          echo 
           nspire-gcc
