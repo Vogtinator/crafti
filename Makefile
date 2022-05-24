@@ -44,4 +44,4 @@ $(EXE).tns: $(EXE).elf
 
 .PHONY: clean
 clean:
-	rm -f `find . -name \*.o  -o  -name \*.elf  -o  -name \*.tns`
+	rm -rf `find . -name \*.o  -o  -name \*.elf  -o  -name \*.tns` release
