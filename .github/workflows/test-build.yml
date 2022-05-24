@@ -13,4 +13,5 @@ jobs:
     
     - run: git clone --recursive https://github.com/ndless-nspire/Ndless.git
     - run: cd Ndless/ndless-sdk/toolchain/
+    - run: ls
     - run: ./build_toolchain.sh
