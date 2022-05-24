@@ -21,8 +21,19 @@ jobs:
           git clone --recursive https://github.com/ndless-nspire/Ndless.git
           cd Ndless/ndless-sdk/toolchain/
           ./build_toolchain.sh
+          echo "$GITHUB_WORKSPACE/ndless-sdk/toolchain/install/bin" >> $GITHUB_PATH
+          echo "$GITHUB_WORKSPACE/ndless-sdk/bin" >> $GITHUB_PATH
+          cd ../..
+          make -j$(nproc --all)
           
-    - name: Build Crafti
-      run: |
-          make all
-          ls release
+    - name: Upload Build Artifacts (1)
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: ndless-sdk-bin
+        path: $GITHUB_WORKSPACE/ndless-sdk/bin/*
+        
+    - name: Upload Build Artifacts (2)
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: ndless-sdk-bin
+        path: $GITHUB_WORKSPACE/ndless-sdk/toolchain/install/bin/*
