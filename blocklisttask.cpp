@@ -202,12 +202,7 @@ void BlockListTask::logic()
         // Increment current cell by row size and overflow
         current_selection += fields_x;
 
-        if (current_selection >= user_selectable_count && !(current_selection - fields_x > user_selectable_count - fields_x))
-            current_selection = user_selectable_count - 1;
-
         if (current_selection >= user_selectable_count)
-            current_selection %= fields_x;
-
         {
             if (current_selection > rows * fields_x)
                 current_selection %= fields_x;
