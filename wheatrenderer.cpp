@@ -21,9 +21,9 @@ void WheatRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int 
 
 void WheatRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
-    //If not irrigated, it's instantly withered (growth of 0)
+    //If not irrigated, it's instantly broken
     if(!isIrrigated(local_x, local_y, local_z, c))
-        return c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), 0));
+        return c.setLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
 
     const uint8_t growth = getBLOCKDATA(block);
     if(growth == max_growth)
@@ -41,6 +41,14 @@ void WheatRenderer::addedBlock(const BLOCK_WDATA /*block*/, int local_x, int loc
     if(!isIrrigated(local_x, local_y, local_z, c))
         return c.setLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
 }
+
+bool WheatRenderer::isBlockShaped(const BLOCK_WDATA block) {
+    const uint8_t growth = getBLOCKDATA(block);
+
+    return growth == max_growth;
+}
+
+
 
 PowerState WheatRenderer::powersSide(const BLOCK_WDATA /*block*/, BLOCK_SIDE /*side*/)
 {
