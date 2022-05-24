@@ -59,3 +59,5 @@ TODO for next version
 - [ ] Add localisation
 - [ ] Add stairs
 - [ ] Add villager house generation to make world more lively
+- [ ] Implement special block destruction particle rendering
+- [ ] Documentation of functions and whatnot for future devs (mostly me)
