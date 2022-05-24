@@ -146,7 +146,7 @@ void BlockRenderer::renderNormalBlockSides(int local_x, int local_y, int local_z
         c.addAlignedVertexQuad(local_x, local_y, local_z, tex.right, tex.bottom, color);
         break;
     default:
-        return; //WTF
+        return; //WTH
     }
 
     for(int x = local_x; x < local_x + dx; x++)
