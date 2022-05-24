@@ -7,52 +7,52 @@ void WoolRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_
     TerrainAtlasEntry &tae = terrain_atlas[0][4];
 
     switch (static_cast<COLOUR>(getBLOCKDATA(block))) {
-        case WHITE:
+        case WHITE_WOOL:
             tae = terrain_atlas[0][4];
             break;
-        case ORANGE:
+        case ORANGE_WOOL:
             tae = terrain_atlas[2][13];
             break;
-        case MAGENTA:
+        case MAGENTA_WOOL:
             tae = terrain_atlas[2][12];
             break;
-        case LIGHT_BLUE:
+        case LIGHT_BLUE_WOOL:
             tae = terrain_atlas[2][11];
             break;
-        case YELLOW:
+        case YELLOW_WOOL:
             tae = terrain_atlas[2][10];
             break;
-        case LIME:
+        case LIME_WOOL:
             tae = terrain_atlas[2][9];
             break;
-        case PINK:
+        case PINK_WOOL:
             tae = terrain_atlas[2][8];
             break;
-        case GRAY:
+        case GRAY_WOOL:
             tae = terrain_atlas[2][7];
             break;
-        case LIGHT_GRAY:
+        case LIGHT_GRAY_WOOL:
             tae = terrain_atlas[1][14];
             break;
-        case CYAN:
+        case CYAN_WOOL:
             tae = terrain_atlas[1][13];
             break;
-        case PURPLE:
+        case PURPLE_WOOL:
             tae = terrain_atlas[1][12];
             break;
-        case BLUE:
+        case BLUE_WOOL:
             tae = terrain_atlas[1][11];
             break;
-        case BROWN:
+        case BROWN_WOOL:
             tae = terrain_atlas[1][10];
             break;
-        case GREEN:
+        case GREEN_WOOL:
             tae = terrain_atlas[1][9];
             break;
-        case RED:
+        case RED_WOOL:
             tae = terrain_atlas[1][8];
             break;
-        case BLACK:
+        case BLACK_WOOL:
             tae = terrain_atlas[1][7];
             break;
     }
@@ -68,52 +68,52 @@ void WoolRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x
 const char *WoolRenderer::getName(const BLOCK_WDATA block)
 {
     switch (static_cast<COLOUR>(getBLOCKDATA(block))) {
-        case WHITE:
+        case WHITE_WOOL:
             return "White Wool";
             break;
-        case ORANGE:
+        case ORANGE_WOOL:
             return "Orange Wool";
             break;
-        case MAGENTA:
+        case MAGENTA_WOOL:
             return "Magenta Wool";
             break;
-        case LIGHT_BLUE:
+        case LIGHT_BLUE_WOOL:
             return "Light Blue Wool";
             break;
-        case YELLOW:
+        case YELLOW_WOOL:
             return "Yellow Wool";
             break;
-        case LIME:
+        case LIME_WOOL:
             return "Lime Wool";
             break;
-        case PINK:
+        case PINK_WOOL:
             return "Pink Wool";
             break;
-        case GRAY:
+        case GRAY_WOOL:
             return "Gray Wool";
             break;
-        case LIGHT_GRAY:
+        case LIGHT_GRAY_WOOL:
             return "Light Gray Wool";
             break;
-        case CYAN:
+        case CYAN_WOOL:
             return "Cyan Wool";
             break;
-        case PURPLE:
+        case PURPLE_WOOL:
             return "Purple Wool";
             break;
-        case BLUE:
+        case BLUE_WOOL:
             return "Blue Wool";
             break;
-        case BROWN:
+        case BROWN_WOOL:
             return "Brown Wool";
             break;
-        case GREEN:
+        case GREEN_WOOL:
             return "Green Wool";
             break;
-        case RED:
+        case RED_WOOL:
             return "Red Wool";
             break;
-        case BLACK:
+        case BLACK_WOOL:
             return "Black Wool";
             break;
     }

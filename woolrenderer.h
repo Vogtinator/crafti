@@ -12,22 +12,22 @@ public:
 
 protected:
     enum COLOUR {
-        WHITE=0, // white
-        ORANGE=1, // orange
-        MAGENTA=2, // magenta
-        LIGHT_BLUE=3, // light blue
-        YELLOW=4, // yellow
-        LIME=5, // lime
-        PINK=6, // pink
-        GRAY=7, // gray
-        LIGHT_GRAY=8, // light gray
-        CYAN=9, // cyan
-        PURPLE=10, // purple
-        BLUE=11, // blue
-        BROWN=12, // brown
-        GREEN=13, // green
-        RED=14, // red
-        BLACK=15 // black
+        WHITE_WOOL=0, // white
+        ORANGE_WOOL=1, // orange
+        MAGENTA_WOOL=2, // magenta
+        LIGHT_BLUE_WOOL=3, // light blue
+        YELLOW_WOOL=4, // yellow
+        LIME_WOOL=5, // lime
+        PINK_WOOL=6, // pink
+        GRAY_WOOL=7, // gray
+        LIGHT_GRAY_WOOL=8, // light gray
+        CYAN_WOOL=9, // cyan
+        PURPLE_WOOL=10, // purple
+        BLUE_WOOL=11, // blue
+        BROWN_WOOL=12, // brown
+        GREEN_WOOL=13, // green
+        RED_WOOL=14, // red
+        BLACK_WOOL=15 // black
     };
 };
 
