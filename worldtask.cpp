@@ -3,6 +3,7 @@
 #include "worldtask.h"
 
 #include "aabb.h"
+#include "math.h"
 #include "blockrenderer.h"
 #include "blocklisttask.h"
 #include "menutask.h"
@@ -181,8 +182,8 @@ void WorldTask::logic()
         }
         else if(tp_had_contact && touchpad.contact)
         {
-            yr += (touchpad.x - tp_last_x) / (1000 / speed());
-            xr -= (touchpad.y - tp_last_y) / (1000 / speed());
+            yr += (touchpad.x - tp_last_x) / (1000 / roundf(speed()));
+            xr -= (touchpad.y - tp_last_y) / (1000 / roundf(speed()));
         }
 
         tp_had_contact = touchpad.contact;
@@ -239,7 +240,7 @@ void WorldTask::logic()
         Task::running = false;
         return;
     }
-    else if(keyPressed(KEY_NSPIRE_7) || keyPressed(KEY_NSPIRE_Q) || keyPressed(KEY_NSPIRE_CLICK) //Place the block
+    else if(keyPressed(KEY_NSPIRE_7) || keyPressed(KEY_NSPIRE_Q) || keyPressed(KEY_NSPIRE_CLICK)) //Place the block
     {
         key_held_down = true;
 
