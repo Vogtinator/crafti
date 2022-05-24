@@ -54,5 +54,8 @@ TODO for next version
 -----------
 - [x] Add wool
 - [x] Add experimental keyboard support
+- [x] Add wool as special block instead of 15 regular blocks
+- [x] Add cactus
+- [ ] Add localisation
 - [ ] Add stairs
 - [ ] Add villager house generation to make world more lively
