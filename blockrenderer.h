@@ -63,7 +63,7 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) override;
     // Used for particles spawned on destruction
-    const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block) override;
+    const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block);
 
     virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) override;
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
