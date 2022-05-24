@@ -23,3 +23,4 @@ font_dat.h: font.dat
 
 clean:
 	rm -f $(OBJS)
+	rm -f inventory.png inv_selection.png part_fire.png
