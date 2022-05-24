@@ -7,11 +7,10 @@ on:
 jobs:
   install-dependancies:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v3
-    
-    - run: git clone --recursive https://github.com/ndless-nspire/Ndless.git
-    - run: cd Ndless/ndless-sdk/toolchain/
-    - run: ls
-    - run: ./build_toolchain.sh
+    - run: |
+          git clone --recursive https://github.com/ndless-nspire/Ndless.git
+          cd Ndless/ndless-sdk/toolchain/
+          ./build_toolchain.sh 
