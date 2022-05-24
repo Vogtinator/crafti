@@ -19,6 +19,7 @@ jobs:
     - name: Copy Ndless SDK Tools
       run: |
           cp -r $HOME/work/crafti/crafti/.github/workflows/ndless-sdk-bin/* ./
+          ls
           
     - name: Build Crafti
       run: |
