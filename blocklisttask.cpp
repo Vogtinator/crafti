@@ -200,7 +200,10 @@ void BlockListTask::logic()
     {
         // Increment current cell by row size and overflow
         current_selection += fields_x;
-        if (current_selection >= user_selectable_count)
+        if (current_selection >= user_selectable_count && user_selectable_count - (current_selection+fields_x) != 0) {
+            current_selection = user_selectable_count-1;
+        }
+        else if (current_selection >= user_selectable_count)
             current_selection %= fields_x;
         
         moveScreenOffset();
@@ -211,6 +214,7 @@ void BlockListTask::logic()
     {
         // (Here, there is a fast path, and a slow path for if the inventory size is not full)
         // Decrement current cell  by row size and underflow
+        
         if (current_selection >= fields_x)
             current_selection -= fields_x;
         else
