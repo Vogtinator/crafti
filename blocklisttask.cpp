@@ -231,7 +231,6 @@ void BlockListTask::logic()
             // Floor off extra cells in last row and add current x (??)
             current_selection = ((user_selectable_count - 1) / fields_x) * fields_x + (current_selection % fields_x);
             if (current_selection >= user_selectable_count)
-                current_selection -= fields_x;
                 current_selection = user_selectable_count - 1;
         }
 
