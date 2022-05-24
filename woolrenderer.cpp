@@ -60,9 +60,62 @@ void WoolRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_
     BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, tae.current, c);
 }
 
-void WoolRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
+void WoolRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, int y)
 {
-    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[4][13].resized, dest, x, y);
+    TerrainAtlasEntry &tae = terrain_atlas[0][4];
+
+    switch (static_cast<COLOUR>(getBLOCKDATA(block))) {
+        case WHITE_WOOL:
+            tae = terrain_atlas[0][4];
+            break;
+        case ORANGE_WOOL:
+            tae = terrain_atlas[2][13];
+            break;
+        case MAGENTA_WOOL:
+            tae = terrain_atlas[2][12];
+            break;
+        case LIGHT_BLUE_WOOL:
+            tae = terrain_atlas[2][11];
+            break;
+        case YELLOW_WOOL:
+            tae = terrain_atlas[2][10];
+            break;
+        case LIME_WOOL:
+            tae = terrain_atlas[2][9];
+            break;
+        case PINK_WOOL:
+            tae = terrain_atlas[2][8];
+            break;
+        case GRAY_WOOL:
+            tae = terrain_atlas[2][7];
+            break;
+        case LIGHT_GRAY_WOOL:
+            tae = terrain_atlas[1][14];
+            break;
+        case CYAN_WOOL:
+            tae = terrain_atlas[1][13];
+            break;
+        case PURPLE_WOOL:
+            tae = terrain_atlas[1][12];
+            break;
+        case BLUE_WOOL:
+            tae = terrain_atlas[1][11];
+            break;
+        case BROWN_WOOL:
+            tae = terrain_atlas[1][10];
+            break;
+        case GREEN_WOOL:
+            tae = terrain_atlas[1][9];
+            break;
+        case RED_WOOL:
+            tae = terrain_atlas[1][8];
+            break;
+        case BLACK_WOOL:
+            tae = terrain_atlas[1][7];
+            break;
+    }
+
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tae.resized, dest, x, y);
 }
 
 const char *WoolRenderer::getName(const BLOCK_WDATA block)
