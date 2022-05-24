@@ -37,21 +37,7 @@ const char *block_names[BLOCK_NORMAL_LAST + 1] =
     "Gold block",
     "Diamond block",
     "Netherrack",
-    "Black Wool",
-    "Grey Wool",
-    "Red Wool",
-    "Pink Wool",
-    "Dark Green Wool",
-    "Green Wool",
-    "Brown Wool",
-    "Yellow Wool",
-    "Dark Blue Wool",
-    "Blue Wool",
-    "Dark Purple Wool",
-    "Purple Wool",
-    "Cyan Wool",
-    "Orange Wool",
-    "White Wool"
+    "Cactus"
 };
 
 struct BLOCK_TEXTURE {
@@ -79,20 +65,21 @@ static const BLOCK_TEXTURE texture_atlas[][16] =
     { NON, ALL(BLOCK_BEDROCK), ALL(BLOCK_SAND), ALL(BLOCK_COBBLESTONE), SID(BLOCK_WOOD), TAB(BLOCK_WOOD), ALL(BLOCK_IRON), ALL(BLOCK_GOLD), ALL(BLOCK_DIAMOND), NON, NON, NON, NON, NON, NON, NON },
     { ALL(BLOCK_GOLD_ORE), ALL(BLOCK_IRON_ORE), ALL(BLOCK_COAL_ORE), FRO(BLOCK_BOOKSHELF), NON, NON, NON, NON, NON, NON, NON, TAB(BLOCK_CRAFTING_TABLE), FRO(BLOCK_FURNACE), SWF(BLOCK_FURNACE), NON, NON },
     { ALL(BLOCK_SPONGE), ALL(BLOCK_GLASS), ALL(BLOCK_DIAMOND_ORE), ALL(BLOCK_REDSTONE_ORE), NON, ALL(BLOCK_LEAVES), NON, NON, NON, NON, NON, SID(BLOCK_CRAFTING_TABLE), FRO(BLOCK_CRAFTING_TABLE), NON, TOP(BLOCK_FURNACE), NON },
-    { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, TOP(BLOCK_CACTUS), SID(BLOCK_CACTUS), BOT(BLOCK_CACTUS), NON, NON, NON, NON, NON, NON, NON, NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
     { NON, NON, NON, NON, NON, NON, TAB(BLOCK_PUMPKIN), ALL(BLOCK_NETHERRACK), NON, ALL(BLOCK_GLOWSTONE), NON, NON, NON, NON, NON, NON},
-    { NON, ALL(BLOCK_BLACK_WOOL), ALL(BLOCK_GREY_WOOL), NON, NON, NON, SWF(BLOCK_PUMPKIN), FRO(BLOCK_PUMPKIN), NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, ALL(BLOCK_RED_WOOL), ALL(BLOCK_PINK_WOOL), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, ALL(BLOCK_DARK_GREEN_WOOL), ALL(BLOCK_GREEN_WOOL), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, ALL(BLOCK_BROWN_WOOL), ALL(BLOCK_YELLOW_WOOL), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, ALL(BLOCK_DARK_BLUE_WOOL), ALL(BLOCK_BLUE_WOOL), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, ALL(BLOCK_DARK_PURPLE_WOOL), ALL(BLOCK_PURPLE_WOOL), NON, NON, NON, ALL(BLOCK_PLANKS_DARK), AWF(BLOCK_BOOKSHELF), NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, ALL(BLOCK_CYAN_WOOL), ALL(BLOCK_ORANGE_WOOL), NON, NON, NON, ALL(BLOCK_PLANKS_BRIGHT), NON, NON, NON, NON, NON, NON, NON, NON, NON },
-    { NON, ALL(BLOCK_WHITE_WOOL), NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, SWF(BLOCK_PUMPKIN), FRO(BLOCK_PUMPKIN), NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, ALL(BLOCK_PLANKS_DARK), AWF(BLOCK_BOOKSHELF), NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, ALL(BLOCK_PLANKS_BRIGHT), NON, NON, NON, NON, NON, NON, NON, NON, NON },
+    { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON },
     { NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON, NON }
 };
 
+// As special block breaking particles haven't been fully implemented yet
 static const struct { int x, y; } special_block_texture_idx[BLOCK_SPECIAL_LAST - BLOCK_SPECIAL_START + 1] =
 {
     {4, 0}, // Torch -> Planks
@@ -104,12 +91,13 @@ static const struct { int x, y; } special_block_texture_idx[BLOCK_SPECIAL_LAST -
     {13, 12}, // Water -> Water
     {13, 14}, // Lava -> Lava
     {15, 5}, // Wheat -> Wheat
-    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, // Gap...
+    {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, // Gap (135-146)
     {3, 13}, // Redstone Lamp -> Lamp (off)
     {1, 0}, // Redstone Switch -> Stone
     {4, 10}, // Redstone Wire -> Redstone Wire
     {4, 0}, // Redstone Torch -> Planks
     {1, 0}, // Pressure Plate -> Stone
+    {0, 4}, // Wool -> White Wool
 };
 
 TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
