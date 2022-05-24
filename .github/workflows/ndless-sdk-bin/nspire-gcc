@@ -1,0 +1,9 @@
+#!/bin/sh
+# Caution, must be kept compatible with dash used by some Linux distros.
+
+NDLESS="$(nspire-tools path)"
+export PATH="$(nspire-tools _toolchainpath):$PATH"
+
+home="${USERPROFILE:-$HOME}"
+mkdir -p "$home/.ndless/include"
+exec arm-none-eabi-gcc -mcpu=arm926ej-s -D _TINSPIRE -fuse-ld=gold "$@" -I "$home/.ndless/include" -I "${NDLESS}/include" -I "${NDLESS}/include/freetype2"
