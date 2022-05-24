@@ -21,8 +21,8 @@ jobs:
           git clone --recursive https://github.com/ndless-nspire/Ndless.git
           cd Ndless/ndless-sdk/toolchain/
           ./build_toolchain.sh
-          echo "$GITHUB_WORKSPACE/ndless-sdk/toolchain/install/bin" >> $GITHUB_PATH
-          echo "$GITHUB_WORKSPACE/ndless-sdk/bin" >> $GITHUB_PATH
+          echo "/home/runner/work/crafti/crafti/Ndless/ndless-sdk/toolchain/install/bin" >> $GITHUB_PATH
+          echo "/home/runner/work/crafti/crafti/Ndless/ndless-sdk/bin" >> $GITHUB_PATH
           cd ../..
           make -j$(nproc --all)
           
