@@ -4,56 +4,56 @@
 
 void WoolRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
-    //TerrainAtlasEntry &tae = terrain_atlas[0][4];
+    TerrainAtlasEntry &tae = terrain_atlas[0][4];
 
     switch (static_cast<COLOUR>(getBLOCKDATA(block))) {
         case WHITE:
-            TerrainAtlasEntry &tae = terrain_atlas[0][4];
+            tae = terrain_atlas[0][4];
             break;
         case ORANGE:
-            TerrainAtlasEntry &tae = terrain_atlas[2][13];
+            tae = terrain_atlas[2][13];
             break;
         case MAGENTA:
-            TerrainAtlasEntry &tae = terrain_atlas[2][12];
+            tae = terrain_atlas[2][12];
             break;
         case LIGHT_BLUE:
-            TerrainAtlasEntry &tae = terrain_atlas[2][11];
+            tae = terrain_atlas[2][11];
             break;
         case YELLOW:
-            TerrainAtlasEntry &tae = terrain_atlas[2][10];
+            tae = terrain_atlas[2][10];
             break;
         case LIME:
-            TerrainAtlasEntry &tae = terrain_atlas[2][9];
+            tae = terrain_atlas[2][9];
             break;
         case PINK:
-            TerrainAtlasEntry &tae = terrain_atlas[2][8];
+            tae = terrain_atlas[2][8];
             break;
         case GRAY:
-            TerrainAtlasEntry &tae = terrain_atlas[2][7];
+            tae = terrain_atlas[2][7];
             break;
         case LIGHT_GRAY:
-            TerrainAtlasEntry &tae = terrain_atlas[1][14];
+            tae = terrain_atlas[1][14];
             break;
         case CYAN:
-            TerrainAtlasEntry &tae = terrain_atlas[1][13];
+            tae = terrain_atlas[1][13];
             break;
         case PURPLE:
-            TerrainAtlasEntry &tae = terrain_atlas[1][12];
+            tae = terrain_atlas[1][12];
             break;
         case BLUE:
-            TerrainAtlasEntry &tae = terrain_atlas[1][11];
+            tae = terrain_atlas[1][11];
             break;
         case BROWN:
-            TerrainAtlasEntry &tae = terrain_atlas[1][10];
+            tae = terrain_atlas[1][10];
             break;
         case GREEN:
-            TerrainAtlasEntry &tae = terrain_atlas[1][9];
+            tae = terrain_atlas[1][9];
             break;
         case RED:
-            TerrainAtlasEntry &tae = terrain_atlas[1][8];
+            tae = terrain_atlas[1][8];
             break;
         case BLACK:
-            TerrainAtlasEntry &tae = terrain_atlas[1][7];
+            tae = terrain_atlas[1][7];
             break;
     }
 
