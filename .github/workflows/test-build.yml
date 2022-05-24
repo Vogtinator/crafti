@@ -3,8 +3,6 @@ name: Test Build
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build:
@@ -13,6 +11,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
+    - name: Install Dependancies
+    - run: git clone --recursive https://github.com/ndless-nspire/Ndless.git
+    - run: cd ndless-sdk/toolchain/
+    - run: ./build_toolchain.sh
       
     - name: Build
       run: make all
