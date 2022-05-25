@@ -60,12 +60,6 @@ void WoolRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_
     BlockRenderer::renderNormalBlockSide(local_x, local_y, local_z, side, tae.current, c);
 }
 
-void WoolRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &chunk)
-{
-    COLOUR colour = static_cast<COLOUR>(getBLOCKDATA(block));
-    chunk.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), colour));
-}
-
 void WoolRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, int y)
 {
     TerrainAtlasEntry tae = terrain_atlas[0][4];
