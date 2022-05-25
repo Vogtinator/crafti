@@ -11,7 +11,7 @@ public:
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return false; }
     virtual bool isObstacle(const BLOCK_WDATA /*block*/) override { return true; }
     virtual bool isOriented(const BLOCK_WDATA /*block*/) override { return true; }
-    virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return false; }
+    virtual bool isFullyOriented(const BLOCK_WDATA /*block*/) override { return true; }
 
     virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return true; }
     virtual AABB getAABB(const BLOCK_WDATA, GLFix x, GLFix y, GLFix z) override;

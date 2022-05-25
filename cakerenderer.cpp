@@ -6,7 +6,7 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix x, GLFi
 {
     // NOTE: CAKE BOTTOM IS MANAGED LIKE A NORMAL BLOCK
 
-    
+
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
     const TextureAtlasEntry &cake_top = terrain_atlas[9][7].current;
     TextureAtlasEntry cake_sid = terrain_atlas[10][7].current;
@@ -26,7 +26,7 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix x, GLFi
     c.addUnalignedVertex({x, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x, y, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
-    // Cake 
+    // Cake Right Side
     c.addUnalignedVertex({x + cake_offset, y, z + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x + cake_offset, y + cake_height, z + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x + cake_offset, y + cake_height, z, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
