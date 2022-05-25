@@ -17,7 +17,7 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     cake_inside.top = cake_inside.top + (cake_inside.bottom - cake_inside.top) * 9 / 16;
 
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-    BLOCK_SIDE cake_remaining = static_cast<BLOCK_SIDE>(getBLOCKDATA(block));
+    uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block));
 
     // Size of cake slice
     const GLFix cake_size = cake_width / 2;
@@ -37,7 +37,7 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     cake_vertices.push_back({0, 0, GLFix(0) + cake_offset, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({0, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({GLFix(0) + cake_size, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size, y, GLFix(0) + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size, 0, GLFix(0) + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Front Side
     cake_vertices.push_back({GLFix(0) + cake_size, 0, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
