@@ -22,7 +22,7 @@ public:
 
 protected:
     static constexpr GLFix cake_height = BLOCK_SIZE / 16 * 9;
-    static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 12;
+    static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 15;
 };
 
 #endif // CAKERENDERER_H
