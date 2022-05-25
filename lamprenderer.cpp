@@ -15,7 +15,7 @@ void LampRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x
     BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[4][13].resized, dest, x, y);
 }
 
-const TerrainAtlasEntry &LampRenderer::materialTexture(const BLOCK_WDATA block) {
+const TerrainAtlasEntry &LampRenderer::destructionTexture(const BLOCK_WDATA block) {
     return static_cast<STATE>(getBLOCKDATA(block)) ? terrain_atlas[4][13] : terrain_atlas[3][13];
 }
 

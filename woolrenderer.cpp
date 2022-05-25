@@ -121,7 +121,7 @@ void WoolRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, in
     BlockRenderer::drawTextureAtlasEntry(*terrain_resized, tae.resized, dest, x, y);
 }
 
-const TerrainAtlasEntry &WoolRenderer::materialTexture(const BLOCK_WDATA block) {
+const TerrainAtlasEntry &WoolRenderer::destructionTexture(const BLOCK_WDATA block) {
     switch (static_cast<COLOUR>(getBLOCKDATA(block))) {
         case WHITE_WOOL:
             return terrain_atlas[0][4];

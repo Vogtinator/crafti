@@ -295,7 +295,7 @@ void World::spawnDestructionParticles(int x, int y, int z)
     auto block = c->getLocalBlock(cx, cy, cz);
     Particle p;
     p.size = 14;
-    p.tae = global_block_renderer.materialTexture(block).current;
+    p.tae = global_block_renderer.destructionTexture(block).current;
 
     // Use the center quarter of the texture
     const int tex_width = p.tae.right - p.tae.left,
