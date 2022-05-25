@@ -28,38 +28,40 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     glPushMatrix();
     glLoadIdentity();
 
+    glTranslatef(x + BLOCK_SIZE/2, y + BLOCK_SIZE/2, z + BLOCK_SIZE/2);
+
     std::vector<VERTEX> cake_vertices;
     cake_vertices.reserve(20);
 
     // Cake Back Side
-    cake_vertices.push_back({x, y, z + cake_offset, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x, y + cake_height, z + cake_offset, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_size, y + cake_height, z + cake_offset, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_size, y, z + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({0, 0, GLFix(0) + cake_offset, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({0, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size, y, GLFix(0) + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Front Side
-    cake_vertices.push_back({x + cake_size, y, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_size, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x, y, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size, 0, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size, GLFix(0) + cake_height, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({0, GLFix(0) + cake_height, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({0, 0, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Right Side
-    cake_vertices.push_back({x + cake_offset, y, z + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_offset, y + cake_height, z + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_offset, y + cake_height, z, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_offset, y, z, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_offset, 0, GLFix(0) + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, 0 + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, 0, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_offset, 0, 0, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Left Side
-    cake_vertices.push_back({(x - cake_offset) + cake_size, y, z, cake_inside.left, cake_inside.bottom, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({(x - cake_offset) + cake_size, y + cake_height, z, cake_inside.left, cake_inside.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({(x - cake_offset) + cake_size, y + cake_height, z + BLOCK_SIZE, cake_inside.right, cake_inside.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({(x - cake_offset) + cake_size, y, z + BLOCK_SIZE, cake_inside.right, cake_inside.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({(GLFix(0) - cake_offset) + cake_size, 0, 0, cake_inside.left, cake_inside.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({(GLFix(0) - cake_offset) + cake_size, GLFix(0) + cake_height, 0, cake_inside.left, cake_inside.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({(GLFix(0) - cake_offset) + cake_size, GLFix(0) + cake_height, 0 + BLOCK_SIZE, cake_inside.right, cake_inside.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({(GLFix(0) - cake_offset) + cake_size, 0, 0 + BLOCK_SIZE, cake_inside.right, cake_inside.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Top
-    cake_vertices.push_back({x + cake_offset, y + cake_height, z + cake_offset, cake_top.left, cake_top.bottom, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_offset, y + cake_height, z + BLOCK_SIZE - cake_offset, cake_top.left, cake_top.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_size - cake_offset, y + cake_height, z + BLOCK_SIZE - cake_offset, cake_top.right, cake_top.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({x + cake_size - cake_offset, y + cake_height, z + cake_offset, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_top.left, cake_top.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset, cake_top.left, cake_top.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset, cake_top.right, cake_top.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
 
 
     switch(side)
@@ -79,6 +81,8 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
             nglRotateZ(270);
             break;
     }
+
+    glTranslatef(-BLOCK_SIZE / 2, -BLOCK_SIZE / 2, -BLOCK_SIZE / 2);
 
     for(auto&& v : cake_vertices)
     {
