@@ -114,18 +114,22 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
     {
         default:
             //return {x + cake_offset, y, z + cake_offset, x + cake_offset, y + cake_height, z + cake_offset + cake_width};
+            return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_BACK:
             //return {x + cake_offset, y, z + cake_offset, x + cake_offset, y + cake_height, z + cake_offset + cake_width};
+            return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_FRONT:
             //return {x + cake_offset, y, z + cake_offset, x + cake_offset, y + cake_height, z + cake_offset + cake_width};
+            return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_LEFT:
-            return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset, y + cake_height, z + cake_offset + cake_width};
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset, y + cake_height, z + cake_offset + cake_size};
             break;
         case BLOCK_RIGHT: // LEFT X SIDE IS FACING YOU
             //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
+            return {0, 0, 0, 0, 0, 0};
             break;
     }
     
