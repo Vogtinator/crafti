@@ -11,15 +11,16 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix x, GLFi
 
     cake_sid.top = cake_sid.top + (cake_sid.bottom - cake_sid.top) * 9 / 16;
 
+    // Cake Back Side
     c.addUnalignedVertex({x, y, z + cake_offset, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x, y + cake_height, z + cake_offset, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x + BLOCK_SIZE, y + cake_height, z + cake_offset, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x + BLOCK_SIZE, y, z + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
-    //c.addUnalignedVertex({x + BLOCK_SIZE, y, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
-    //c.addUnalignedVertex({x + BLOCK_SIZE, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    //c.addUnalignedVertex({x, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    //c.addUnalignedVertex({x, y, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    c.addUnalignedVertex({x + BLOCK_SIZE, y, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    c.addUnalignedVertex({x + BLOCK_SIZE, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
+    c.addUnalignedVertex({x, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
+    c.addUnalignedVertex({x, y, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     //c.addUnalignedVertex({x + cake_offset, y, z + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
     //c.addUnalignedVertex({x + cake_offset, y + cake_height, z + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
