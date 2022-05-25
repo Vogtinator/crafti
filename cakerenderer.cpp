@@ -69,16 +69,16 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
         default:
             break;
         case BLOCK_BACK:
-            nglRotateZ(180);
+            nglRotateY(180);
             break;
         case BLOCK_FRONT:
-            nglRotateZ(0);
+            nglRotateY(0);
             break;
         case BLOCK_LEFT:
-            nglRotateZ(90);
+            nglRotateY(90);
             break;
         case BLOCK_RIGHT:
-            nglRotateZ(270);
+            nglRotateY(270);
             break;
     }
 
@@ -102,11 +102,29 @@ void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int lo
     renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[12][7].current, c);
 }
 
-AABB CakeRenderer::getAABB(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z)
+AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 {
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
+    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
 
-    return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+    switch(side)
+    {
+        default:
+            break;
+        case BLOCK_BACK:
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            break;
+        case BLOCK_FRONT:
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            break;
+        case BLOCK_LEFT:
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            break;
+        case BLOCK_RIGHT:
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            break;
+    }
+    
 }
 
 void CakeRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
