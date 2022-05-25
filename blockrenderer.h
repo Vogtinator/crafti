@@ -23,7 +23,7 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) = 0;
     // Used for particles spawned on destruction
-    virtual const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block);
+    virtual const TerrainAtlasEntry materialTexture(const BLOCK_WDATA block);
 
     static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color = 0);
     //Renders dx*dy*dz (depending on the side) block sides (max 2x2) at once
@@ -65,7 +65,7 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) override;
     // Used for particles spawned on destruction
-    virtual const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block) override;
+    virtual const TerrainAtlasEntry materialTexture(const BLOCK_WDATA block) override;
 
     virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) override;
     virtual void tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
@@ -94,7 +94,7 @@ class DumbBlockRenderer : public BlockRenderer
 
     virtual void drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &/*dest*/, const int /*x*/, const int /*y*/) override { return; }
     // Used for particles spawned on destruction
-    virtual const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block) override;
+    virtual const TerrainAtlasEntry materialTexture(const BLOCK_WDATA block) override;
 
     virtual bool action(const BLOCK_WDATA /*block*/, const int /*local_x*/, const int /*local_y*/, const int /*local_z*/, Chunk &/*c*/) override { return false; }
     virtual void tick(const BLOCK_WDATA /*block*/, int /*local_x*/, int /*local_y*/, int /*local_z*/, Chunk &/*c*/) override {}
@@ -118,7 +118,7 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int dest_x, const int dest_y) override;
     // Used for particles spawned on destruction
-    virtual const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block) override;
+    virtual const TerrainAtlasEntry materialTexture(const BLOCK_WDATA block) override;
 
     virtual const char* getName(const BLOCK_WDATA block) override { return block_names[getBLOCK(block)]; }
 
