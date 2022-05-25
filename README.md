@@ -57,6 +57,7 @@ TODO for next version
 - [x] Add wool as special block instead of 15 regular blocks
 - [x] Add cactus
 - [x] Implement special block destruction particle rendering
+- [ ] Make cake edible
 - [ ] Add pistons
 - [ ] Add localisation
 - [ ] Add stairs
