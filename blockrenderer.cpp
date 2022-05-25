@@ -376,8 +376,7 @@ void UniversalBlockRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest,
     return map[getBLOCK(block)]->drawPreview(block, dest, x, y);
 }
 
-const TerrainAtlasEntry &UniversalBlockRenderer::materialTexture(const BLOCK_WDATA block)
-{
+const TerrainAtlasEntry &BlockRenderer::destructionTexture(const BLOCK_WDATA block) {
     auto block_nr = getBLOCK(block);
     if(block_nr <= BLOCK_NORMAL_LAST)
         return block_textures[block_nr][BLOCK_FRONT];
@@ -385,6 +384,11 @@ const TerrainAtlasEntry &UniversalBlockRenderer::materialTexture(const BLOCK_WDA
         return special_block_textures[block_nr - BLOCK_SPECIAL_START];
 
     return block_textures[BLOCK_STONE][BLOCK_FRONT];
+}
+
+const TerrainAtlasEntry &UniversalBlockRenderer::destructionTexture(const BLOCK_WDATA block)
+{
+    return map[getBLOCK(block)]->destructionTexture(block);
 }
 
 bool UniversalBlockRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)
