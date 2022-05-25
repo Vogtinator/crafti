@@ -376,27 +376,7 @@ void UniversalBlockRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest,
     return map[getBLOCK(block)]->drawPreview(block, dest, x, y);
 }
 
-const TerrainAtlasEntry &BlockRenderer::materialTexture(const BLOCK_WDATA block) {
-    auto block_nr = getBLOCK(block);
-    if(block_nr <= BLOCK_NORMAL_LAST)
-        return block_textures[block_nr][BLOCK_FRONT];
-    else if(block_nr >= BLOCK_SPECIAL_START && block_nr <= BLOCK_SPECIAL_LAST)
-        return special_block_textures[block_nr - BLOCK_SPECIAL_START];
-
-    return block_textures[BLOCK_STONE][BLOCK_FRONT];
-}
-
 const TerrainAtlasEntry &DumbBlockRenderer::materialTexture(const BLOCK_WDATA block) {
-    auto block_nr = getBLOCK(block);
-    if(block_nr <= BLOCK_NORMAL_LAST)
-        return block_textures[block_nr][BLOCK_FRONT];
-    else if(block_nr >= BLOCK_SPECIAL_START && block_nr <= BLOCK_SPECIAL_LAST)
-        return special_block_textures[block_nr - BLOCK_SPECIAL_START];
-
-    return block_textures[BLOCK_STONE][BLOCK_FRONT];
-}
-
-const TerrainAtlasEntry &NormalBlockRenderer::materialTexture(const BLOCK_WDATA block) {
     auto block_nr = getBLOCK(block);
     if(block_nr <= BLOCK_NORMAL_LAST)
         return block_textures[block_nr][BLOCK_FRONT];

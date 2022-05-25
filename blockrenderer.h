@@ -23,7 +23,7 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int x, const int y) = 0;
     // Used for particles spawned on destruction
-    virtual const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block);
+    virtual const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block) = 0;
 
     static void renderNormalBlockSide(int local_x, int local_y, int local_z, const BLOCK_SIDE side, const TextureAtlasEntry &tex, Chunk &c, const COLOR color = 0);
     //Renders dx*dy*dz (depending on the side) block sides (max 2x2) at once
