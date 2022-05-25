@@ -115,6 +115,8 @@ public:
     virtual bool isBlockShaped(const BLOCK_WDATA /*block*/) override { return true; }
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, const int dest_x, const int dest_y) override;
+    // Used for particles spawned on destruction
+    virtual const TerrainAtlasEntry &materialTexture(const BLOCK_WDATA block) override;
 
     virtual const char* getName(const BLOCK_WDATA block) override { return block_names[getBLOCK(block)]; }
 
