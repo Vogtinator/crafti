@@ -399,31 +399,40 @@ bool Chunk::intersects(AABB &other)
     if(!aabb.intersects(other))
         return false;
 
-    for(unsigned int x = 0; x < SIZE; x++)
-        for(unsigned int y = 0; y < SIZE; y++)
-            for(unsigned int z = 0; z < SIZE; z++)
+    AABB aabb;
+    aabb.low_x = abs_x;
+
+    for(unsigned int x = 0; x < SIZE; x++, aabb.low_x += BLOCK_SIZE)
+    {
+        aabb.high_x = aabb.low_x + BLOCK_SIZE;
+
+        aabb.low_y = abs_y;
+
+        for(unsigned int y = 0; y < SIZE; y++, aabb.low_y += BLOCK_SIZE)
+        {
+            aabb.high_y = aabb.low_y + BLOCK_SIZE;
+
+            aabb.low_z = abs_z;
+
+            for(unsigned int z = 0; z < SIZE; z++, aabb.low_z += BLOCK_SIZE)
             {
+                aabb.high_z = aabb.low_z + BLOCK_SIZE;
+
                 const BLOCK_WDATA block = blocks[x][y][z];
 
                 if(!global_block_renderer.isObstacle(block))
                     continue;
 
-                AABB test;
-                if(!global_block_renderer.isBlockShaped(block))
-                    test = global_block_renderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z);
-                else
+                if(global_block_renderer.isBlockShaped(block))
                 {
-                    test.low_x = abs_x + x * BLOCK_SIZE;
-                    test.low_y = abs_y + y * BLOCK_SIZE;
-                    test.low_z = abs_z + z * BLOCK_SIZE;
-                    test.high_x = test.low_x + BLOCK_SIZE;
-                    test.high_y = test.low_y + BLOCK_SIZE;
-                    test.high_z = test.low_z + BLOCK_SIZE;
+                    if(aabb.intersects(other))
+                        return true;
                 }
-
-                if(test.intersects(other))
+                else if(global_block_renderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z).intersects(other))
                     return true;
             }
+        }
+    }
 
     return false;
 }
@@ -436,39 +445,50 @@ bool Chunk::intersectsRay(GLFix rx, GLFix ry, GLFix rz, GLFix dx, GLFix dy, GLFi
 
     shortest_dist = GLFix::maxValue();
 
-    for(unsigned int x = 0; x < SIZE; x++)
-        for(unsigned int y = 0; y < SIZE; y++)
-            for(unsigned int z = 0; z < SIZE; z++)
+    AABB aabb;
+    aabb.low_x = abs_x;
+
+    for(unsigned int x = 0; x < SIZE; x++, aabb.low_x += BLOCK_SIZE)
+    {
+        aabb.high_x = aabb.low_x + BLOCK_SIZE;
+
+        aabb.low_y = abs_y;
+
+        for(unsigned int y = 0; y < SIZE; y++, aabb.low_y += BLOCK_SIZE)
+        {
+            aabb.high_y = aabb.low_y + BLOCK_SIZE;
+
+            aabb.low_z = abs_z;
+
+            for(unsigned int z = 0; z < SIZE; z++, aabb.low_z += BLOCK_SIZE)
             {
+                aabb.high_z = aabb.low_z + BLOCK_SIZE;
+
                 BLOCK_WDATA block = blocks[x][y][z];
 
                 if(block == BLOCK_AIR || (getBLOCK(block) == BLOCK_WATER && ignore_water))
                     continue;
 
-                AABB test;
+                AABB test = aabb;
                 if(!global_block_renderer.isBlockShaped(block))
                     test = global_block_renderer.getAABB(block, aabb.low_x, aabb.low_y, aabb.low_z);
-                else
-                {
-                    test.low_x = abs_x + x * BLOCK_SIZE;
-                    test.low_y = abs_y + y * BLOCK_SIZE;
-                    test.low_z = abs_z + z * BLOCK_SIZE;
-                    test.high_x = test.low_x + BLOCK_SIZE;
-                    test.high_y = test.low_y + BLOCK_SIZE;
-                    test.high_z = test.low_z + BLOCK_SIZE;
-                }
 
                 GLFix new_dist;
                 AABB::SIDE new_side = test.intersectsRay(rx, ry, rz, dx, dy, dz, new_dist);
-                if(new_side != AABB::NONE && new_dist < shortest_dist)
+                if(new_side != AABB::NONE)
                 {
-                    pos.x = x;
-                    pos.y = y;
-                    pos.z = z;
-                    side = new_side;
-                    shortest_dist = new_dist;
+                    if(new_dist < shortest_dist)
+                    {
+                        pos.x = x;
+                        pos.y = y;
+                        pos.z = z;
+                        side = new_side;
+                        shortest_dist = new_dist;
+                    }
                 }
             }
+        }
+    }
 
     if(shortest_dist == GLFix::maxValue())
         return false;
