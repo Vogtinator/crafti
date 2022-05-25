@@ -65,10 +65,6 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     switch(side)
     {
         default:
-        case BLOCK_TOP:
-            break;
-        case BLOCK_BOTTOM:
-            nglRotateX(180);
             break;
         case BLOCK_BACK:
             nglRotateX(90);
