@@ -17,8 +17,8 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix x, GLFi
     // Cake Back Side
     c.addUnalignedVertex({x, y, z + cake_offset, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x, y + cake_height, z + cake_offset, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + BLOCK_SIZE, y + cake_height, z + BLOCK_SIZE / 16 * 10, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + BLOCK_SIZE, y, z +  + BLOCK_SIZE / 16 * 10, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    c.addUnalignedVertex({x + BLOCK_SIZE / 16 * 10, y + cake_height, z + cake_offset, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
+    c.addUnalignedVertex({x + BLOCK_SIZE / 16 * 10, y, z + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     /*
     // Cake Front Side
