@@ -69,16 +69,16 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
         default:
             break;
         case BLOCK_BACK:
-            nglRotateY(180);
+            nglRotateY(270);
             break;
         case BLOCK_FRONT:
-            nglRotateY(0);
-            break;
-        case BLOCK_LEFT:
             nglRotateY(90);
             break;
+        case BLOCK_LEFT:
+            nglRotateY(180);
+            break;
         case BLOCK_RIGHT:
-            nglRotateY(270);
+            nglRotateY(0);
             break;
     }
 
@@ -104,12 +104,14 @@ void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int lo
 
 AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 {
-    const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
+
+    const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
 
     switch(side)
     {
         default:
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_BACK:
             return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
