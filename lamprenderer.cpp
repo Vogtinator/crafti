@@ -15,6 +15,10 @@ void LampRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x
     BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[4][13].resized, dest, x, y);
 }
 
+const TerrainAtlasEntry &LampRenderer::materialTexture(const BLOCK_WDATA block) {
+    return static_cast<STATE>(getBLOCKDATA(block)) ? terrain_atlas[4][13] : terrain_atlas[3][13];
+}
+
 void LampRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c)
 {
     STATE powered = c.isBlockPowered(local_x, local_y, local_z) ? ON : OFF;
