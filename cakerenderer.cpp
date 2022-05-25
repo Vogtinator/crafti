@@ -51,6 +51,28 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     c.addUnalignedVertex({x + cake_offset, y + cake_height, z + BLOCK_SIZE - cake_offset, cake_top.left, cake_top.top, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x + cake_size - cake_offset, y + cake_height, z + BLOCK_SIZE - cake_offset, cake_top.right, cake_top.top, TEXTURE_TRANSPARENT});
     c.addUnalignedVertex({x + cake_size - cake_offset, y + cake_height, z + cake_offset, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
+
+    switch(side)
+    {
+        default:
+        case BLOCK_TOP:
+            break;
+        case BLOCK_BOTTOM:
+            nglRotateX(180);
+            break;
+        case BLOCK_BACK:
+            nglRotateX(90);
+            break;
+        case BLOCK_FRONT:
+            nglRotateX(270);
+            break;
+        case BLOCK_LEFT:
+            nglRotateZ(90);
+            break;
+        case BLOCK_RIGHT:
+            nglRotateZ(270);
+            break;
+    }
 }
 
 void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
