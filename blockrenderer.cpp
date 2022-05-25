@@ -376,7 +376,7 @@ void UniversalBlockRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest,
     return map[getBLOCK(block)]->drawPreview(block, dest, x, y);
 }
 
-const TerrainAtlasEntry &DumbBlockRenderer::materialTexture(const BLOCK_WDATA block) {
+const TerrainAtlasEntry &BlockRenderer::materialTexture(const BLOCK_WDATA block) {
     auto block_nr = getBLOCK(block);
     if(block_nr <= BLOCK_NORMAL_LAST)
         return block_textures[block_nr][BLOCK_FRONT];
