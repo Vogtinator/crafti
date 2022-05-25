@@ -56,8 +56,8 @@ TODO for next version
 - [x] Add experimental keyboard support
 - [x] Add wool as special block instead of 15 regular blocks
 - [x] Add cactus
+- [x] Implement special block destruction particle rendering
 - [ ] Add localisation
 - [ ] Add stairs
 - [ ] Add villager house generation to make world more lively
-- [ ] Implement special block destruction particle rendering
 - [ ] Documentation of functions and whatnot for future devs (mostly me)
