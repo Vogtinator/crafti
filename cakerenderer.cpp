@@ -2,7 +2,7 @@
 
 constexpr GLFix CakeRenderer::cake_height, CakeRenderer::cake_width;
 
-void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z, Chunk &c)
+void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {
     // NOTE: CAKE BOTTOM IS MANAGED LIKE A NORMAL BLOCK
 
@@ -15,6 +15,9 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix x, GLFi
 
     cake_sid.top = cake_sid.top + (cake_sid.bottom - cake_sid.top) * 9 / 16;
     cake_inside.top = cake_inside.top + (cake_inside.bottom - cake_inside.top) * 9 / 16;
+
+    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
+    BLOCK_SIDE cake_remaining = static_cast<BLOCK_SIDE>(getBLOCKDATA(block));
 
     // Size of cake slice
     const GLFix cake_size = cake_width / 2;
