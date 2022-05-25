@@ -22,35 +22,45 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     // Size of cake slice
     const GLFix cake_size = cake_width / 2;
 
+    //////
+    // GL CODE
+    //////
+    glPushMatrix();
+    glLoadIdentity();
+
+    std::vector<VERTEX> cake_vertices;
+    cake_vertices.reserve(20);
+
     // Cake Back Side
-    c.addUnalignedVertex({x, y, z + cake_offset, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x, y + cake_height, z + cake_offset, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_size, y + cake_height, z + cake_offset, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_size, y, z + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x, y, z + cake_offset, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x, y + cake_height, z + cake_offset, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_size, y + cake_height, z + cake_offset, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_size, y, z + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Front Side
-    c.addUnalignedVertex({x + cake_size, y, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_size, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x, y, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_size, y, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_size, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x, y + cake_height, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x, y, z - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Right Side
-    c.addUnalignedVertex({x + cake_offset, y, z + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_offset, y + cake_height, z + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_offset, y + cake_height, z, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_offset, y, z, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_offset, y, z + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_offset, y + cake_height, z + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_offset, y + cake_height, z, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_offset, y, z, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Left Side
-    c.addUnalignedVertex({(x - cake_offset) + cake_size, y, z, cake_inside.left, cake_inside.bottom, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({(x - cake_offset) + cake_size, y + cake_height, z, cake_inside.left, cake_inside.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({(x - cake_offset) + cake_size, y + cake_height, z + BLOCK_SIZE, cake_inside.right, cake_inside.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({(x - cake_offset) + cake_size, y, z + BLOCK_SIZE, cake_inside.right, cake_inside.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({(x - cake_offset) + cake_size, y, z, cake_inside.left, cake_inside.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({(x - cake_offset) + cake_size, y + cake_height, z, cake_inside.left, cake_inside.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({(x - cake_offset) + cake_size, y + cake_height, z + BLOCK_SIZE, cake_inside.right, cake_inside.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({(x - cake_offset) + cake_size, y, z + BLOCK_SIZE, cake_inside.right, cake_inside.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Top
-    c.addUnalignedVertex({x + cake_offset, y + cake_height, z + cake_offset, cake_top.left, cake_top.bottom, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_offset, y + cake_height, z + BLOCK_SIZE - cake_offset, cake_top.left, cake_top.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_size - cake_offset, y + cake_height, z + BLOCK_SIZE - cake_offset, cake_top.right, cake_top.top, TEXTURE_TRANSPARENT});
-    c.addUnalignedVertex({x + cake_size - cake_offset, y + cake_height, z + cake_offset, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_offset, y + cake_height, z + cake_offset, cake_top.left, cake_top.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_offset, y + cake_height, z + BLOCK_SIZE - cake_offset, cake_top.left, cake_top.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_size - cake_offset, y + cake_height, z + BLOCK_SIZE - cake_offset, cake_top.right, cake_top.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({x + cake_size - cake_offset, y + cake_height, z + cake_offset, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
+
 
     switch(side)
     {
@@ -73,6 +83,15 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
             nglRotateZ(270);
             break;
     }
+
+    for(auto&& v : cake_vertices)
+    {
+        VERTEX v1;
+        nglMultMatVectRes(transformation, &v, &v1);
+        c.addUnalignedVertex(v1.x, v1.y, v1.z, v.u, v.v, v.c);
+    }
+
+    glPopMatrix();
 }
 
 void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
