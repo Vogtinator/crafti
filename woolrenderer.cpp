@@ -119,7 +119,7 @@ void WoolRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, in
 }
 
 const TerrainAtlasEntry &BlockRenderer::materialTexture(const BLOCK_WDATA block) {
-    TerrainAtlasEntry tae = terrain_atlas[1][8];
+    TerrainAtlasEntry &tae = terrain_atlas[1][8];
 
     return tae;
 }
