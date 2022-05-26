@@ -20,9 +20,8 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 
     // Get cake eaten (value 0-6)
     const uint8_t cake_bites = static_cast<uint8_t>(getBLOCKDATA(block) & cake_bites_bits);
-
-    // Size of cake slice
-    const GLFix cake_size = cake_width / 2;
+    
+    const GLFix cake_size = (cake_width / cake_slices) * (cake_slices - cake_bites);
 
     //////
     // GL CODE
@@ -110,7 +109,7 @@ bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
 
     cake_bites += 1;
 
-    if (cake_bites >= cake_bites_bits) {
+    if (cake_bites >= cake_slices << 3) {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
     }
     else {
