@@ -4,7 +4,7 @@ on:
     branches: [ master ]
 jobs:
   build-crafti:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v3
@@ -17,6 +17,7 @@ jobs:
     - name: Set Path
       run: |
           echo "$GITHUB_WORKSPACE/.github/workflows/ndless-sdk-bin" >> $GITHUB_PATH
+          sudo chmod +x $GITHUB_WORKSPACE/.github/workflows/ndless-sdk-bin/*
     - name: Build Crafti
       run: |
           make clean
