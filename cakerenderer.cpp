@@ -18,9 +18,13 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 
 
 
+    /////
+    // Get the cake data
+    /////
+    const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
 
-    // Size of cake slice
-    const GLFix cake_size = cake_width / 2;
+    // Calculate the cake's size
+    const GLFix cake_size = (cake_width / cake_max_bites) * (cake_max_bites - cake_bites);
 
 
     //////
@@ -114,38 +118,51 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
 
 
-    // Size of cake slice
-    const GLFix cake_size = cake_width / 2;
+    /////
+    // Get the cake data
+    /////
+    const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
+
+    // Calculate the cake's size
+    const GLFix cake_size = (cake_width / cake_max_bites) * (cake_max_bites - cake_bites);
 
     switch(side)
     {
         default:
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset, y, z + cake_offset + cake_size, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_BACK:
             return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset +  cake_size};
             break;
         case BLOCK_FRONT:
-            //return {x + cake_offset, y, z + cake_offset + cake_size, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset, y, z + cake_offset + cake_size, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_LEFT:
-            //return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_RIGHT:
-            //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
             break;
     }
     
 }
 
-// Helpful function to set the amount of cake eaten
-void CakeRenderer::setCakeEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t cake_bites) {
-    uint8_t new_data = (cake_bites << cake_data_bits) | getBLOCKDATA(block);
+bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) {
+    /////
+    // Get the cake data
+    /////
+    const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
+
+    if (cake_bites + 1 >= cake_max_bites) {
+        c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
+        return true;
+    }
+
+    uint8_t new_data = ((cake_bites + 1) << cake_data_bits) | getBLOCKDATA(block);
 
     c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
+
+    return true;
 }
 
 void CakeRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)

@@ -18,7 +18,7 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, int y) override;
 
-    //virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) override;
+    virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) override;
 
     virtual const char* getName(const BLOCK_WDATA) override;
 
@@ -29,24 +29,10 @@ protected:
     static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 15;
 
     /// Bitmap stuff
-    static constexpr uint8_t cake_bit_shift = 3; // The amount to shift cake data by to give it room for the orientation or other additional data
+    static constexpr uint8_t cake_bit_shift = 4; // The amount to shift cake data by to give it room for the orientation or other additional data
     static constexpr uint8_t cake_data_bits = 0b111 << cake_bit_shift; // Cake uses 3 bits of data, however, orientation data is stored in the first three bits, so the cake data has to be shifted by 3 (or more)
 
     static constexpr uint8_t cake_max_bites = 4; // Maximum bites of cake you can have until it is eaten (after 4 bites, cake will dissapear)
-
-    // NOTE FOR FUTURE SELF:
-    // Use enums with each value instead of a single unsigned 8-bit integer because:
-    // - Fixes problem when bit-shifting it as 1 is 1 bit, whilst 2 is 2 bits, meaning that 1 bitshifted will be different to 2 bitshifted (REAL REASON)
-    enum cake_bites {
-        CAKE_BITE_NONE = 0b000,
-        CAKE_BITE_ONE = 0b001,
-        CAKE_BITE_TWO = 0b010,
-        CAKE_BITE_THREE = 0b011,
-        CAKE_BITE_FOUR = 0b100,
-        CAKE_BITE_FIVE = 0b101,
-        CAKE_BITE_SIX = 0b110,
-        CAKE_BITE_SEVEN = 0b111
-    };
 };
 
 #endif // CAKERENDERER_H
