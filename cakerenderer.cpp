@@ -22,7 +22,7 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     const uint8_t cake_bites = static_cast<uint8_t>(getBLOCKDATA(block) & cake_bites_bits) >> 3;
     
     //const GLFix cake_size = (cake_width / cake_slices) * (cake_slices - cake_bites);
-    GLFix cake_size = (cake_width / cake_slices) * 1
+    GLFix cake_size = (cake_width / cake_slices) * 1;
 
     //////
     // GL CODE
