@@ -21,6 +21,9 @@ public:
     virtual const char* getName(const BLOCK_WDATA) override;
 
 protected:
+    void setCakeEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t cake_eaten);
+
+    static constexpr uint8_t bite_counter_bits = 0b111 << 3; // It is a 3 bit value which is shifted 3 bits (3 bits 0-7, 3 bits shifted because of orientation)
     static constexpr GLFix cake_height = BLOCK_SIZE / 16 * 9;
     static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 15;
 };
