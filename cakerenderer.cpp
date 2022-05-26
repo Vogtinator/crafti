@@ -108,7 +108,7 @@ bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
     // Get cake eaten (value 0-6)
     uint8_t cake_bites = static_cast<uint8_t>(getBLOCKDATA(block) & cake_bites_bits) >> 3;
 
-    cake_bites = 0b010;
+    cake_bites = 2;
 
     if (cake_bites >= cake_slices) {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
@@ -156,7 +156,7 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
         case BLOCK_LEFT:
             return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
-        case BLOCK_RIGHT: // LEFT X SIDE IS FACING YOU
+        case BLOCK_RIGHT:
             return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
             break;
     }
