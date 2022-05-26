@@ -17,18 +17,18 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     cake_inside.top = cake_inside.top + (cake_inside.bottom - cake_inside.top) * 9 / 16;
 
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-
-    // Cake slices
-    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block));
+    uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block));
 
     // Size of cake slice
-    const GLFix cake_size = (cake_width / cake_slices) * (cake_slices - cake_eaten);
+    const GLFix cake_size = cake_width / 2;
 
     //////
     // GL CODE
     //////
     glPushMatrix();
     glLoadIdentity();
+
+    glTranslatef(x + BLOCK_SIZE/2, y + BLOCK_SIZE/2, z + BLOCK_SIZE/2);
 
     std::vector<VERTEX> cake_vertices;
     cake_vertices.reserve(20);
@@ -63,8 +63,6 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset, cake_top.right, cake_top.top, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
 
-
-    glTranslatef(x + BLOCK_SIZE/2, y + BLOCK_SIZE/2, z + BLOCK_SIZE/2);
 
     switch(side)
     {
@@ -109,13 +107,8 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
 
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
-
-
-    // Cake slices
-    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block));
-
     // Size of cake slice
-    const GLFix cake_size = (cake_width / cake_slices) * (cake_slices - cake_eaten);
+    const GLFix cake_size = cake_width / 2;
 
     switch(side)
     {
@@ -132,43 +125,12 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
         case BLOCK_LEFT:
             return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
-        case BLOCK_RIGHT:
+        case BLOCK_RIGHT: // LEFT X SIDE IS FACING YOU
             return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
             break;
     }
+    
 }
-
-bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) {
-    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block));
-
-    cake_eaten += 1;
-
-    // Cake eaten: 0-6, cake_slices: 7
-    if (cake_eaten >= cake_slices) {
-        // Cake is eaten
-        c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
-    } else {
-        setEaten(block, local_x, local_y, local_z, c, cake_eaten);
-    }
-
-    return true;
-}
-
-void CakeRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) {
-    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), 0));
-}
-
-void CakeRenderer::setEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t eaten_state)
-{
-    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-
-    //uint8_t new_data = side | eaten_state | (getBLOCKDATA(block));
-    uint8_t new_data = eaten_state;
-
-    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
-}
-
-
 
 void CakeRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
