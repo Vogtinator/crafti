@@ -19,7 +19,7 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
 
     // Cake slices
-    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block));
+    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block) & cake_size_mask);
 
     // Size of cake slice
     const GLFix cake_size = (cake_width / cake_slices) * (cake_slices - cake_eaten);
@@ -111,7 +111,7 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 
 
     // Cake slices
-    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block));
+    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block) & cake_size_mask);
 
     // Size of cake slice
     const GLFix cake_size = (cake_width / cake_slices) * (cake_slices - cake_eaten);
@@ -138,7 +138,7 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 }
 
 bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) {
-    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block));
+    uint8_t cake_eaten = static_cast<uint8_t>(getBLOCKDATA(block) & cake_size_mask);
 
     cake_eaten += 1;
 
@@ -155,7 +155,7 @@ bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
 
 void CakeRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) {
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-    uint8_t new_data = side | 0 | (getBLOCKDATA(block));
+    uint8_t new_data = side | 0<<4 | (getBLOCKDATA(block));
 
     c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
 }
