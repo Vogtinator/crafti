@@ -26,10 +26,21 @@ public:
 protected:
     void setCakeEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t cake_eaten);
 
-    static constexpr uint8_t cake_bites_bits = 0b111 << 3; // It is a 3 bit value which is shifted 3 bits (3 bits 0-7, 3 bits shifted because of orientation)
-    static constexpr uint8_t cake_slices = 4;
+    static constexpr uint8_t cake_remaining_bits = 0b111 << 3; // It is a 3 bit value which is shifted 3 bits (3 bits 0-7, 3 bits shifted because of orientation)
+    static constexpr uint8_t total_cake = 0b100;
     static constexpr GLFix cake_height = BLOCK_SIZE / 16 * 9;
     static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 15;
+
+    enum {
+        CAKE_NONE=0b000,
+        CAKE_ONE,
+        CAKE_TWO,
+        CAKE_THREE,
+        CAKE_FOUR,
+        CAKE_FIVE,
+        CAKE_SIX,
+        CAKE_SEVEN
+    }
 };
 
 #endif // CAKERENDERER_H

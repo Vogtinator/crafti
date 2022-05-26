@@ -20,9 +20,8 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
 
     // Get cake eaten (value 0-6)
-    const uint8_t cake_bites = static_cast<uint8_t>(getBLOCKDATA(block) & cake_bites_bits) >> 3;
-    
-    GLFix cake_size = (cake_width / cake_slices) * (cake_slices - cake_bites);
+    const uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block) & cake_remaining_bits) >> 3;
+    GLFix cake_size = (cake_width / total_cake) * cake_remaining;
 
     //////
     // GL CODE
@@ -106,16 +105,16 @@ void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int lo
 
 bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) {
     // Get cake eaten
-    uint8_t cake_bites = static_cast<uint8_t>(getBLOCKDATA(block) & cake_bites_bits) >> 3;
+    uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block) & cake_remaining_bits) >> 3;
 
-    cake_bites += 1;
+    cake_remaining -= 1;
 
-    if (cake_bites >= cake_slices) {
+    if (cake_remaining == 0) {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
     }
     else {
         //BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-        const uint8_t new_data = (cake_bites << 3) | getBLOCKDATA(block);
+        const uint8_t new_data = (cake_remaining << 3) | getBLOCKDATA(block);
 
         c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
     }
@@ -125,7 +124,7 @@ bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
 
 void CakeRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) {
     //BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-    const uint8_t new_data = (0b000 << 3) | getBLOCKDATA(block);
+    const uint8_t new_data = (total_cake << 3) | getBLOCKDATA(block);
 
     c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
 }
@@ -137,24 +136,24 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
 
     // Get cake eaten (value 0-6)
-    const uint8_t cake_bites = static_cast<uint8_t>(getBLOCKDATA(block) & cake_bites_bits) >> 3;
-    
-    GLFix cake_size = (cake_width / cake_slices) * (cake_slices - cake_bites);
+    const uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block) & cake_remaining_bits) >> 3;
+    GLFix cake_size = (cake_width / total_cake) * cake_remaining;
 
     switch(side)
     {
         default:
             // Should not be possible, but returns standard cake size
-            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_BACK:
-            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_size};
+            //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_size};
             break;
         case BLOCK_FRONT:
-            return {x + cake_offset, y, z + cake_offset + cake_size, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            //return {x + cake_offset, y, z + cake_offset + cake_size, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_LEFT:
-            return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            //return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_RIGHT:
             return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
