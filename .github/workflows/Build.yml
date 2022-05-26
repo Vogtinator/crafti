@@ -53,15 +53,15 @@ jobs:
           name: ndless-sdk
           path: .github/workflows/Ndless/ndless-sdk/toolchain/install/bin/*
           
-      - name: Build Crafti
-        run: |
-            cd $GITHUB_WORKSPACE
-            make clean
-            make all
-      - name: Build Crafti
-        run: ls release
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v2.2.4
-        with:
-          name: build
-          path: release/*.tns
+##      - name: Build Crafti
+##        run: |
+##            cd $GITHUB_WORKSPACE
+##            make clean
+##            make all
+##      - name: Build Crafti
+##        run: ls release
+##      - name: Upload Build Artifacts
+##        uses: actions/upload-artifact@v2.2.4
+##        with:
+##          name: build
+##          path: release/*.tns
