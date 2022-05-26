@@ -39,8 +39,8 @@ protected:
         CAKE_FOUR,
         CAKE_FIVE,
         CAKE_SIX,
-        CAKE_SEVEN
-    }
+        CAKE_SEVEN,
+    };
 };
 
 #endif // CAKERENDERER_H

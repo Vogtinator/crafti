@@ -142,17 +142,15 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
     switch(side)
     {
         default:
-            // Should not be possible, but returns standard cake size
-            //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_BACK:
-            //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_size};
+            return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_FRONT:
-            //return {x + cake_offset, y, z + cake_offset + cake_size, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
+            return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_LEFT:
-            //return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_RIGHT:
