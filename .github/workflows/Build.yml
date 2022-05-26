@@ -12,7 +12,7 @@ jobs:
       - name: Get Ndless
         run: |
             cd .github/workflows/
-            git clone https://github.com/ndless-nspire/Ndless.git
+            git clone --recursive https://github.com/ndless-nspire/Ndless.git
 
       # needed both at compile- and runtime for the toolchain
       - name: Install toolchain dependencies
