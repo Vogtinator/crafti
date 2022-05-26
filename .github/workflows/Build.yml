@@ -55,6 +55,7 @@ jobs:
           
   build-crafti:
     runs-on: ubuntu-latest
+    needs: build-ndless
       
     steps:
       - uses: actions/cache@v2
