@@ -25,7 +25,6 @@ public:
 protected:
     void setEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t eaten_state);
     static constexpr uint8_t cake_slices = 7;
-    static constexpr uint8_t cake_size_mask = 1 << 4;
     static constexpr GLFix cake_height = BLOCK_SIZE / 16 * 9;
     static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 15;
 };
