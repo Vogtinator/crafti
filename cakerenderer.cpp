@@ -1,6 +1,5 @@
 #include "cakerenderer.h"
 
-
 constexpr GLFix CakeRenderer::cake_height, CakeRenderer::cake_width;
 
 void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
@@ -20,8 +19,10 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
 
     // Get cake eaten (value 0-6)
-    const uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block) & cake_remaining_bits) >> 3;
-    GLFix cake_size = (cake_width / total_cake) * cake_remaining;
+    uint8_t bite_counter = static_cast<uint8_t>(getBLOCKDATA(block) & bite_counter_bits);
+
+    // Size of cake slice
+    const GLFix cake_size = cake_width / 2;
 
     //////
     // GL CODE
@@ -103,61 +104,45 @@ void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int lo
     renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[12][7].current, c);
 }
 
-bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) {
-    // Get cake eaten
-    uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block) & cake_remaining_bits) >> 3;
-
-    cake_remaining = cake_remaining - 0b1;
-
-    if (cake_remaining == 0) {
-        c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
-    }
-    else {
-        //BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-        const uint8_t new_data = (cake_remaining << 3) | getBLOCKDATA(block);
-
-        c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
-    }
-
-    return true;
-}
-
-void CakeRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) {
-    //BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-    const uint8_t new_data = (total_cake << 3) | getBLOCKDATA(block);
-
-    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
-}
-
 AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
 {
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
 
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
-
-    // Get cake eaten (value 0-6)
-    const uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block) & cake_remaining_bits) >> 3;
-    GLFix cake_size = (cake_width / total_cake) * cake_remaining;
+    // Size of cake slice
+    const GLFix cake_size = cake_width / 2;
 
     switch(side)
     {
         default:
+            //return {x + cake_offset, y, z + cake_offset, x + cake_offset, y + cake_height, z + cake_offset + cake_width};
             return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_BACK:
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_size};
+            //return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_FRONT:
+            //return {x + cake_offset, y, z + cake_offset + cake_size, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             return {0, 0, 0, 0, 0, 0};
             break;
         case BLOCK_LEFT:
+            //return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             return {0, 0, 0, 0, 0, 0};
             break;
-        case BLOCK_RIGHT:
-            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
+        case BLOCK_RIGHT: // LEFT X SIDE IS FACING YOU
+            //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
+            return {0, 0, 0, 0, 0, 0};
             break;
     }
     
+}
+
+void CakeRenderer::setCakeEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t bite_counter) {
+    BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
+    uint8_t new_data = bite_counter | getBLOCKDATA(block);
+
+    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
 }
 
 void CakeRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
