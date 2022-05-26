@@ -1,5 +1,6 @@
 #include "cakerenderer.h"
 
+
 constexpr GLFix CakeRenderer::cake_height, CakeRenderer::cake_width;
 
 void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
@@ -107,19 +108,26 @@ bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
     // Get cake eaten (value 0-6)
     uint8_t cake_bites = static_cast<uint8_t>(getBLOCKDATA(block) & cake_bites_bits) >> 3;
 
-    cake_bites += 1;
+    cake_bites = 0b010;
 
     if (cake_bites >= cake_slices) {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
     }
     else {
         //BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
-        const uint8_t new_data = cake_bites << 3 | getBLOCKDATA(block);
+        const uint8_t new_data = (cake_bites << 3) | getBLOCKDATA(block);
 
         c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
     }
 
     return true;
+}
+
+void CakeRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) {
+    //BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
+    const uint8_t new_data = (0b000 << 3) | getBLOCKDATA(block);
+
+    c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
 }
 
 AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
