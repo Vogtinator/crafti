@@ -73,7 +73,7 @@ Contributors
         <a href="https://github.com/m-doescode">
             <img src="https://avatars.githubusercontent.com/u/80221594?v=4" width="100;" alt="m-doescode"/>
             <br />
-            <sub><b>m-doescode</b></sub>
+            <sub><b>M-doescode</b></sub>
         </a>
     </td></tr>
 </table>
