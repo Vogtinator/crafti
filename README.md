@@ -1,4 +1,4 @@
-crafti
+Crafti
 ======
 
 3D Minecraft for TI Nspire CX calcs running Ndless  
@@ -48,6 +48,12 @@ Limitations
 -----------
 
 crafti doesn't use floats, so there will be some graphical inaccuracies.
+
+
+Contributors
+-----------
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
 
 
 TODO for next version
