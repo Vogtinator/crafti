@@ -1,0 +1,31 @@
+name: Build
+on:
+  push:
+    branches: [ master ]
+jobs:
+  build-crafti:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Dependancies
+      run: |
+          sudo apt update
+          sudo apt install git binutils-arm-linux-gnueabi build-essentia sed -y
+          
+    - name: Set Path
+      run: |
+          echo "$GITHUB_WORKSPACE/.github/workflows/ndless-sdk-bin" >> $GITHUB_PATH
+    - name: Build Crafti
+      run: |
+          make clean
+          make all
+    - name: Build Crafti
+      run: |
+          ls release
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: output
+        path: release/*.tns
