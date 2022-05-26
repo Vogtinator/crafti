@@ -105,10 +105,10 @@ void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int lo
 }
 
 bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) {
-    // Get cake eaten (value 0-6)
+    // Get cake eaten
     uint8_t cake_bites = static_cast<uint8_t>(getBLOCKDATA(block) & cake_bites_bits) >> 3;
 
-    cake_bites = 2;
+    cake_bites += 1;
 
     if (cake_bites >= cake_slices) {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
