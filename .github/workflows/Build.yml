@@ -35,8 +35,8 @@ jobs:
       # ndless
       - name: Set up PATH
         run: |
-          echo "$GITHUB_WORKSPACE/ndless-sdk/toolchain/install/bin" >> $GITHUB_PATH
-          echo "$GITHUB_WORKSPACE/ndless-sdk/bin" >> $GITHUB_PATH
+          echo "$GITHUB_WORKSPACE/.github/workflows/ndless/ndless-sdk/toolchain/install/bin" >> $GITHUB_PATH
+          echo "$GITHUB_WORKSPACE/.github/workflows/ndless/ndless-sdk/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: sudo apt install -y libboost-program-options-dev
       - name: Build
@@ -46,12 +46,12 @@ jobs:
         uses: actions/upload-artifact@v2.2.4
         with:
           name: ndless-sdk
-          path: ndless/ndless-sdk/bin/*
+          path: .github/workflows/ndless/ndless-sdk/bin/*
       - name: Upload Ndless Artifacts (2)
         uses: actions/upload-artifact@v2.2.4
         with:
           name: ndless-sdk
-          path: ndless/ndless-sdk/toolchain/install/bin/*
+          path: .github/workflows/ndless/ndless-sdk/toolchain/install/bin/*
           
       - name: Build Crafti
         run: |
