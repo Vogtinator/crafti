@@ -10,15 +10,15 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: 'recursive'
+          
+      # needed both at compile- and runtime for the toolchain
+      - name: Install dependencies
+        run: sudo apt install libgmp-dev libmpfr-dev libmpc-dev build-essential gcc git sed libboost-program-options-dev binutils -y
       
       - name: Get Ndless
         run: |
             cd .github/workflows/
             git clone --recursive https://github.com/ndless-nspire/Ndless.git
-
-      # needed both at compile- and runtime for the toolchain
-      - name: Install toolchain dependencies
-        run: sudo apt install libgmp-dev libmpfr-dev libmpc-dev build-essential gcc git sed -y
 
       # ndless-sdk
       # build the toolchain first
@@ -39,8 +39,6 @@ jobs:
         run: |
           echo "$GITHUB_WORKSPACE/.github/workflows/Ndless/ndless-sdk/toolchain/install/bin" >> $GITHUB_PATH
           echo "$GITHUB_WORKSPACE/.github/workflows/Ndless/ndless-sdk/bin" >> $GITHUB_PATH
-      - name: Install dependencies
-        run: sudo apt install -y libboost-program-options-dev
       - name: Build
         working-directory: .github/workflows/Ndless/
         run: make -j$(nproc --all)
