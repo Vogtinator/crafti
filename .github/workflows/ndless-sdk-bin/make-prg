@@ -1,0 +1,11 @@
+#!/bin/bash
+# Adds the resources-loader at the top of the given binary for backwards-compatibility
+
+# Validate the Zehn file
+genzehn --info --input "$1" >/dev/null || exit 1 # genzehn prints an error for us
+
+# Find out whether $1 is a compressed Zehn file
+COMPRESSED=
+genzehn --info --input "$1" | grep compressed >/dev/null && COMPRESSED="_compressed"
+
+cat "$(nspire-tools _zehn_loader_path "$COMPRESSED")" "$1" > "$2"

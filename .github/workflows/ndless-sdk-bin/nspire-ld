@@ -1,0 +1,4 @@
+#!/bin/sh
+# Kept for backwards-compatibility
+
+exec nspire-gcc "$@"
