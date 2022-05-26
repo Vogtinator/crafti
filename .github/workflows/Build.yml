@@ -12,7 +12,7 @@ jobs:
     - name: Install Dependancies
       run: |
           sudo apt update
-          sudo apt install git binutils-arm-linux-gnueabi build-essentia sed -y
+          sudo apt install git build-essentials sed -y
           
     - name: Set Path
       run: |
