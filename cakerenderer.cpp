@@ -107,7 +107,7 @@ bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
     // Get cake eaten
     uint8_t cake_remaining = static_cast<uint8_t>(getBLOCKDATA(block) & cake_remaining_bits) >> 3;
 
-    cake_remaining -= 1;
+    cake_remaining = cake_remaining - 0b1;
 
     if (cake_remaining == 0) {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
