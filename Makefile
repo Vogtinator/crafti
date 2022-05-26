@@ -11,9 +11,9 @@ ZEHNFLAGS = --name "Crafti" --version 12 --author "Fabian Vogt" --notice "3D Min
 BUILDPATH=$(if $(filter true,${DEBUG}),debug,release)
 
 EXE = $(BUILDPATH)/crafti
-OBJS = $(patsubst ./%.c, ./$(BUILDPATH)/%.o, $(shell find . -name \*.c -not -path '*/.github/*'))
-OBJS += $(patsubst ./%.cpp, ./$(BUILDPATH)/%.o, $(shell find . -name \*.cpp -not -path '*/.github/*'))
-OBJS += $(patsubst ./%.S, ./$(BUILDPATH)/%.o, $(shell find . -name \*.S -not -path '*/.github/*'))
+OBJS = $(patsubst ./%.c, ./$(BUILDPATH)/%.o, $(shell find . -name \*.c -not -path './.github/*'))
+OBJS += $(patsubst ./%.cpp, ./$(BUILDPATH)/%.o, $(shell find . -name \*.cpp -not -path './.github/*'))
+OBJS += $(patsubst ./%.S, ./$(BUILDPATH)/%.o, $(shell find . -name \*.S -not -path './.github/*'))
 
 .PHONY: prep
 prep:
