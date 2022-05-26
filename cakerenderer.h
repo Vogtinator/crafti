@@ -18,28 +18,34 @@ public:
 
     virtual void drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, int y) override;
 
-    virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) override;
-    virtual void addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) override;
+    //virtual bool action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c) override;
 
     virtual const char* getName(const BLOCK_WDATA) override;
 
 protected:
     void setCakeEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t cake_eaten);
 
-    static constexpr uint8_t cake_remaining_bits = 0b111 << 3; // It is a 3 bit value which is shifted 3 bits (3 bits 0-7, 3 bits shifted because of orientation)
-    static constexpr uint8_t total_cake = 0b100;
     static constexpr GLFix cake_height = BLOCK_SIZE / 16 * 9;
     static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 15;
 
-    enum {
-        CAKE_NONE=0b000,
-        CAKE_ONE,
-        CAKE_TWO,
-        CAKE_THREE,
-        CAKE_FOUR,
-        CAKE_FIVE,
-        CAKE_SIX,
-        CAKE_SEVEN,
+    /// Bitmap stuff
+    static constexpr uint8_t cake_bit_shift = 3; // The amount to shift cake data by to give it room for the orientation or other additional data
+    static constexpr uint8_t cake_data_bits = 0b111 << cake_bit_shift; // Cake uses 3 bits of data, however, orientation data is stored in the first three bits, so the cake data has to be shifted by 3 (or more)
+
+    static constexpr uint8_t cake_max_bites = 4; // Maximum bites of cake you can have until it is eaten (after 4 bites, cake will dissapear)
+
+    // NOTE FOR FUTURE SELF:
+    // Use enums with each value instead of a single unsigned 8-bit integer because:
+    // - Fixes problem when bit-shifting it as 1 is 1 bit, whilst 2 is 2 bits, meaning that 1 bitshifted will be different to 2 bitshifted (REAL REASON)
+    enum cake_bites {
+        CAKE_BITE_NONE = 0b000,
+        CAKE_BITE_ONE = 0b001,
+        CAKE_BITE_TWO = 0b010,
+        CAKE_BITE_THREE = 0b011,
+        CAKE_BITE_FOUR = 0b100,
+        CAKE_BITE_FIVE = 0b101,
+        CAKE_BITE_SIX = 0b110,
+        CAKE_BITE_SEVEN = 0b111
     };
 };
 
