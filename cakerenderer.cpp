@@ -161,8 +161,8 @@ void CakeRenderer::setEaten(const BLOCK_WDATA block, int local_x, int local_y, i
 {
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
 
-    uint8_t new_data = side | eaten_state | (getBLOCKDATA(block));
-    //uint8_t new_data = eaten_state;
+    //uint8_t new_data = side | eaten_state | (getBLOCKDATA(block));
+    uint8_t new_data = eaten_state;
 
     c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
 }
