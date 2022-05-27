@@ -47,25 +47,33 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     std::vector<VERTEX> cake_vertices;
     cake_vertices.reserve(20);
 
-    // Cake Back Side
+    //cake_sid.right = cake_sid.right - (cake_sid.right - cake_sid.left) * (cake_max_bites - cake_bites) / 6;
+
+    GLFix cake_left_texturemap = cake_sid.right - (cake_sid.right - cake_sid.left) * (cake_max_bites - cake_bites) / cake_max_bites;
+    GLFix cake_right_texturemap = cake_sid.left + (cake_sid.right - cake_sid.left) * (cake_max_bites - cake_bites) / cake_max_bites;
+
+    GLFix cake_top_texturemap = cake_top.left + (cake_top.right - cake_top.left) * (cake_max_bites - cake_bites) / cake_max_bites;
+
+
+    // Cake Side
     cake_vertices.push_back({0, 0, GLFix(0) + cake_offset, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({0, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size, 0, GLFix(0) + cake_offset, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_right_texturemap, cake_sid.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size, 0, GLFix(0) + cake_offset, cake_right_texturemap, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
-    // Cake Front Side
-    cake_vertices.push_back({GLFix(0) + cake_size, 0, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size, GLFix(0) + cake_height, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
+    // Cake Side
+    cake_vertices.push_back({GLFix(0) + cake_size, 0, GLFix(0) - cake_offset + BLOCK_SIZE, cake_left_texturemap, cake_sid.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size, GLFix(0) + cake_height, GLFix(0) - cake_offset + BLOCK_SIZE, cake_left_texturemap, cake_sid.top, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({0, GLFix(0) + cake_height, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({0, 0, GLFix(0) - cake_offset + BLOCK_SIZE, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
-    // Cake Right Side
+    // Cake Back Side
     cake_vertices.push_back({GLFix(0) + cake_offset, 0, GLFix(0) + BLOCK_SIZE, cake_sid.left, cake_sid.bottom, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, 0 + BLOCK_SIZE, cake_sid.left, cake_sid.top, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, 0, cake_sid.right, cake_sid.top, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({GLFix(0) + cake_offset, 0, 0, cake_sid.right, cake_sid.bottom, TEXTURE_TRANSPARENT});
 
-    // Cake Left Side
+    // Cake (Front) Inside
     cake_vertices.push_back({(GLFix(0) - cake_offset) + cake_size, 0, 0, cake_inside.left, cake_inside.bottom, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({(GLFix(0) - cake_offset) + cake_size, GLFix(0) + cake_height, 0, cake_inside.left, cake_inside.top, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({(GLFix(0) - cake_offset) + cake_size, GLFix(0) + cake_height, 0 + BLOCK_SIZE, cake_inside.right, cake_inside.top, TEXTURE_TRANSPARENT});
@@ -74,8 +82,8 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     // Cake Top
     cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_top.left, cake_top.bottom, TEXTURE_TRANSPARENT});
     cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset, cake_top.left, cake_top.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset, cake_top.right, cake_top.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset, cake_top_texturemap, cake_top.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_top_texturemap, cake_top.bottom, TEXTURE_TRANSPARENT});
 
     // Rotate Cake According To Face
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
@@ -117,6 +125,7 @@ void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int lo
     if(side != BLOCK_BOTTOM)
         return;
 
+    // BOTTOM DOESN'T WORK!!! afdghtresdvbhtredfsvcbgfhtresd
     renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[12][7].current, c);
 }
 
