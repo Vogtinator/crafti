@@ -50,6 +50,12 @@ void SlabRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     //////
     // GL CODE
     //////
+
+    glPushMatrix();
+    glLoadIdentity();
+
+    glTranslatef(x, y, z);
+
     std::vector<VERTEX> slab_vertices;
     slab_vertices.reserve(20);
 
@@ -90,6 +96,8 @@ void SlabRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
         nglMultMatVectRes(transformation, &v, &v1);
         c.addUnalignedVertex(v1.x, v1.y, v1.z, v.u, v.v, v.c);
     }
+
+    glPopMatrix();
 }
 
 void SlabRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
