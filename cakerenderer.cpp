@@ -1,6 +1,6 @@
 #include "cakerenderer.h"
 
-constexpr GLFix CakeRenderer::cake_height, CakeRenderer::cake_width;
+constexpr uint8_t CakeRenderer::cake_height, CakeRenderer::cake_width;
 
 void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z, Chunk &c)
 {

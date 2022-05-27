@@ -25,14 +25,14 @@ public:
 protected:
     void setCakeEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t cake_eaten);
 
-    static constexpr GLFix cake_height = BLOCK_SIZE / 16 * 9;
-    static constexpr GLFix cake_width = BLOCK_SIZE / 16 * 15;
+    static constexpr uint8_t cake_height = BLOCK_SIZE / 16 * 9;
+    static constexpr uint8_t cake_width = BLOCK_SIZE / 16 * 15;
 
     /// Bitmap stuff
     static constexpr uint8_t cake_bit_shift = 3; // The amount to shift cake data by to give it room for the orientation or other additional data
     static constexpr uint8_t cake_data_bits = 0b111 << cake_bit_shift; // Cake uses 3 bits of data, however, orientation data is stored in the first three bits, so the cake data has to be shifted by 3 (or more)
 
-    static constexpr uint8_t cake_max_bites = 5; // Maximum bites of cake you can have until it is eaten (after 4 bites, cake will dissapear)
+    static constexpr uint8_t cake_max_bites = 6; // Maximum bites of cake you can have until it is eaten (after 4 bites, cake will dissapear)
 };
 
 #endif // CAKERENDERER_H
