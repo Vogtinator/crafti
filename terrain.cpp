@@ -94,7 +94,8 @@ static const struct { int x, y; } special_block_texture_idx[BLOCK_SPECIAL_LAST -
     {1, 0}, // Redstone Switch -> Stone
     {4, 10}, // Redstone Wire -> Redstone Wire
     {4, 0}, // Redstone Torch -> Planks
-    {1, 0} // Pressure Plate -> Stone
+    {1, 0}, // Pressure Plate -> Stone
+    {3, 13} // Stairs -> Stone
 };
 
 TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
