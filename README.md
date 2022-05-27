@@ -58,17 +58,17 @@ Contributors
 <table>
 <tr>
     <td align="center">
-        <a href="https://github.com/Bluebotlabz">
-            <img src="https://avatars.githubusercontent.com/u/69104218?v=4" width="100;" alt="Bluebotlabz"/>
-            <br />
-            <sub><b>Bluebotlabz</b></sub>
-        </a>
-    </td>
-    <td align="center">
         <a href="https://github.com/Vogtinator">
             <img src="https://avatars.githubusercontent.com/u/1622084?v=4" width="100;" alt="Vogtinator"/>
             <br />
             <sub><b>Fabian Vogt</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Bluebotlabz">
+            <img src="https://avatars.githubusercontent.com/u/69104218?v=4" width="100;" alt="Bluebotlabz"/>
+            <br />
+            <sub><b>Bluebotlabz</b></sub>
         </a>
     </td>
     <td align="center">
@@ -89,7 +89,7 @@ TODO for next version
 - [x] Add wool as special block instead of 15 regular blocks
 - [x] Add cactus
 - [x] Implement special block destruction particle rendering
-- [ ] Make cake edible
+- [x] Make cake edible
 - [ ] Add pistons
 - [ ] Add localisation
 - [ ] Add stairs
