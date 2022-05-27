@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include "woolrenderer.h"
 
 void WoolRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
