@@ -11,17 +11,26 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
     const TextureAtlasEntry &cake_top = terrain_atlas[9][7].current;
     TextureAtlasEntry cake_sid = terrain_atlas[10][7].current;
-    TextureAtlasEntry cake_inside = terrain_atlas[11][7].current;
-
-    cake_sid.top = cake_sid.top + (cake_sid.bottom - cake_sid.top) * 9 / 16;
-    cake_inside.top = cake_inside.top + (cake_inside.bottom - cake_inside.top) * 9 / 16;
-
 
 
     /////
     // Get the cake data
     /////
     const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
+
+
+    cake_sid.top = cake_sid.top + (cake_sid.bottom - cake_sid.top) * 9 / 16;
+    
+    // If cake not full, set "inside" to standard side
+    TextureAtlasEntry cake_inside = cake_sid;
+
+    if (cake_bites > 0) {
+        // Cake inside only if cake is not full
+        cake_inside = terrain_atlas[11][7].current;
+        cake_inside.top = cake_inside.top + (cake_inside.bottom - cake_inside.top) * 9 / 16;
+    }
+
+
 
     // Calculate the cake's size
     const GLFix cake_size = (cake_width / cake_max_bites) * (cake_max_bites - cake_bites);
@@ -129,24 +138,19 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
     switch(side)
     {
         default:
-            //return {x + cake_offset, y, z + cake_offset + cake_size, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset, y, z + cake_offset + (cake_width - cake_size), x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_BACK:
-            //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset +  cake_size};
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset +  cake_size};
             break;
         case BLOCK_FRONT:
-            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_size};
-            //return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset, y, z + cake_offset + (cake_width - cake_size), x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_LEFT:
-            //return {x + cake_offset + cake_size, y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset + (cake_width - cake_size), y, z + cake_offset, x + cake_offset + cake_width, y + cake_height, z + cake_offset + cake_width};
             break;
         case BLOCK_RIGHT:
-            //return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
-            return {0, 0, 0, 0, 0, 0};
+            return {x + cake_offset, y, z + cake_offset, x + cake_offset + cake_size, y + cake_height, z + cake_offset + cake_width};
             break;
     }
     
