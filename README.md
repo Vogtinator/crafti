@@ -1,4 +1,4 @@
-[![CI](https://github.com/Bluebotlaboratories/crafti/actions/workflows/Build.yml/badge.svg)](https://github.com/Bluebotlaboratories/crafti/actions/workflows/Build.yml)
+[![CI](https://github.com/Bluebotlaboratories/crafti/actions/workflows/CI.yml/badge.svg)](https://github.com/Bluebotlaboratories/crafti/actions/workflows/CI.yml)
 
 Crafti
 ======
