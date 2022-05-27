@@ -10,7 +10,6 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     // Cake offset, the offsettiness of the cake (it isn't a full block ya know)
     const GLFix cake_offset = (GLFix(BLOCK_SIZE) - cake_width) * GLFix(0.5f);
     const TextureAtlasEntry &cake_top = terrain_atlas[9][7].current;
-    const TextureAtlasEntry &cake_bottom = terrain_atlas[12][7].current;
     TextureAtlasEntry cake_sid = terrain_atlas[10][7].current;
 
 
@@ -21,7 +20,7 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 
 
     cake_sid.top = cake_sid.top + (cake_sid.bottom - cake_sid.top) * 9 / 16;
-
+    
     // If cake not full, set "inside" to standard side
     TextureAtlasEntry cake_inside = cake_sid;
 
@@ -73,16 +72,10 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     cake_vertices.push_back({(GLFix(0) - cake_offset) + cake_size, 0, 0 + BLOCK_SIZE, cake_inside.right, cake_inside.bottom, TEXTURE_TRANSPARENT});
 
     // Cake Top
-    cake_vertices.push_back({GLFix(0) + cake_offset,              GLFix(0) + cake_height, GLFix(0) + cake_offset,               cake_top.left,  cake_top.bottom, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_offset,              GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset,  cake_top.left,  cake_top.top,    TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset,  GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset,  cake_top.right, cake_top.top,    TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset,  GLFix(0) + cake_height, GLFix(0) + cake_offset,               cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
-
-    // Cake Bottom
-    cake_vertices.push_back({GLFix(0) + cake_offset,             0, GLFix(0) + cake_offset,              cake_bottom.left,  cake_bottom.bottom, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_offset,             0, GLFix(0) + BLOCK_SIZE - cake_offset, cake_bottom.left,  cake_bottom.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, 0, GLFix(0) + BLOCK_SIZE - cake_offset, cake_bottom.right, cake_bottom.top, TEXTURE_TRANSPARENT});
-    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, 0, GLFix(0) + cake_offset,              cake_bottom.right, cake_bottom.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_top.left, cake_top.bottom, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_offset, GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset, cake_top.left, cake_top.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + BLOCK_SIZE - cake_offset, cake_top.right, cake_top.top, TEXTURE_TRANSPARENT});
+    cake_vertices.push_back({GLFix(0) + cake_size - cake_offset, GLFix(0) + cake_height, GLFix(0) + cake_offset, cake_top.right, cake_top.bottom, TEXTURE_TRANSPARENT});
 
     // Rotate Cake According To Face
     BLOCK_SIDE side = static_cast<BLOCK_SIDE>(getBLOCKDATA(block) & BLOCK_SIDE_BITS);
@@ -121,10 +114,10 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 void CakeRenderer::geometryNormalBlock(const BLOCK_WDATA /*block*/, const int local_x, const int local_y, const int local_z, const BLOCK_SIDE side, Chunk &c)
 {
     // Render the bottom of the block as a normal side (needs to be replaced later)
-    //if(side != BLOCK_BOTTOM)
-    //    return;
+    if(side != BLOCK_BOTTOM)
+        return;
 
-    //renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[12][7].current, c);
+    renderNormalBlockSide(local_x, local_y, local_z, side, terrain_atlas[12][7].current, c);
 }
 
 AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
