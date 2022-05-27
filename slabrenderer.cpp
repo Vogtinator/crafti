@@ -43,9 +43,6 @@ void SlabRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
 
     slab_sid.top = slab_sid.top + (slab_sid.bottom - slab_sid.top) * 8 / 16;
 
-    // Calculate the slab's size
-    const GLFix slab_width = slab_width;
-
 
     //////
     // GL CODE
