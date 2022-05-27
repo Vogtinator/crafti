@@ -91,12 +91,10 @@ static const struct { int x, y; } special_block_texture_idx[BLOCK_SPECIAL_LAST -
     {13, 12}, // Water -> Water
     {13, 14}, // Lava -> Lava
     {15, 5}, // Wheat -> Wheat        // GAP REMOVED YOLO
-    {3, 13}, // Redstone Lamp -> Lamp (off)
     {1, 0}, // Redstone Switch -> Stone
     {4, 10}, // Redstone Wire -> Redstone Wire
     {4, 0}, // Redstone Torch -> Planks
-    {1, 0}, // Pressure Plate -> Stone
-    {0, 4}, // Wool -> White Wool
+    {1, 0} // Pressure Plate -> Stone
 };
 
 TerrainAtlasEntry block_textures[BLOCK_NORMAL_LAST + 1][BLOCK_SIDE_LAST + 1];
