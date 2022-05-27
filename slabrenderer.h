@@ -22,8 +22,7 @@ public:
 
 protected:
     static constexpr GLFix slab_height = BLOCK_SIZE / 16 * 8;
-    static constexpr GLFix slab_width = BLOCK_SIZE / 16 * 15;
-
+    static constexpr GLFix slab_width = BLOCK_SIZE;
 };
 
 #endif // SLABRENDERER_H
