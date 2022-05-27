@@ -151,14 +151,15 @@ bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
     /////
     // Get the cake data
     /////
-    const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
+    const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits));
+    const uint8_t cake_shifted_bites = (cake_bites >> cake_bit_shift) + 1;
 
-    if (cake_bites + 1 >= cake_max_bites) {
+    if (cake_shifted_bites >= cake_max_bites) {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
         return true;
     }
 
-    uint8_t new_data = ((cake_bites + 1) << cake_data_bits) | getBLOCKDATA(block);
+    uint8_t new_data = (cake_shifted_bites << cake_data_bits) | getBLOCKDATA(block);
 
     c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
 
