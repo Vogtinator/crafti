@@ -17,14 +17,13 @@ void CakeRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix y,
     cake_inside.top = cake_inside.top + (cake_inside.bottom - cake_inside.top) * 9 / 16;
 
 
-
     /////
     // Get the cake data
     /////
-    const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
+    const CAKE_BITES cake_bite_data = static_cast<CAKE_BITES>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
 
     // Calculate the cake's size
-    uint8_t cake_size = (cake_width / cake_max_bites) * (cake_max_bites - cake_bites);
+    const GLFix cake_size = (cake_width / cake_max_bites) * (cake_max_bites - cake_bite_data);
 
 
     //////
@@ -121,10 +120,10 @@ AABB CakeRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
     /////
     // Get the cake data
     /////
-    const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
+    const CAKE_BITES cake_bite_data = static_cast<CAKE_BITES>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
 
     // Calculate the cake's size
-    uint8_t cake_size = (cake_width / cake_max_bites) * (cake_max_bites - cake_bites);
+    const GLFix cake_size = (cake_width / cake_max_bites) * (cake_max_bites - cake_bite_data);
 
     switch(side)
     {
@@ -151,14 +150,14 @@ bool CakeRenderer::action(const BLOCK_WDATA block, const int local_x, const int 
     /////
     // Get the cake data
     /////
-    const uint8_t cake_bites = static_cast<uint8_t>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
+    const CAKE_BITES cake_bite_data = static_cast<CAKE_BITES>((getBLOCKDATA(block) & cake_data_bits) >> cake_bit_shift);
 
-    if (cake_bites + 1 >= cake_max_bites) {
+    if (cake_bite_data + 1 >= cake_max_bites) {
         c.setLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
         return true;
     }
 
-    uint8_t new_data = ((cake_bites + 1) << cake_bit_shift) | getBLOCKDATA(block);
+    uint8_t new_data = ((cake_bite_data + 1) << cake_bit_shift) | getBLOCKDATA(block);
 
     c.setLocalBlock(local_x, local_y, local_z, getBLOCKWDATA(getBLOCK(block), new_data));
 

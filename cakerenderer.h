@@ -23,8 +23,6 @@ public:
     virtual const char* getName(const BLOCK_WDATA) override;
 
 protected:
-    void setCakeEaten(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c, const uint8_t cake_eaten);
-
     static constexpr uint8_t cake_height = BLOCK_SIZE / 16 * 9;
     static constexpr uint8_t cake_width = BLOCK_SIZE / 16 * 15;
 
@@ -33,6 +31,18 @@ protected:
     static constexpr uint8_t cake_data_bits = 0b111 << cake_bit_shift; // Cake uses 3 bits of data, however, orientation data is stored in the first three bits, so the cake data has to be shifted by 3 (or more)
 
     static constexpr uint8_t cake_max_bites = 6; // Maximum bites of cake you can have until it is eaten (after 4 bites, cake will dissapear)
+
+    enum CAKE_BITES {
+        CAKE_BITE_NONE=0b000,
+        CAKE_BITE_ONE=0b001,
+        CAKE_BITE_TWO=0b010,
+        CAKE_BITE_THREE=0b011,
+        CAKE_BITE_FOUR=0b100,
+        CAKE_BITE_FIVE=0b101,
+        CAKE_BITE_SIX=0b110,
+        CAKE_BITE_SEVEN=0b111,
+
+    }
 };
 
 #endif // CAKERENDERER_H
