@@ -39,6 +39,7 @@ jobs:
           path: .github/workflows/Ndless/ndless-sdk/toolchain/install
           # gcc/binutils/etc versions are in build_toolchain.sh, so that'll be part of our cache key
           key: ${{ runner.os }}-${{ hashFiles('.github/workflows/Ndless/ndless-sdk/toolchain/build_toolchain.sh') }}
+          
       - name: Build toolchain
         if: steps.toolchain-cache.outputs.cache-hit != 'true' && steps.ndless-full-cache.outputs.cache-hit != 'true'
         working-directory: .github/workflows/Ndless/ndless-sdk/toolchain
@@ -50,13 +51,8 @@ jobs:
         run: |
           echo "$GITHUB_WORKSPACE/.github/workflows/Ndless/ndless-sdk/toolchain/install/bin" >> $GITHUB_PATH
           echo "$GITHUB_WORKSPACE/.github/workflows/Ndless/ndless-sdk/bin" >> $GITHUB_PATH
-      
-      - name: Build toolchain
-        if: steps.ndless-full-cache.outputs.cache-hit != 'true'
-        working-directory: .github/workflows/Ndless/ndless-sdk/toolchain
-        run: ./build_toolchain.sh
           
-      - name: Build
+      - name: Build Ndless
         if: steps.ndless-full-cache.outputs.cache-hit != 'true'
         working-directory: .github/workflows/Ndless/
         run: make -j$(nproc --all)
