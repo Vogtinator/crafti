@@ -90,8 +90,7 @@ static const struct { int x, y; } special_block_texture_idx[BLOCK_SPECIAL_LAST -
     {1, 6}, // Door -> Door bottom
     {13, 12}, // Water -> Water
     {13, 14}, // Lava -> Lava
-    {15, 5}, // Wheat -> Wheat
-    // GAP REMOVED YOLO
+    {15, 5}, // Wheat -> Wheat        // GAP REMOVED YOLO
     {3, 13}, // Redstone Lamp -> Lamp (off)
     {1, 0}, // Redstone Switch -> Stone
     {4, 10}, // Redstone Wire -> Redstone Wire
