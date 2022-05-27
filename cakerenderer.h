@@ -32,7 +32,7 @@ protected:
     static constexpr uint8_t cake_bit_shift = 3; // The amount to shift cake data by to give it room for the orientation or other additional data
     static constexpr uint8_t cake_data_bits = 0b111 << cake_bit_shift; // Cake uses 3 bits of data, however, orientation data is stored in the first three bits, so the cake data has to be shifted by 3 (or more)
 
-    static constexpr uint8_t cake_max_bites = 4; // Maximum bites of cake you can have until it is eaten (after 4 bites, cake will dissapear)
+    static constexpr uint8_t cake_max_bites = 5; // Maximum bites of cake you can have until it is eaten (after 4 bites, cake will dissapear)
 };
 
 #endif // CAKERENDERER_H
