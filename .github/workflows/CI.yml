@@ -66,14 +66,13 @@ jobs:
       - name: Install dependencies
         run: sudo apt install libgmp-dev libmpfr-dev libmpc-dev build-essential gcc git sed libboost-program-options-dev binutils -y
       
-      - name: Get Ndless
-        run: |
-            cd .github/workflows/
-            git clone --recursive https://github.com/ndless-nspire/Ndless.git
+#      - name: Get Ndless
+#        run: |
+#            cd .github/workflows/
+#            git clone --recursive https://github.com/ndless-nspire/Ndless.git
 
       # ndless-sdk
-      # build the toolchain first
-      # it takes ~40min to build, so we want to avoid that whenever possible!
+      # get cached toolchain
       - uses: actions/cache@v2
         id: toolchain-cache
         with:
@@ -86,16 +85,11 @@ jobs:
         run: |
           echo "$GITHUB_WORKSPACE/.github/workflows/Ndless/ndless-sdk/toolchain/install/bin" >> $GITHUB_PATH
           echo "$GITHUB_WORKSPACE/.github/workflows/Ndless/ndless-sdk/bin" >> $GITHUB_PATH
-      - name: Build
-        working-directory: .github/workflows/Ndless/
-        run: make -j$(nproc --all)
           
       - name: Build Crafti
         run: |
             cd $GITHUB_WORKSPACE
             make all
-      - name: Build Crafti
-        run: ls release
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
