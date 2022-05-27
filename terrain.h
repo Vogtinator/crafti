@@ -63,7 +63,8 @@ constexpr BLOCK BLOCK_REDSTONE_TORCH = 139; //Data: See BLOCK_TORCH
 constexpr BLOCK BLOCK_PRESSURE_PLATE = 140; //Data: How many ticks kept active
 constexpr BLOCK BLOCK_WOOL = 141; // Data: Colour
 constexpr BLOCK BLOCK_STAIRS = 142;
-constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_STAIRS;
+constexpr BLOCK BLOCK_SLAB = 143;
+constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_SLAB;
 
 
 constexpr uint8_t RANGE_WATER = 5;

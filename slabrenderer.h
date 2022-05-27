@@ -1,5 +1,5 @@
-#ifndef CAKERENDERER_H
-#define CAKERENDERER_H
+#ifndef SLABRENDERER_H
+#define SLABRENDERER_H
 
 #include "blockrenderer.h"
 
@@ -26,4 +26,4 @@ protected:
 
 };
 
-#endif // CAKERENDERER_H
+#endif // SLABRENDERER_H
