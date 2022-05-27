@@ -42,7 +42,7 @@ protected:
         CAKE_BITE_SIX=0b110,
         CAKE_BITE_SEVEN=0b111,
 
-    }
+    };
 };
 
 #endif // CAKERENDERER_H
