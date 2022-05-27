@@ -16,6 +16,8 @@
 #include "wheatrenderer.h"
 #include "wirerenderer.h"
 #include "woolrenderer.h"
+#include "stairsrenderer.h"
+
 
 UniversalBlockRenderer global_block_renderer;
 
@@ -382,6 +384,7 @@ UniversalBlockRenderer::UniversalBlockRenderer()
     map[BLOCK_WHEAT] = std::make_shared<WheatRenderer>();
     map[BLOCK_WOOD] = color_renderer;
     map[BLOCK_WOOL] = std::make_shared<WoolRenderer>();
+    map[BLOCK_STAIRS] = std::make_shared<StairsRenderer>();
 
     auto flower_renderer = std::make_shared<BillboardRenderer>();
     flower_renderer->setEntry(0, 12, 0, "Red flower", BLOCK_SIZE, BLOCK_SIZE/2, BLOCK_SIZE);
