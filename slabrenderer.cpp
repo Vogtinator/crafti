@@ -39,8 +39,9 @@ const TerrainAtlasEntry &SlabRenderer::destructionTexture(const BLOCK_WDATA bloc
 }
 
 void SlabRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) {
-    if (getBLOCK(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) == BLOCK_SLAB) { //if (getBLOCKDATA(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) == getBLOCKDATA(block)) {
+    if (getBLOCKDATA(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) == getBLOCKDATA(block)) {
         c.setLocalBlock(local_x, local_y-1, local_z, BLOCK_WOOD);
+        c.setLocalBlock(local_x, local_y, local_z, BLOCK_AIR);
     }
 }
 
