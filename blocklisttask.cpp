@@ -75,7 +75,6 @@ static const BLOCK_WDATA user_selectable[] = {
     getBLOCKWDATA(BLOCK_WOOL, 14),
     getBLOCKWDATA(BLOCK_WOOL, 15),
     BLOCK_CACTUS,
-    BLOCK_STAIRS,
     getBLOCKWDATA(BLOCK_SLAB, 0),
     getBLOCKWDATA(BLOCK_SLAB, 1),
     getBLOCKWDATA(BLOCK_SLAB, 2),

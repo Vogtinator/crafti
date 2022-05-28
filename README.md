@@ -90,8 +90,8 @@ TODO for next version
 - [x] Add cactus
 - [x] Implement special block destruction particle rendering
 - [x] Make cake edible
+- [x] Add slabs
 - [ ] Add pistons
 - [ ] Add localisation
-- [ ] Add stairs
 - [ ] Add villager house generation to make world more lively
 - [ ] Documentation of functions and whatnot for future devs (mostly me)
