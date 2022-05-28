@@ -33,13 +33,12 @@ protected:
 
     enum SLAB_TYPE {
         SLAB_STONE=0,
-        SLAB_WOOD=1,
-        SLAB_PLANKS_NORMAL=2,
-        SLAB_WALL=3,
-        SLAB_PLANKS_DARK=4,
-        SLAB_PLANKS_BRIGHT=5,
-        SLAB_COBBLESTONE=6,
-        SLAB_NETHERRACK=7,
+        SLAB_PLANKS_NORMAL,
+        SLAB_WALL,
+        SLAB_PLANKS_DARK,
+        SLAB_PLANKS_BRIGHT,
+        SLAB_COBBLESTONE,
+        SLAB_NETHERRACK,
     };
 };
 

@@ -10,9 +10,6 @@ const TerrainAtlasEntry &SlabRenderer::getSlabTexture(const BLOCK_WDATA block) {
         case SLAB_STONE:
             return terrain_atlas[1][0];
             break;
-        case SLAB_WOOD:
-            return terrain_atlas[4][1];
-            break;
         case SLAB_PLANKS_NORMAL:
             return terrain_atlas[4][0];
             break;
@@ -53,9 +50,6 @@ void SlabRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y,
                 break;
             case SLAB_STONE:
                 fullSlabBlock = getBLOCK(BLOCK_STONE);
-                break;
-            case SLAB_WOOD:
-                fullSlabBlock = getBLOCK(BLOCK_WOOD);
                 break;
             case SLAB_PLANKS_NORMAL:
                 fullSlabBlock = getBLOCK(BLOCK_PLANKS_NORMAL);
@@ -173,9 +167,6 @@ const char *SlabRenderer::getName(const BLOCK_WDATA block)
             break;
         case SLAB_STONE:
             return "Stone Slab";
-            break;
-        case SLAB_WOOD:
-            return "Wood Slab";
             break;
         case SLAB_PLANKS_NORMAL:
             return "Oak Slab";
