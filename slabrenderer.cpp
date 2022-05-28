@@ -23,7 +23,7 @@ const TerrainAtlasEntry &SlabRenderer::getSlabTexture(const BLOCK_WDATA block) {
             return terrain_atlas[6][12];
             break;
         case SLAB_PLANKS_BRIGHT:
-            return terrain_atlas[7][12];
+            return terrain_atlas[6][13];
             break;
         case SLAB_COBBLESTONE:
             return terrain_atlas[0][1];
