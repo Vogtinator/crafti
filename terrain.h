@@ -40,10 +40,9 @@ constexpr BLOCK BLOCK_IRON = 26;
 constexpr BLOCK BLOCK_GOLD = 27;
 constexpr BLOCK BLOCK_DIAMOND = 28;
 constexpr BLOCK BLOCK_NETHERRACK = 29;
-constexpr BLOCK BLOCK_CACTUS = 30;
 
 // Regular blocks end here
-constexpr BLOCK BLOCK_NORMAL_LAST = BLOCK_CACTUS;
+constexpr BLOCK BLOCK_NORMAL_LAST = BLOCK_NETHERRACK;
 
 //Special blocks begin here
 constexpr int BLOCK_SPECIAL_START = 127;
@@ -62,7 +61,7 @@ constexpr BLOCK BLOCK_REDSTONE_WIRE = 138; //Data: (active: 1<<6, visited: 1<<5)
 constexpr BLOCK BLOCK_REDSTONE_TORCH = 139; //Data: See BLOCK_TORCH
 constexpr BLOCK BLOCK_PRESSURE_PLATE = 140; //Data: How many ticks kept active
 constexpr BLOCK BLOCK_WOOL = 141; // Data: Colour
-constexpr BLOCK BLOCK_SLAB = 143;
+constexpr BLOCK BLOCK_SLAB = 142;
 constexpr BLOCK BLOCK_SPECIAL_LAST = BLOCK_SLAB;
 
 

@@ -87,7 +87,7 @@ TODO for next version
 - [x] Add wool
 - [x] Add experimental keyboard support
 - [x] Add wool as special block instead of 15 regular blocks
-- [x] Add cactus
+- [ ] Add cactus
 - [x] Implement special block destruction particle rendering
 - [x] Make cake edible
 - [x] Add slabs
