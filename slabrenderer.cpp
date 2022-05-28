@@ -187,7 +187,7 @@ const char *SlabRenderer::getName(const BLOCK_WDATA block)
             return "Dark Oak Slab";
             break;
         case SLAB_PLANKS_BRIGHT:
-            return "Jungle Slab";
+            return "Bright Oak Slab";
             break;
         case SLAB_COBBLESTONE:
             return "Cobblestone Slab";
