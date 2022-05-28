@@ -4,6 +4,9 @@ constexpr GLFix SlabRenderer::slab_height, SlabRenderer::slab_width;
 
 const TerrainAtlasEntry &SlabRenderer::getSlabTexture(const BLOCK_WDATA block) {
     switch (static_cast<SLAB_TYPE>(getBLOCKDATA(block))) {
+        default:
+            return terrain_atlas[6][12];
+            break;
         case SLAB_STONE:
             return terrain_atlas[1][0];
             break;
@@ -114,7 +117,7 @@ void SlabRenderer::geometryNormalBlock(const BLOCK_WDATA block, const int local_
     renderNormalBlockSide(local_x, local_y, local_z, side, getSlabTexture(block).current, c);
 }
 
-AABB SlabRenderer::getAABB(const BLOCK_WDATA block, GLFix x, GLFix y, GLFix z)
+AABB SlabRenderer::getAABB(const BLOCK_WDATA /*block*/, GLFix x, GLFix y, GLFix z)
 {
     return {x + 0, y, z + 0, x + 0 + slab_width, y + slab_height, z + 0 + slab_width};
 }
@@ -128,6 +131,9 @@ void SlabRenderer::drawPreview(const BLOCK_WDATA block, TEXTURE &dest, int x, in
 const char *SlabRenderer::getName(const BLOCK_WDATA block)
 {
     switch (static_cast<SLAB_TYPE>(getBLOCKDATA(block))) {
+        default:
+            return "Slab";
+            break;
         case SLAB_STONE:
             return "Stone Slab";
             break;
@@ -151,9 +157,6 @@ const char *SlabRenderer::getName(const BLOCK_WDATA block)
             break;
         case SLAB_NETHERRACK:
             return "Netherack Slab";
-            break;
-        default:
-            return "Slab";
             break;
     }
 }
