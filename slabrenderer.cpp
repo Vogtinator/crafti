@@ -40,9 +40,45 @@ const TerrainAtlasEntry &SlabRenderer::destructionTexture(const BLOCK_WDATA bloc
 
 void SlabRenderer::addedBlock(const BLOCK_WDATA block, int local_x, int local_y, int local_z, Chunk &c) {
     if (getBLOCKDATA(c.getGlobalBlockRelative(local_x, local_y - 1, local_z)) == getBLOCKDATA(block)) {
-        //c.changeLocalBlock(local_x, local_y-1, local_z, getBLOCK(BLOCK_WOOD));
-        //c.changeLocalBlock(local_x, local_y-1, local_z, getBLOCK(BLOCK_WOOD));
-        c.setGlobalBlockRelative(local_x, local_y - 1, local_z, getBLOCK(BLOCK_WOOD));
+        // Remove slab
+        c.changeLocalBlock(local_x, local_y, local_z, getBLOCK(BLOCK_AIR));
+
+        // Define variable
+        BLOCK fullSlabBlock;
+
+        // Get block from slab type
+        switch (static_cast<SLAB_TYPE>(getBLOCKDATA(block))) {
+            default:
+                fullSlabBlock = getBLOCK(BLOCK_PLANKS_DARK);
+                break;
+            case SLAB_STONE:
+                fullSlabBlock = getBLOCK(BLOCK_STONE);
+                break;
+            case SLAB_WOOD:
+                fullSlabBlock = getBLOCK(BLOCK_WOOD);
+                break;
+            case SLAB_PLANKS_NORMAL:
+                fullSlabBlock = getBLOCK(BLOCK_PLANKS_NORMAL);
+                break;
+            case SLAB_WALL:
+                fullSlabBlock = getBLOCK(BLOCK_WALL);
+                break;
+            case SLAB_PLANKS_DARK:
+                fullSlabBlock = getBLOCK(BLOCK_PLANKS_DARK);
+                break;
+            case SLAB_PLANKS_BRIGHT:
+                fullSlabBlock = getBLOCK(BLOCK_PLANKS_BRIGHT);
+                break;
+            case SLAB_COBBLESTONE:
+                fullSlabBlock = getBLOCK(BLOCK_COBBLESTONE);
+                break;
+            case SLAB_NETHERRACK:
+                fullSlabBlock = getBLOCK(BLOCK_NETHERRACK);
+                break;
+        }
+
+        // Set block to slab block type
+        c.setGlobalBlockRelative(local_x, local_y - 1, local_z, fullSlabBlock);
     }
 }
 
