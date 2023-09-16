@@ -305,7 +305,7 @@ void World::spawnDestructionParticles(int x, int y, int z)
     p.tae.top += tex_height / 4;
     p.tae.bottom -= tex_height / 4;
 
-    // Random value between 0 and max (not including max)
+    // Random value between 0 and max (inclusive)
     const auto randMax = [](GLFix max) { return max * (rand() & 0xFF) / 0xFF; };
 
     // Get the center of the block contents (chunk relative coordinates)

@@ -200,6 +200,32 @@ void FluidRenderer::tick(const BLOCK_WDATA block, int local_x, int local_y, int 
 
     survive:
 
+    // For Lava: Randomly spawn a particle with random size, velocity and offset
+    if (getBLOCK(block) == BLOCK_LAVA && getBLOCK(block_top) == BLOCK_AIR && (rand() & 0xFF) < 20) {
+        Particle p;
+        p.tae = terrain_atlas[tex_x][tex_y].current;
+
+        // Use the top left quarter of the texture
+        const int tex_width = p.tae.right - p.tae.left,
+                  tex_height = p.tae.bottom - p.tae.top;
+        p.tae.right -= tex_width / 2;
+        p.tae.bottom -= tex_height / 2;
+
+        // Random value between 0 and max (inclusive)
+        const auto randMax = [](GLFix max) { return max * (rand() & 0xFF) / 0xFF; };
+
+        // Center of the top face (chunk relative coordinates)
+        const auto aabb = this->getAABB(block, local_x * BLOCK_SIZE, local_y * BLOCK_SIZE, local_z * BLOCK_SIZE);
+        auto center = VECTOR3{(aabb.low_x + aabb.high_x) / 2, aabb.low_y + (BLOCK_SIZE * getBLOCKDATA(block) / maxRange(block)), (aabb.low_z + aabb.high_z) / 2};
+
+        p.size = randMax(15) + 10;
+        p.vel = {randMax(10) - 5, randMax(8) + 4, randMax(10) - 5};
+        p.pos = center;
+        p.pos.x += randMax(100) - 50;
+        p.pos.z += randMax(100) - 50;
+        c.addParticle(p);
+    }
+
     //Either flow downwards or spread
     if(getBLOCK(block_bottom) == BLOCK_AIR || getBLOCK(block_bottom) == getBLOCK(block))
     {

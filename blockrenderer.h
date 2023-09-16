@@ -79,6 +79,7 @@ private:
 
 class DumbBlockRenderer : public BlockRenderer
 {
+public:
     virtual void renderSpecialBlock(const BLOCK_WDATA /*block*/, GLFix /*x*/, GLFix /*y*/, GLFix /*z*/, Chunk &/*c*/) override {}
     virtual void geometryNormalBlock(const BLOCK_WDATA /*block*/, const int /*x*/, const int /*y*/, const int /*z*/, const BLOCK_SIDE /*side*/, Chunk &/*c*/) override {}
     virtual bool isOpaque(const BLOCK_WDATA /*block*/) override { return true; }
