@@ -527,5 +527,5 @@ void WorldTask::setMessage(const char *message)
         return;
 
     strcpy(this->message, message);
-    message_timeout = 20;
+    message_timeout = 50;
 }
