@@ -37,7 +37,7 @@ public:
 
     unsigned int getValue(unsigned int entry) const;
 
-    bool loadFromFile(FILE *file);
+    bool loadFromFile(FILE *file, int version);
     bool saveToFile(FILE *file);
 
 private:

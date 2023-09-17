@@ -32,6 +32,10 @@ const char *world_static_values[] = {
 SettingsTask::SettingsTask()
 {
     //Must have the same order as the "Settings" enum
+    //When changing something in an incompatible way (order, meaning),
+    //increment savefile_version in task.cpp and add handling to SettingsTask::loadFromFile.
+    //Not needed when just adding or removing entries at the end, except when adding after
+    //removing entries in the past.
     settings.push_back({"Leaves", leaves_values, 2, 0, 0, 1});
     settings.push_back({"Speed", speed_values, 3, 1, 0, 1});
     settings.push_back({"Distance", nullptr, 10, 2, 1, 1});
@@ -160,22 +164,30 @@ unsigned int SettingsTask::getValue(unsigned int entry) const
     return settings[entry].current_value;
 }
 
-bool SettingsTask::loadFromFile(FILE *file)
+bool SettingsTask::loadFromFile(FILE *file, int version)
 {
+    // If some setting wasn't loaded, it keeps the current value.
+
+    // Previous versions didn't have settings yet
+    if(version < 5)
+        return true;
+
     //World doesn't care about DISTANCE being saved and loaded here as well
 
-    unsigned int size;
-    if(fread(&size, sizeof(size), 1, file) != 1)
+    unsigned int entries_in_file;
+    if(fread(&entries_in_file, sizeof(entries_in_file), 1, file) != 1)
         return false;
 
-    //For backwards compatibility
-    if(size != settings.size())
-        return fseek(file, size * sizeof(unsigned int), SEEK_CUR) == 0;
-
-    for(unsigned int i = 0; i < size; ++i)
+    for(unsigned int i = 0; i < entries_in_file; ++i)
     {
-        if(fread(&settings[i].current_value, sizeof(unsigned int), 1, file) != 1)
+        unsigned int value;
+        if(fread(&value, sizeof(unsigned int), 1, file) != 1)
             return false;
+
+        if(i < settings.size()
+            && value >= settings[i].min_value
+            && value < settings[i].values_count)
+            settings[i].current_value = value;
     }
 
     world.setDirty();

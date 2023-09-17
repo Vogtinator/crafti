@@ -82,18 +82,17 @@ bool Task::load()
     int version;
     LOAD_FROM_FILE(version);
 
-    //For backwards compatibility
-    if(version == savefile_version)
+    static_assert(savefile_version == 5, "Adjust loading code for backward compatibility");
+
+    if(version != 4 && version != 5)
     {
-        if(!settings_task.loadFromFile(file))
-        {
-            fclose(file);
-            return false;
-        }
+        printf("Save file version %d not supported!\n", version);
+        fclose(file);
+        return false;
     }
-    else if(version != 4)
+
+    if(!settings_task.loadFromFile(file, version))
     {
-        printf("Wrong save file version %d!\n", version);
         fclose(file);
         return false;
     }
