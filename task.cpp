@@ -68,7 +68,7 @@ void Task::drawBackground()
     copyTexture(*background, *screen);
 }
 
-static constexpr int savefile_version = 5;
+static constexpr int savefile_version = 6;
 
 #define LOAD_FROM_FILE(var) if(fread(&var, sizeof(var), 1, file) != 1) { fclose(file); return false; }
 #define SAVE_TO_FILE(var) if(fwrite(&var, sizeof(var), 1, file) != 1) { fclose(file); return false; }
@@ -82,9 +82,9 @@ bool Task::load()
     int version;
     LOAD_FROM_FILE(version);
 
-    static_assert(savefile_version == 5, "Adjust loading code for backward compatibility");
+    static_assert(savefile_version == 6, "Adjust loading code for backward compatibility");
 
-    if(version != 4 && version != 5)
+    if(version < 4 || version > 6)
     {
         printf("Save file version %d not supported!\n", version);
         fclose(file);
@@ -103,6 +103,14 @@ bool Task::load()
     LOAD_FROM_FILE(world_task.x)
     LOAD_FROM_FILE(world_task.y)
     LOAD_FROM_FILE(world_task.z)
+    // Previous versions used BLOCK_SIZE 120
+    if(version < 6)
+    {
+        world_task.x = world_task.x * BLOCK_SIZE / 120;
+        world_task.y = world_task.y * BLOCK_SIZE / 120;
+        world_task.z = world_task.z * BLOCK_SIZE / 120;
+    }
+
     LOAD_FROM_FILE(current_inventory.current_slot)
 
     LOAD_FROM_FILE(block_list_task.current_selection)
