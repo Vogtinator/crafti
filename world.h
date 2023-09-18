@@ -31,8 +31,8 @@ public:
     const PerlinNoise &noiseGenerator() const;
     void clear();
     void setDirty();
-    bool loadFromFile(FILE *file);
-    bool saveToFile(FILE *file) const;
+    bool loadFromFile(gzFile file);
+    bool saveToFile(gzFile file) const;
     void render();
     int fieldOfView() const { return field_of_view; }
     void setFieldOfView(int fov) { field_of_view = fov; loaded = false; }

@@ -164,7 +164,7 @@ unsigned int SettingsTask::getValue(unsigned int entry) const
     return settings[entry].current_value;
 }
 
-bool SettingsTask::loadFromFile(FILE *file, int version)
+bool SettingsTask::loadFromFile(gzFile file, int version)
 {
     // If some setting wasn't loaded, it keeps the current value.
 
@@ -175,13 +175,13 @@ bool SettingsTask::loadFromFile(FILE *file, int version)
     //World doesn't care about DISTANCE being saved and loaded here as well
 
     unsigned int entries_in_file;
-    if(fread(&entries_in_file, sizeof(entries_in_file), 1, file) != 1)
+    if(gzfread(&entries_in_file, sizeof(entries_in_file), 1, file) != 1)
         return false;
 
     for(unsigned int i = 0; i < entries_in_file; ++i)
     {
         unsigned int value;
-        if(fread(&value, sizeof(unsigned int), 1, file) != 1)
+        if(gzfread(&value, sizeof(unsigned int), 1, file) != 1)
             return false;
 
         if(i < settings.size()
@@ -197,15 +197,15 @@ bool SettingsTask::loadFromFile(FILE *file, int version)
     return true;
 }
 
-bool SettingsTask::saveToFile(FILE *file)
+bool SettingsTask::saveToFile(gzFile file)
 {
     unsigned int size = settings.size();
-    if(fwrite(&size, sizeof(size), 1, file) != 1)
+    if(gzfwrite(&size, sizeof(size), 1, file) != 1)
         return false;
 
     for(unsigned int i = 0; i < size; ++i)
     {
-        if(fwrite(&settings[i].current_value, sizeof(unsigned int), 1, file) != 1)
+        if(gzfwrite(&settings[i].current_value, sizeof(unsigned int), 1, file) != 1)
             return false;
     }
 

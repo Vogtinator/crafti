@@ -4,6 +4,7 @@
 #include "task.h"
 
 #include <vector>
+#include <zlib.h>
 
 class SettingsTask : public Task
 {
@@ -37,8 +38,8 @@ public:
 
     unsigned int getValue(unsigned int entry) const;
 
-    bool loadFromFile(FILE *file, int version);
-    bool saveToFile(FILE *file);
+    bool loadFromFile(gzFile file, int version);
+    bool saveToFile(gzFile file);
 
 private:
     std::vector<SettingsEntry> settings;

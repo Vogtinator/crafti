@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <tuple>
+#include <zlib.h>
 
 #include "gl.h"
 #include "gldrawarray.h"
@@ -31,8 +32,8 @@ public:
     bool intersects(AABB &other);
     bool intersectsRay(GLFix x, GLFix y, GLFix z, GLFix dx, GLFix dy, GLFix dz, GLFix &dist, VECTOR3 &pos, AABB::SIDE &side, bool ignore_water);
     void generate();
-    bool saveToFile(FILE *file);
-    bool loadFromFile(FILE *file);
+    bool saveToFile(gzFile file);
+    bool loadFromFile(gzFile file);
 
     //Redstone power: See wirerenderer.cpp for details
     //Whether the block receives power from the specified side.

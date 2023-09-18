@@ -202,10 +202,10 @@ void World::setDirty()
         c.second->setDirty();
 }
 
-#define LOAD_FROM_FILE(var) if(fread(&(var), sizeof(var), 1, file) != 1) return false;
-#define SAVE_TO_FILE(var) if(fwrite(&(var), sizeof(var), 1, file) != 1) return false;
+#define LOAD_FROM_FILE(var) if(gzfread(&(var), sizeof(var), 1, file) != 1) return false;
+#define SAVE_TO_FILE(var) if(gzfwrite(&(var), sizeof(var), 1, file) != 1) return false;
 
-bool World::loadFromFile(FILE *file)
+bool World::loadFromFile(gzFile file)
 {
     drawLoadingtext(1);
 
@@ -218,7 +218,7 @@ bool World::loadFromFile(FILE *file)
     LOAD_FROM_FILE(block_changes)
     pending_block_changes.resize(block_changes);
 
-    if(fread(pending_block_changes.data(), sizeof(BLOCK_CHANGE), block_changes, file) != block_changes)
+    if(gzfread(pending_block_changes.data(), sizeof(BLOCK_CHANGE), block_changes, file) != block_changes)
         return false;
 
     LOAD_FROM_FILE(field_of_view);
@@ -226,8 +226,8 @@ bool World::loadFromFile(FILE *file)
     for(;;)
     {
         int x, y, z;
-        if(fread(&x, sizeof(x), 1, file) != 1)
-            return feof(file);
+        if(gzfread(&x, sizeof(x), 1, file) != 1)
+            return gzeof(file);
 
         LOAD_FROM_FILE(y)
         LOAD_FROM_FILE(z)
@@ -242,7 +242,7 @@ bool World::loadFromFile(FILE *file)
     }
 }
 
-bool World::saveToFile(FILE *file) const
+bool World::saveToFile(gzFile file) const
 {
     drawLoadingtext(1);
 
@@ -251,7 +251,7 @@ bool World::saveToFile(FILE *file) const
     unsigned int block_changes = pending_block_changes.size();
     SAVE_TO_FILE(block_changes)
 
-    if(fwrite(pending_block_changes.data(), sizeof(BLOCK_CHANGE), block_changes, file) != block_changes)
+    if(gzfwrite(pending_block_changes.data(), sizeof(BLOCK_CHANGE), block_changes, file) != block_changes)
         return false;
 
     SAVE_TO_FILE(field_of_view);

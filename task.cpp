@@ -1,4 +1,5 @@
 #include "task.h"
+#include <zlib.h>
 
 #include "texturetools.h"
 #include "blocklisttask.h"
@@ -68,14 +69,24 @@ void Task::drawBackground()
     copyTexture(*background, *screen);
 }
 
+/* Version 2: First in git
+ * Version 3 (31d5ee3a): Blocks are stored as 16bit BLOCK_WDATA
+ * Version 4 (1ebc685a): Add inventory
+ * Version 5 (710e7269): Add settings
+ * Version 6 (d52f3992): BLOCK_SIZE changed from 120 to 128,
+ *                       gzip compression introduced shortly afterwards
+ */
 static constexpr int savefile_version = 6;
 
-#define LOAD_FROM_FILE(var) if(fread(&var, sizeof(var), 1, file) != 1) { fclose(file); return false; }
-#define SAVE_TO_FILE(var) if(fwrite(&var, sizeof(var), 1, file) != 1) { fclose(file); return false; }
+#define LOAD_FROM_FILE(var) if(gzfread(&var, sizeof(var), 1, file) != 1) { gzclose(file); return false; }
+#define SAVE_TO_FILE(var) if(gzfwrite(&var, sizeof(var), 1, file) != 1) { gzclose(file); return false; }
 
 bool Task::load()
 {
-    FILE *file = fopen(savefile, "rb");
+    // Versions before 6 (and 6 for a short time) were uncompressed,
+    // but gzopen detects and handles uncompressed files transparently.
+    // Previous versions read the gzip magic as savefile version and bail out.
+    gzFile file = gzopen(savefile, "rb");
     if(!file)
         return false;
 
@@ -87,13 +98,13 @@ bool Task::load()
     if(version < 4 || version > 6)
     {
         printf("Save file version %d not supported!\n", version);
-        fclose(file);
+        gzclose(file);
         return false;
     }
 
     if(!settings_task.loadFromFile(file, version))
     {
-        fclose(file);
+        gzclose(file);
         return false;
     }
 
@@ -117,7 +128,7 @@ bool Task::load()
 
     const bool ret = world.loadFromFile(file);
 
-    fclose(file);
+    gzclose(file);
 
     world.setPosition(world_task.x, world_task.y, world_task.z);
 
@@ -126,14 +137,14 @@ bool Task::load()
 
 bool Task::save()
 {
-    FILE *file = fopen(savefile, "wb");
+    gzFile file = gzopen(savefile, "wb");
     if(!file)
         return false;
 
     SAVE_TO_FILE(savefile_version)
     if(!settings_task.saveToFile(file))
     {
-        fclose(file);
+        gzclose(file);
         return false;
     }
     SAVE_TO_FILE(current_inventory.entries)
@@ -147,7 +158,7 @@ bool Task::save()
 
     const bool ret = world.saveToFile(file);
 
-    fclose(file);
+    gzclose(file);
 
     return ret;
 }

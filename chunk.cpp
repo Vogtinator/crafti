@@ -574,9 +574,9 @@ void Chunk::generate()
     debug("Done!\n");
 }
 
-bool Chunk::saveToFile(FILE *file)
+bool Chunk::saveToFile(gzFile file)
 {
-    if(fwrite(blocks, sizeof(***blocks), SIZE*SIZE*SIZE, file) == SIZE*SIZE*SIZE)
+    if(gzfwrite(blocks, sizeof(***blocks), SIZE*SIZE*SIZE, file) == SIZE*SIZE*SIZE)
     {
         debug("Saved chunk %d:%d:%d successfully.\n", x, y, z);
         return true;
@@ -588,9 +588,9 @@ bool Chunk::saveToFile(FILE *file)
     }
 }
 
-bool Chunk::loadFromFile(FILE *file)
+bool Chunk::loadFromFile(gzFile file)
 {
-    if(fread(blocks, sizeof(***blocks), SIZE*SIZE*SIZE, file) == SIZE*SIZE*SIZE)
+    if(gzfread(blocks, sizeof(***blocks), SIZE*SIZE*SIZE, file) == SIZE*SIZE*SIZE)
     {
         debug("Loaded chunk %d:%d:%d successfully.\n", x, y, z);
         return true;
