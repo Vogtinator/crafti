@@ -325,11 +325,13 @@ void Chunk::render()
 
 BLOCK_WDATA Chunk::getLocalBlock(const int x, const int y, const int z) const
 {
+    assert(inBounds(x, y, z));
     return blocks[x][y][z];
 }
 
 void Chunk::setLocalBlock(const int x, const int y, const int z, const BLOCK_WDATA block, bool set_dirty)
 {
+    assert(inBounds(x, y, z));
     blocks[x][y][z] = block;
     if(!set_dirty)
         return;
@@ -666,6 +668,40 @@ void Chunk::makeTree(unsigned int x, unsigned int y, unsigned int z)
     }
 
     setGlobalBlockRelative(x, y + max_height + 2, z, BLOCK_LEAVES);
+}
+
+void Chunk::spawnDestructionParticles(const int x, const int y, const int z)
+{
+    const auto block = getLocalBlock(x, y, z);
+    Particle p;
+    p.size = 14;
+    p.tae = global_block_renderer.materialTexture(block).current;
+
+    // Use the center quarter of the texture
+    const int tex_width = p.tae.right - p.tae.left,
+              tex_height = p.tae.bottom - p.tae.top;
+    p.tae.left += tex_width / 4;
+    p.tae.right -= tex_width / 4;
+    p.tae.top += tex_height / 4;
+    p.tae.bottom -= tex_height / 4;
+
+    // Random value between 0 and max (inclusive)
+    const auto randMax = [](GLFix max) { return max * (rand() & 0xFF) / 0xFF; };
+
+    // Get the center of the block contents (chunk relative coordinates)
+    const auto aabb = global_block_renderer.getAABB(block, x * BLOCK_SIZE, y * BLOCK_SIZE, z * BLOCK_SIZE);
+    const auto center = VECTOR3{(aabb.low_x + aabb.high_x) / 2, (aabb.low_y + aabb.high_y) / 2, (aabb.low_z + aabb.high_z) / 2};
+
+    // Spawn four particles at the center with random velocity and offset
+    for(int i = 0; i < 4; ++i)
+    {
+        p.vel = {randMax(10) - 5, randMax(5), randMax(10) - 5};
+        p.pos = center;
+        p.pos.x += randMax(100) - 50;
+        p.pos.y += randMax(100) - 50;
+        p.pos.z += randMax(100) - 50;
+        addParticle(p);
+    }
 }
 
 void drawLoadingtext(const int i)

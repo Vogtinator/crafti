@@ -11,6 +11,7 @@ void TNTRenderer::tick(const BLOCK_WDATA /*block*/, int local_x, int local_y, in
 
 void TNTRenderer::explode(const int local_x, const int local_y, const int local_z, Chunk &c)
 {
+    c.spawnDestructionParticles(local_x, local_y, local_z);
     c.setGlobalBlockRelative(local_x, local_y, local_z, BLOCK_AIR);
 
     // Destroy everything in a sphere with a 3 block radius
@@ -31,6 +32,9 @@ void TNTRenderer::explode(const int local_x, const int local_y, const int local_
                 if(block == BLOCK_TNT)
                     explode(local_x + x, local_y + y, local_z + z, c);
                 else if(block != BLOCK_BEDROCK && block != BLOCK_AIR)
+                {
+                    c.spawnDestructionParticles(local_x + x, local_y + y, local_z + z);
                     c.changeGlobalBlockRelative(local_x + x, local_y + y, local_z + z, BLOCK_AIR);
+                }
             }
 }

@@ -72,6 +72,9 @@ public:
     // Add a particle. It lives until it removes itself in Particle::logic
     void addParticle(const Particle &particle);
 
+    // Spawn particles for destroying the block at that offset
+    void spawnDestructionParticles(const int x, const int y, const int z);
+
     //Don't render something twice
     void setLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
     bool isLocalBlockSideRendered(const int x, const int y, const int z, const BLOCK_SIDE_BITFIELD side);
