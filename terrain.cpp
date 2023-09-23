@@ -290,7 +290,8 @@ void terrainInit(const char *texture_path)
     if(lcd_type() == SCR_320x240_4)
     {
         greyscaleTexture(*terrain_current);
-        greyscaleTexture(*terrain_resized);
+        if(terrain_resized != terrain_current)
+            greyscaleTexture(*terrain_resized);
         greyscaleTexture(*terrain_quad);
     }
 
