@@ -221,19 +221,22 @@ void Chunk::render()
             && animations.size() == 0 && particles.size() == 0)
         return;
 
+    glPushMatrix();
+    glTranslatef(abs_x, abs_y, abs_z);
+
     //Basic culling
-    VECTOR3 v1{abs_x,                            abs_y,                            abs_z},
-            v2{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z},
-            v3{abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z},
-            v4{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z},
-            v5{abs_x,                            abs_y,                            abs_z + Chunk::SIZE * BLOCK_SIZE},
-            v6{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y,                            abs_z + Chunk::SIZE * BLOCK_SIZE},
-            v7{abs_x,                            abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE},
-            v8{abs_x + Chunk::SIZE * BLOCK_SIZE, abs_y + Chunk::SIZE * BLOCK_SIZE, abs_z + Chunk::SIZE * BLOCK_SIZE};
+    VECTOR3 v1{0,                            0,                            0},
+            v2{0 + Chunk::SIZE * BLOCK_SIZE, 0,                            0},
+            v3{0,                            0 + Chunk::SIZE * BLOCK_SIZE, 0},
+            v4{0 + Chunk::SIZE * BLOCK_SIZE, 0 + Chunk::SIZE * BLOCK_SIZE, 0},
+            v5{0,                            0,                            0 + Chunk::SIZE * BLOCK_SIZE},
+            v6{0 + Chunk::SIZE * BLOCK_SIZE, 0,                            0 + Chunk::SIZE * BLOCK_SIZE},
+            v7{0,                            0 + Chunk::SIZE * BLOCK_SIZE, 0 + Chunk::SIZE * BLOCK_SIZE},
+            v8{0 + Chunk::SIZE * BLOCK_SIZE, 0 + Chunk::SIZE * BLOCK_SIZE, 0 + Chunk::SIZE * BLOCK_SIZE};
 
     //Z-Culling (now, it's a bit cheaper than a full MultMatVectRes)
     if(behindClip(v1) && behindClip(v2) && behindClip(v3) && behindClip(v4) && behindClip(v5) && behindClip(v6) && behindClip(v7) && behindClip(v8))
-        return;
+        return glPopMatrix();
 
     VECTOR3 v9, v10, v11, v12, v13, v14, v15, v16;
 
@@ -258,21 +261,18 @@ void Chunk::render()
     //X and Y-Culling
 
     if(v9.x < GLFix(0) && v10.x < GLFix(0) && v11.x < GLFix(0) && v12.x < GLFix(0) && v13.x < GLFix(0) && v14.x < GLFix(0) && v15.x < GLFix(0) && v16.x < GLFix(0))
-        return;
+        return glPopMatrix();
 
     if(v9.y < GLFix(0) && v10.y < GLFix(0) && v11.y < GLFix(0) && v12.y < GLFix(0) && v13.y < GLFix(0) && v14.y < GLFix(0) && v15.y < GLFix(0) && v16.y < GLFix(0))
-        return;
+        return glPopMatrix();
 
     if(v9.x >= SCREEN_WIDTH && v10.x >= SCREEN_WIDTH && v11.x >= SCREEN_WIDTH && v12.x >= SCREEN_WIDTH
             && v13.x >= SCREEN_WIDTH && v14.x >= SCREEN_WIDTH && v15.x >= SCREEN_WIDTH && v16.x >= SCREEN_WIDTH)
-        return;
+        return glPopMatrix();
 
     if(v9.y >= SCREEN_HEIGHT && v10.y >= SCREEN_HEIGHT && v11.y >= SCREEN_HEIGHT && v12.y >= SCREEN_HEIGHT
             && v13.y >= SCREEN_HEIGHT && v14.y >= SCREEN_HEIGHT && v15.y >= SCREEN_HEIGHT && v16.y >= SCREEN_HEIGHT)
-        return;
-
-    glPushMatrix();
-    glTranslatef(abs_x, abs_y, abs_z);
+        return glPopMatrix();
 
     glBindTexture(nullptr);
     nglDrawArray(vertices_color.data(), vertices_color.size(), positions.data(), positions.size(), positions_processed.data(), GL_QUADS, true);
