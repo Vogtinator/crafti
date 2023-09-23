@@ -48,8 +48,8 @@ void SwitchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix 
     stone_tb.bottom = stone_tb.top + int(block_length * (stone_tb.bottom - stone_tb.top));
     stone_tb.right = stone_tb.left + int(block_width * (stone_tb.right - stone_tb.left));
     TextureAtlasEntry stone_lr = terrain_atlas[0][1].current;
-    stone_lr.bottom = stone_lr.top + int(block_length * (stone_lr.bottom - stone_lr.top));
-    stone_lr.right = stone_lr.left + int(block_height * (stone_lr.right - stone_lr.left));
+    stone_lr.bottom = stone_lr.top + int(block_height * (stone_lr.bottom - stone_lr.top));
+    stone_lr.right = stone_lr.left + int(block_length * (stone_lr.right - stone_lr.left));
     TextureAtlasEntry stone_fb = terrain_atlas[0][1].current;
     stone_fb.bottom = stone_fb.top + int(block_height * (stone_fb.bottom - stone_fb.top));
     stone_fb.right = stone_fb.left + int(block_width * (stone_fb.right - stone_fb.left));
