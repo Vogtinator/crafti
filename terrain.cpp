@@ -118,6 +118,20 @@ static void makeColor(const RGB &color, TEXTURE &texture, const int x, const int
         }
 }
 
+static void makeWaterOpaque(TEXTURE &texture, const int x, const int y, const int w, const int h)
+{
+    for(int x1 = x; x1 < w + x; x1++)
+        for(int y1 = y; y1 < h + y; y1++)
+        {
+            RGB color = rgbColor(texture.bitmap[x1 + y1*texture.width]);
+            // Taking the (non-remultiplied) color directly looks too bright
+            color.r = (color.r * 3) / 4;
+            color.g = (color.g * 3) / 4;
+            color.b = (color.b * 3) / 4;
+            texture.bitmap[x1 + y1*texture.width] = colorRGB(color);
+        }
+}
+
 void terrainInit(const char *texture_path)
 {
     terrain_current = loadTextureFromFile(texture_path);
@@ -151,6 +165,9 @@ void terrainInit(const char *texture_path)
     drawTexture(*terrain_current, *terrain_current, 0 * field_width, 6 * field_height, field_width, field_height, 10 * field_width, 15 * field_height, field_width, field_height);
     const RGB red_tint = { 1.0f, 0.8f, 0.8f };
     makeColor(red_tint, *terrain_current, 10 * field_width, 15 * field_height, field_width, field_height);
+
+    // Water has opacity of 0.5 but it's not rendered with alpha here.
+    makeWaterOpaque(*terrain_current, 13 * field_width, 12 * field_height, field_width, field_height);
 
     if(terrain_current->width == 384 && terrain_current->height == 384)
         terrain_resized = terrain_current;
