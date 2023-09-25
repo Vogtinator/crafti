@@ -143,7 +143,20 @@ void SwitchRenderer::renderSpecialBlock(const BLOCK_WDATA block, GLFix x, GLFix 
 
 void SwitchRenderer::drawPreview(const BLOCK_WDATA /*block*/, TEXTURE &dest, int x, int y)
 {
-    return BlockRenderer::drawTextureAtlasEntry(*terrain_resized, terrain_atlas[0][6].resized, dest, x, y);
+    auto levertae = terrain_atlas[0][6].resized,
+         stonetae = terrain_atlas[1][0].resized;
+
+    auto taesize = levertae.bottom - levertae.top;
+    auto leveroffset = taesize * 2 / 16;
+
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, levertae, dest, x, y - leveroffset);
+
+    auto stoneheight = taesize * 5 / 16;
+    auto stoneoffset = taesize * 2 / 16;
+    stonetae.bottom = stonetae.top + stoneheight;
+    stonetae.left += stoneoffset;
+    stonetae.right -= stoneoffset;
+    BlockRenderer::drawTextureAtlasEntry(*terrain_resized, stonetae, dest, x + stoneoffset, y + taesize - stoneheight);
 }
 
 bool SwitchRenderer::action(const BLOCK_WDATA block, const int local_x, const int local_y, const int local_z, Chunk &c)
