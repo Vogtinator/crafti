@@ -7,10 +7,13 @@ Thread on omnimaga: http://www.omnimaga.org/ti-nspire-projects/ngl-a-fast-(enoug
 Screenshots
 -----------
 
-![asdf](http://www.ticalc.org/archives/files/ss/859/85909.gif)
-![jklö](http://i.imgur.com/WMDurMv.png)  
-![qwertz](http://www.ticalc.org/archives/files/ss/855/85542.gif)
-![abcde](http://img.ourl.ca/crafti_v1.0_list.png)
+![menu](https://github.com/Vogtinator/crafti/assets/1622084/14ab2afb-5230-4b84-9f09-c90114474670)
+![anim](https://github.com/Vogtinator/crafti/assets/1622084/7ff80a5e-8ffc-43e2-ad8f-3cb5a3e393f5)
+![help](https://github.com/Vogtinator/crafti/assets/1622084/70135a04-63c5-4e8f-ac1f-7095d4043110)
+![newinv](https://github.com/Vogtinator/crafti/assets/1622084/ab4e649c-6959-4d47-937c-c0c657d6dc83)
+![redstone](https://github.com/Vogtinator/crafti/assets/1622084/cc21d688-199f-49a6-a65b-b3586224f893)
+
+![ticalc.org Program Of The Year 2014](http://www.ticalc.org/archives/files/ss/859/85909.gif)
 
 Controls
 --------
