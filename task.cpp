@@ -18,6 +18,69 @@ void Task::makeCurrent()
     current_task = this;
 }
 
+#ifndef _TINSPIRE
+#include <SDL/SDL.h>
+#include <SDL/SDL_keyboard.h>
+
+static bool key_read(t_key key)
+{
+    typedef struct
+    {
+        t_key ti;
+        int sdl;
+    } keypair_t;
+
+    static const keypair_t key_map[] =
+    {
+        // Work around
+        { KEY_NSPIRE_8, SDLK_KP8 },
+        { KEY_NSPIRE_2, SDLK_KP2 },
+        { KEY_NSPIRE_4, SDLK_KP4 },
+        { KEY_NSPIRE_6, SDLK_KP6 },
+        
+        // Jump
+        { KEY_NSPIRE_5, SDLK_KP5 },
+
+        // Change inventory slot
+        { KEY_NSPIRE_1, SDLK_KP1 },
+        { KEY_NSPIRE_3, SDLK_KP3 },
+
+        // Open a list of blocks
+        { KEY_NSPIRE_PERIOD, SDLK_p },
+
+        // Put block down
+        { KEY_NSPIRE_7, SDLK_KP7 },
+
+        // Destroy block
+        { KEY_NSPIRE_9, SDLK_KP9 },
+
+        // Open menu
+        { KEY_NSPIRE_MENU, SDLK_m },
+
+        // Screen shot
+        { KEY_NSPIRE_CTRL, SDLK_RCTRL },
+
+        // Save & Exit
+        { KEY_NSPIRE_ESC, SDLK_ESCAPE },
+    };
+
+    SDL_Event event;
+    SDL_PollEvent(&event);
+
+    const uint8_t* kbstate = SDL_GetKeyState(NULL);
+
+    for(size_t i = 0; i < sizeof(key_map) / sizeof(key_map[0]); i++)
+    {
+        if(memcmp(&key, &key_map[i].ti, sizeof(t_key)) == 0)
+        {
+            return kbstate[key_map[i].sdl];
+        }
+    }
+
+    return false;
+}
+#endif
+
 bool Task::keyPressed(const t_key &key)
 {
     #ifdef _TINSPIRE
@@ -31,7 +94,7 @@ bool Task::keyPressed(const t_key &key)
         else
             return (*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.row) & key.col) == 0;
     #else
-        return false;
+        return key_read(key);
     #endif
 }
 
