@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
 
         nglDisplay();
 
+        Task::handleEvents();
         Task::current_task->logic();
     }
 

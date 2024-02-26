@@ -7,6 +7,13 @@
 #include "settingstask.h"
 #include "inventory.h"
 
+#ifndef _TINSPIRE
+#include <SDL/SDL_events.h>
+#include <unistd.h>
+touchpad_report_t tpad_report = {};
+static bool key_pressed[256] = {};
+#endif
+
 //The values have to stay somewhere
 Task *Task::current_task;
 bool Task::key_held_down, Task::running, Task::background_saved, Task::has_touchpad, Task::keys_inverted;
@@ -31,8 +38,48 @@ bool Task::keyPressed(const t_key &key)
         else
             return (*reinterpret_cast<volatile uint16_t*>(0x900E0000 + key.row) & key.col) == 0;
     #else
+        if(key < sizeof(key_pressed)/sizeof(*key_pressed))
+            return key_pressed[key];
         return false;
     #endif
+}
+
+void Task::handleEvents()
+{
+#ifndef _TINSPIRE
+    SDL_Event event;
+
+    usleep(30000);
+
+    while(SDL_PollEvent(&event))
+    {
+        switch(event.type)
+        {
+        case SDL_KEYDOWN:
+            if(event.key.keysym.sym < sizeof(key_pressed)/sizeof(*key_pressed))
+                key_pressed[event.key.keysym.sym] = true;
+            break;
+
+        case SDL_KEYUP:
+            if(event.key.keysym.sym < sizeof(key_pressed)/sizeof(*key_pressed))
+                key_pressed[event.key.keysym.sym] = false;
+            break;
+
+        case SDL_MOUSEMOTION:
+            tpad_report.contact = true;
+            tpad_report.x = event.motion.x * 25;
+            tpad_report.y = event.motion.y * -25;
+            break;
+
+        case SDL_QUIT:
+            running = false;
+            break;
+
+        default:
+            break;
+        }
+    }
+#endif
 }
 
 void Task::initializeGlobals(const char *savefile)
